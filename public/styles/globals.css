@@ -7,6 +7,7 @@
 @import './base/variables.css';
 @import './base/reset.css';
 @import './base/layout.css';
+@import './base/fonts.css';
 
 /* ========== 组件样式 ========== */
 @import './components/buttons.css';
@@ -23,6 +24,7 @@
 
 /* ========== 工具类 ========== */
 @import './utils/utilities.css';
+@import './utils/font-demo.css';
 
 /* ========== 全局覆盖和补充样式 ========== */
 
@@ -32,6 +34,7 @@
 body {
   font-family: var(--font-family-sans);
   font-size: var(--font-size-base);
+  font-weight: 300;
   line-height: var(--line-height-normal);
   color: var(--color-text-primary);
   background-color: var(--color-background);

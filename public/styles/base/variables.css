@@ -78,9 +78,10 @@
   /* ========== 现代化字体系统 ========== */
   
   /* 字体族 - 现代化字体栈 */
-  --font-family-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-family-sans: 'LXGW WenKai GB Lite', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   --font-family-mono: 'JetBrains Mono', 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
-  --font-family-display: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-family-display: 'LXGW WenKai GB Lite', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-family-chinese: 'LXGW WenKai GB Lite', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
   
   /* 现代化字体大小系统 */
   --font-size-xs: 0.75rem;     /* 12px */
@@ -94,15 +95,15 @@
   --font-size-5xl: 3rem;       /* 48px */
   --font-size-6xl: 3.75rem;    /* 60px */
   
-  /* 现代化字体粗细 */
+  /* 现代化字体粗细 - 针对LXGW文楷字体优化 */
   --font-weight-thin: 100;
   --font-weight-light: 300;
-  --font-weight-normal: 400;
-  --font-weight-medium: 500;
-  --font-weight-semibold: 600;
-  --font-weight-bold: 700;
-  --font-weight-extrabold: 800;
-  --font-weight-black: 900;
+  --font-weight-normal: 300;  /* LXGW文楷的Light版本作为正常粗细 */
+  --font-weight-medium: 400;
+  --font-weight-semibold: 500;
+  --font-weight-bold: 600;
+  --font-weight-extrabold: 700;
+  --font-weight-black: 800;
   
   /* 现代化行高系统 */
   --line-height-none: 1;

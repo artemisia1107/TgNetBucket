@@ -524,26 +524,26 @@ export default function AdminPanel() {
     {
       id: 'overview',
       icon: '📊',
-      title: '系统概览',
-      description: '查看系统状态和统计信息'
+      title: '概览',
+      description: '系统状态'
     },
     {
       id: 'database',
       icon: '🗄️',
-      title: '数据库管理',
-      description: '管理文件数据和存储'
+      title: '数据库',
+      description: '文件管理'
     },
     {
       id: 'logs',
       icon: '📋',
-      title: '活动日志',
-      description: '查看系统操作记录'
+      title: '日志',
+      description: '操作记录'
     },
     {
       id: 'settings',
       icon: '⚙️',
-      title: '系统设置',
-      description: '配置系统参数'
+      title: '设置',
+      description: '系统配置'
     }
   ];
 

@@ -1,0 +1,59 @@
+/**
+ * 字体演示样式
+ * 展示如何在项目中使用自定义字体
+ */
+
+/* 使用LXGW文楷字体的示例类 */
+.font-chinese {
+  font-family: var(--font-family-chinese);
+  font-weight: 300;
+}
+
+.font-chinese-title {
+  font-family: var(--font-family-chinese);
+  font-weight: 300;
+  font-size: var(--font-size-2xl);
+  line-height: 1.4;
+}
+
+.font-chinese-body {
+  font-family: var(--font-family-chinese);
+  font-weight: 300;
+  font-size: var(--font-size-base);
+  line-height: 1.6;
+}
+
+.font-chinese-small {
+  font-family: var(--font-family-chinese);
+  font-weight: 300;
+  font-size: var(--font-size-sm);
+  line-height: 1.5;
+}
+
+/* 混合字体示例 - 中英文混排 */
+.font-mixed {
+  font-family: 'LXGW WenKai GB Lite', var(--font-family-sans);
+  font-weight: 300;
+}
+
+/* 特定元素的字体应用示例 */
+.chinese-content h1,
+.chinese-content h2,
+.chinese-content h3 {
+  font-family: var(--font-family-chinese);
+  font-weight: 300;
+}
+
+.chinese-content p,
+.chinese-content li {
+  font-family: var(--font-family-chinese);
+  font-weight: 300;
+  line-height: 1.7;
+}
+
+/* 响应式字体大小 */
+@media (max-width: 768px) {
+  .font-chinese-title {
+    font-size: var(--font-size-xl);
+  }
+}

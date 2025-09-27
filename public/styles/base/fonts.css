@@ -1,0 +1,80 @@
+/**
+ * 自定义字体定义文件
+ * 用于加载和定义项目中使用的自定义字体
+ */
+
+/**
+ * LXGW文楷字体 - 轻量版
+ * 一款优雅的中文字体，适合正文显示
+ */
+@font-face {
+  font-family: 'LXGW WenKai GB Lite';
+  src: url('/fonts/LXGWWenKaiGBLite-Light.ttf') format('truetype');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* 
+ * 自定义字体示例
+ * 将您的TTF字体文件放在 /public/fonts/ 目录下
+ * 然后按照以下格式定义字体
+ */
+
+/*
+@font-face {
+  font-family: 'CustomFont';
+  src: url('/fonts/your-font-name.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'CustomFont';
+  src: url('/fonts/your-font-name-bold.ttf') format('truetype');
+  font-weight: bold;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'CustomFont';
+  src: url('/fonts/your-font-name-italic.ttf') format('truetype');
+  font-weight: normal;
+  font-style: italic;
+  font-display: swap;
+}
+*/
+
+/* 
+ * 使用示例：
+ * 在CSS中使用自定义字体：
+ * 
+ * .custom-text {
+ *   font-family: 'CustomFont', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+ * }
+ * 
+ * 或者更新CSS变量：
+ * :root {
+ *   --font-family-custom: 'CustomFont', var(--font-family-base);
+ * }
+ */
+
+/* 
+ * 字体加载优化
+ * font-display: swap; 确保文本在字体加载期间保持可见
+ * 这提供了更好的用户体验
+ */
+
+/* 
+ * 支持的字体格式：
+ * - TTF (TrueType Font) - 推荐用于桌面和移动设备
+ * - WOFF2 (Web Open Font Format 2) - 最佳压缩率，现代浏览器支持
+ * - WOFF (Web Open Font Format) - 良好的浏览器兼容性
+ * 
+ * 建议按优先级顺序列出多种格式：
+ * src: url('/fonts/font.woff2') format('woff2'),
+ *      url('/fonts/font.woff') format('woff'),
+ *      url('/fonts/font.ttf') format('truetype');
+ */
