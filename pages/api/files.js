@@ -70,12 +70,22 @@ export default async function handler(req, res) {
             });
           }
 
-          const file = files.file;
-          if (!file) {
+          // 在formidable v3中，files.file是一个数组
+          const fileArray = files.file;
+          if (!fileArray || !Array.isArray(fileArray) || fileArray.length === 0) {
             console.error('没有提供文件');
             return res.status(400).json({ 
               success: false, 
               error: '没有提供文件' 
+            });
+          }
+
+          const file = fileArray[0]; // 获取第一个文件
+          if (!file || !file.filepath) {
+            console.error('文件对象无效或缺少文件路径');
+            return res.status(400).json({ 
+              success: false, 
+              error: '文件对象无效或缺少文件路径' 
             });
           }
 
