@@ -76,7 +76,22 @@ class RedisClient {
     try {
       if (this.redis) {
         const value = await this.redis.get(key);
-        return value ? JSON.parse(value) : null;
+        if (!value) return null;
+        
+        // 安全的 JSON 解析
+        try {
+          // 如果值已经是对象，直接返回
+          if (typeof value === 'object') {
+            return value;
+          }
+          // 如果是字符串，尝试解析
+          return JSON.parse(value);
+        } catch (parseError) {
+          console.error(`JSON解析失败，key: ${key}, value:`, value, parseError);
+          // 如果解析失败，删除无效数据
+          await this.del(key);
+          return null;
+        }
       } else {
         // 使用内存存储作为后备
         const item = this.memoryStore.get(key);

@@ -166,11 +166,45 @@ function sanitizeFileName(fileName) {
   }
   
   // 移除或替换不安全的字符
-  return fileName
+  let safeName = fileName
     .replace(/[<>:"/\\|?*]/g, '_') // 替换Windows不允许的字符
-    .replace(/[\x00-\x1f\x80-\x9f]/g, '') // 移除控制字符
-    .trim()
-    .substring(0, 255); // 限制长度
+    .replace(/[\x00-\x1f\x7f-\x9f]/g, '') // 移除控制字符（扩展范围）
+    .replace(/[\r\n\t]/g, '') // 移除换行符和制表符
+    .replace(/['"]/g, '') // 移除引号
+    .replace(/[;,]/g, '_') // 替换分号和逗号
+    .trim();
+  
+  // 如果文件名为空或只包含点，使用默认名称
+  if (!safeName || safeName === '.' || safeName === '..') {
+    safeName = 'download';
+  }
+  
+  // 限制长度并确保有扩展名
+  safeName = safeName.substring(0, 200);
+  
+  // 如果没有扩展名，添加默认扩展名
+  if (!safeName.includes('.')) {
+    safeName += '.bin';
+  }
+  
+  return safeName;
+}
+
+/**
+ * 为 Content-Disposition 头部生成安全的文件名
+ * @param {string} fileName - 原始文件名
+ * @returns {string} 格式化的 Content-Disposition 值
+ */
+function createContentDisposition(fileName) {
+  const safeName = sanitizeFileName(fileName);
+  
+  // 使用 ASCII 安全的文件名作为 filename
+  const asciiName = safeName.replace(/[^\x20-\x7E]/g, '_');
+  
+  // 使用 RFC 5987 编码的文件名作为 filename*
+  const encodedName = encodeURIComponent(safeName);
+  
+  return `attachment; filename="${asciiName}"; filename*=UTF-8''${encodedName}`;
 }
 
 export {
@@ -179,5 +213,6 @@ export {
   isVideoFile,
   isAudioFile,
   sanitizeFileName,
+  createContentDisposition,
   mimeTypes
 };

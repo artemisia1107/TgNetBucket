@@ -1,5 +1,5 @@
 import { TelegramStorage } from '../../src/telegram_storage';
-import { getMimeType, sanitizeFileName } from '../../src/mime_types';
+import { getMimeType, createContentDisposition } from '../../src/mime_types.js';
 import { redisClient } from '../../src/redis_client';
 import axios from 'axios';
 
@@ -92,12 +92,11 @@ export default async function handler(req, res) {
     
     // 获取原文件名和MIME类型
     const originalFileName = fileInfo.fileName || 'download';
-    const safeFileName = sanitizeFileName(originalFileName);
     const mimeType = getMimeType(originalFileName);
     
     // 设置优化的响应头
     res.setHeader('Content-Type', mimeType);
-    res.setHeader('Content-Disposition', `attachment; filename="${safeFileName}"; filename*=UTF-8''${encodeURIComponent(safeFileName)}`);
+    res.setHeader('Content-Disposition', createContentDisposition(originalFileName));
     
     // 设置文件大小（如果可用）
     if (fileInfo.fileSize) {
