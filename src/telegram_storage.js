@@ -8,6 +8,9 @@ class TelegramStorage {
     
     // 允许注入客户端用于测试
     this.telegramClient = options.telegramClient || new TelegramBot(this.botToken, { polling: false });
+    
+    // 简单的内存文件列表存储（在生产环境中应使用数据库）
+    this.fileList = [];
   }
 
   /**
@@ -22,9 +25,19 @@ class TelegramStorage {
         filename: fileName
       });
       
-      return {
+      const fileInfo = {
         fileId: response.document?.file_id || '',
-        messageId: response.message_id.toString()
+        messageId: response.message_id.toString(),
+        fileName: fileName,
+        uploadTime: new Date().toISOString()
+      };
+      
+      // 将文件信息添加到内存列表中
+      this.fileList.push(fileInfo);
+      
+      return {
+        fileId: fileInfo.fileId,
+        messageId: fileInfo.messageId
       };
     } catch (error) {
       console.error('上传文件到Telegram失败:', error);
@@ -50,22 +63,18 @@ class TelegramStorage {
 
   /**
    * 列出Telegram中的文件
+   * 注意：由于Telegram Bot API的限制，无法直接获取历史消息
+   * 这个方法返回内存中维护的文件列表
    * @returns {Promise<Array<{fileId: string, fileName: string, messageId: string}>>} - 文件列表
    */
   async listFiles() {
     try {
-      // 获取聊天历史记录
-      const chat = await this.telegramClient.getChat(this.chatId);
-      const messages = await this.telegramClient.getChatHistory(chat.id);
-      
-      // 过滤出包含文档的消息
-      return messages
-        .filter(msg => msg.document)
-        .map(msg => ({
-          fileId: msg.document.file_id,
-          fileName: msg.document.file_name,
-          messageId: msg.message_id.toString()
-        }));
+      // 返回内存中存储的文件列表
+      return this.fileList.map(file => ({
+        fileId: file.fileId,
+        fileName: file.fileName,
+        messageId: file.messageId
+      }));
     } catch (error) {
       console.error('列出Telegram文件失败:', error);
       throw new Error(`列出文件失败: ${error.message}`);
@@ -80,6 +89,10 @@ class TelegramStorage {
   async deleteFile(messageId) {
     try {
       await this.telegramClient.deleteMessage(this.chatId, messageId);
+      
+      // 从内存列表中移除对应的文件信息
+      this.fileList = this.fileList.filter(file => file.messageId !== messageId);
+      
       return true;
     } catch (error) {
       console.error('从Telegram删除文件失败:', error);
