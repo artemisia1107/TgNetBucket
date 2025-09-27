@@ -1,23 +1,51 @@
 {
   "name": "tg-net-bucket",
-  "version": "0.3.0",
-  "description": "使用Telegram和Redis存储文件的网络存储桶",
+  "version": "0.4.0",
+  "description": "使用Telegram和Redis存储文件的网络存储桶 - 重构版本",
   "main": "index.js",
   "scripts": {
-    "test": "mocha tests/**/*.js",
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "lint": "next lint",
+    "test": "mocha tests/**/*.js",
+    "test:watch": "mocha tests/**/*.js --watch",
+    "test:coverage": "nyc mocha tests/**/*.js",
+    "clean": "rm -rf .next out",
+    "export": "next export",
+    "analyze": "cross-env ANALYZE=true next build",
+    "type-check": "tsc --noEmit",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "hooks:test": "node scripts/test-hooks.js",
+    "components:test": "node scripts/test-components.js"
   },
   "keywords": [
     "telegram",
     "storage",
     "file",
     "bucket",
-    "vercel"
+    "vercel",
+    "react",
+    "nextjs",
+    "hooks",
+    "context",
+    "modular"
   ],
-  "author": "",
+  "author": "TgNetBucket Team",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/tg-net-bucket.git"
+  },
+  "bugs": {
+    "url": "https://github.com/your-username/tg-net-bucket/issues"
+  },
+  "homepage": "https://github.com/your-username/tg-net-bucket#readme",
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
+  },
   "dependencies": {
     "@upstash/redis": "^1.35.4",
     "axios": "^1.6.2",
@@ -28,8 +56,37 @@
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
+    "@next/eslint-plugin-next": "^14.0.3",
+    "@types/node": "24.5.2",
+    "@types/react": "19.1.14",
     "chai": "^4.3.10",
+    "cross-env": "^7.0.3",
+    "eslint": "^8.0.0",
+    "eslint-config-next": "^14.0.3",
     "mocha": "^10.2.0",
-    "sinon": "^17.0.1"
+    "nyc": "^15.1.0",
+    "prettier": "^3.0.0",
+    "sinon": "^17.0.1",
+    "typescript": "5.9.2"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "nyc": {
+    "exclude": [
+      "tests/**",
+      "coverage/**",
+      ".next/**",
+      "out/**"
+    ]
   }
 }

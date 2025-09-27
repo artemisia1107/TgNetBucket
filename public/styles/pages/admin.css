@@ -238,7 +238,7 @@
   position: fixed;
   top: var(--spacing-4);
   left: var(--spacing-4);
-  z-index: 1001;
+  z-index: var(--z-sticky);
   width: var(--size-10);
   height: var(--size-10);
   border: none;
@@ -1506,7 +1506,7 @@
     width: 100%;
     transform: translateX(-100%);
     transition: transform var(--transition-normal);
-    z-index: 1000;
+    z-index: var(--z-sidebar);
   }
   
   .admin-sidebar.open {
@@ -1668,7 +1668,7 @@
     right: 0;
     bottom: 0;
     background: rgba(0, 0, 0, 0.6);
-    z-index: 999;
+    z-index: var(--z-overlay);
     opacity: 0;
     visibility: hidden;
     transition: all var(--transition-normal);

@@ -1,20 +1,60 @@
 import { useState, useEffect } from 'react';
 import Head from 'next/head';
 import axios from 'axios';
+
+// 新的模块化导入
 import { 
   createMessage, 
-  createLoader, 
+  createSuccessMessage, 
+  createErrorMessage, 
+  createWarningMessage,
+  clearAllMessages 
+} from '../components/ui/Message.js';
+import { 
   createConfirmDialog, 
+  createModal, 
+  createLoadingModal 
+} from '../components/ui/Modal.js';
+import { 
   createProgressBar, 
-  updateProgressBar,
-  createFileCard,
-  getFileIcon,
-  formatFileSize,
-  formatDate,
-  copyToClipboard,
-  debounce,
-  AnimationUtils
-} from '../components/common.js';
+  updateProgressBar, 
+  createLoader 
+} from '../components/ui/ProgressBar.js';
+import { 
+  getFileIcon, 
+  formatFileSize, 
+  generateFilePreview,
+  isImageFile,
+  isVideoFile,
+  isAudioFile,
+  downloadFile
+} from '../utils/fileUtils.js';
+import { 
+  formatDate, 
+  formatRelativeTime,
+  formatBytes 
+} from '../utils/formatUtils.js';
+import { 
+  copyToClipboard, 
+  debounce, 
+  generateUniqueId,
+  AnimationUtils 
+} from '../utils/commonUtils.js';
+import { FileUploadManager, createFileUpload } from '../components/features/FileUpload/FileUpload.js';
+import { FileBatchManager, createFileBatch } from '../components/features/FileBatch/FileBatch.js';
+import { FilePreviewManager, createFilePreview } from '../components/features/FilePreview/FilePreview.js';
+import { FILE_CONFIG, UI_CONFIG, API_CONFIG, UPLOAD_CONFIG } from '../constants/config.js';
+
+// React Hooks 导入
+import { 
+  useFileUpload, 
+  useFileManager, 
+  useSearchDebounce, 
+  useLocalStorage 
+} from '../hooks';
+
+// 保留原有组件导入
+import { createFileCard } from '../components/common.js';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 
@@ -23,34 +63,94 @@ import Footer from '../components/Footer';
  * 提供文件上传、下载、管理等功能
  */
 export default function Home() {
-  const [files, setFiles] = useState([]);
-  const [filteredFiles, setFilteredFiles] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0);
-  const [message, setMessage] = useState('');
-  const [isDragging, setIsDragging] = useState(false);
-  
-  // 文件管理状态
+  // 使用新的 Hook 管理状态
+  const [viewMode, setViewMode] = useLocalStorage('fileViewMode', 'grid');
   const [searchTerm, setSearchTerm] = useState('');
-  const [sortBy, setSortBy] = useState('uploadTime'); // uploadTime, fileName, fileSize
-  const [sortOrder, setSortOrder] = useState('desc'); // asc, desc
-  const [filterType, setFilterType] = useState('all'); // all, image, document, video, audio, other
-  const [selectedFiles, setSelectedFiles] = useState(new Set());
-  const [viewMode, setViewMode] = useState('grid'); // grid, list
+  const { debouncedSearchTerm } = useSearchDebounce(searchTerm, 300);
   
-  // 上传队列相关状态
-  const [uploadQueue, setUploadQueue] = useState([]);
-  const [isUploading, setIsUploading] = useState(false);
-  const [uploadStats, setUploadStats] = useState({
-    total: 0,
-    completed: 0,
-    failed: 0,
-    current: null
-  });
-  
-  // 文件预览相关状态
-  const [previewFiles, setPreviewFiles] = useState([]);
+  // 文件预览状态
   const [showPreview, setShowPreview] = useState(false);
+  const [previewFiles, setPreviewFiles] = useState([]);
+  
+  // 文件过滤状态
+  const [filterType, setFilterType] = useState('all');
+  
+  // 文件管理 Hook
+  const {
+    files,
+    loading: filesLoading,
+    selectedFiles,
+    searchTerm: hookSearchTerm,
+    sortBy,
+    sortOrder,
+    fetchFiles,
+    deleteFile,
+    deleteMultipleFiles,
+    generateShortLink,
+    toggleFileSelection,
+    toggleSelectAll,
+    setSearchTerm: setHookSearchTerm,
+    setSortBy,
+    setSortOrder,
+    hasSelectedFiles,
+    isAllSelected
+  } = useFileManager();
+  
+  // 文件上传 Hook
+  const {
+    uploadQueue,
+    isUploading,
+    uploadProgress,
+    uploadStats,
+    isDragging,
+    uploadFiles,
+    uploadSingleFile,
+    removeFromQueue,
+    clearQueue,
+    setIsDragging,
+    setIsUploading,
+    setUploadQueue,
+    setUploadStats,
+    setUploadProgress
+  } = useFileUpload({
+    onUploadSuccess: () => {
+      fetchFiles(); // 刷新文件列表
+    }
+  });
+
+  // 初始化模块化管理器（保留兼容性）
+  const fileUploadManager = new FileUploadManager({
+    apiEndpoint: '/api/files',
+    maxFileSize: FILE_CONFIG.MAX_FILE_SIZE,
+    allowedTypes: FILE_CONFIG.ALLOWED_TYPES,
+    onProgress: (progress) => {},
+    onSuccess: (result) => {
+      createSuccessMessage(`文件 ${result.fileName} 上传成功！`);
+      fetchFiles();
+    },
+    onError: (error) => createErrorMessage(`上传失败: ${error.message}`)
+  });
+
+  const fileBatchManager = new FileBatchManager({
+    apiEndpoint: '/api/files',
+    onBatchComplete: (results) => {
+      const successCount = results.filter(r => r.success).length;
+      const failCount = results.length - successCount;
+      if (failCount === 0) {
+        createSuccessMessage(`批量操作完成！成功处理 ${successCount} 个文件`);
+      } else {
+        createWarningMessage(`批量操作完成！成功 ${successCount} 个，失败 ${failCount} 个`);
+      }
+      fetchFiles();
+    },
+    onError: (error) => createErrorMessage(`批量操作失败: ${error.message}`)
+  });
+
+  const filePreviewManager = new FilePreviewManager({
+    maxPreviewSize: FILE_CONFIG.MAX_PREVIEW_SIZE,
+    supportedTypes: FILE_CONFIG.PREVIEW_TYPES,
+    onError: (error) => createErrorMessage(`预览生成失败: ${error.message}`)
+  });
 
   /**
    * 根据文件名获取文件类型
@@ -66,39 +166,26 @@ export default function Home() {
     return 'other';
   };
 
-  // 生成文件预览
-  const generateFilePreview = (file) => {
-    return new Promise((resolve) => {
-      const fileType = getFileType(file.name);
-      const preview = {
-        id: Date.now() + Math.random(),
-        file: file,
-        name: file.name,
-        size: file.size,
-        type: fileType,
-        status: 'pending', // pending, uploading, completed, failed
-        progress: 0,
-        error: null,
-        preview: null
-      };
-
-      if (fileType === 'image' && file.size < 10 * 1024 * 1024) { // 10MB limit for preview
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          preview.preview = e.target.result;
-          resolve(preview);
-        };
-        reader.readAsDataURL(file);
-      } else {
-        resolve(preview);
-      }
-    });
+  // 使用新的模块化文件预览生成器
+  const generateFilePreviewData = async (file) => {
+    const preview = await filePreviewManager.generatePreview(file);
+    return {
+      id: generateUniqueId(),
+      file: file,
+      name: file.name,
+      size: file.size,
+      type: getFileType(file.name),
+      status: 'pending', // pending, uploading, completed, failed
+      progress: 0,
+      error: null,
+      preview: preview
+    };
   };
 
   // 处理多文件选择
   const handleMultipleFiles = async (fileList) => {
     const files = Array.from(fileList);
-    const previews = await Promise.all(files.map(generateFilePreview));
+    const previews = await Promise.all(files.map(generateFilePreviewData));
     
     setPreviewFiles(previews);
     setShowPreview(true);
@@ -186,201 +273,41 @@ export default function Home() {
     }, 3000);
   };
 
-  // 上传单个文件
-  /**
-   * 上传单个文件
-   * @param {Object} fileItem - 文件项对象
-   * @param {File} fileItem.file - 文件对象
-   * @param {string} fileItem.previewId - 预览ID
-   * @returns {Promise<void>}
-   */
-  const uploadSingleFile = async (fileItem) => {
-    const formData = new FormData();
-    formData.append('file', fileItem.file);
+  // 这些函数已经被 Hook 替代，移除重复代码
 
-    const response = await axios.post('/api/upload', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-      onUploadProgress: (progressEvent) => {
-        const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-        setUploadQueue(prev => prev.map(item => 
-          item.id === fileItem.id 
-            ? { ...item, progress }
-            : item
-        ));
-      },
-    });
-
-    if (response.data.success) {
-      return response.data;
-    } else {
-      throw new Error(response.data.error || '上传失败');
-    }
-  };
-
-  // 过滤和排序文件
-  const filterAndSortFiles = (fileList) => {
-    let filtered = [...fileList];
-
-    // 搜索过滤
-    if (searchTerm) {
-      filtered = filtered.filter(file => 
-        file.fileName.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
-
-    // 类型过滤
-    if (filterType !== 'all') {
-      filtered = filtered.filter(file => getFileType(file.fileName) === filterType);
-    }
-
-    // 排序
-    filtered.sort((a, b) => {
-      let aValue, bValue;
-      
-      switch (sortBy) {
-        case 'fileName':
-          aValue = a.fileName.toLowerCase();
-          bValue = b.fileName.toLowerCase();
-          break;
-        case 'fileSize':
-          aValue = a.fileSize || 0;
-          bValue = b.fileSize || 0;
-          break;
-        case 'uploadTime':
-        default:
-          aValue = new Date(a.uploadTime || 0);
-          bValue = new Date(b.uploadTime || 0);
-          break;
-      }
-
-      if (sortOrder === 'asc') {
-        return aValue > bValue ? 1 : -1;
-      } else {
-        return aValue < bValue ? 1 : -1;
-      }
-    });
-
-    return filtered;
-  };
-
-  // 获取文件列表
-  const fetchFiles = async () => {
-    setIsLoading(true);
-    try {
-      const response = await axios.get('/api/files');
-      const fileList = response.data.files || [];
-      setFiles(fileList);
-      setFilteredFiles(filterAndSortFiles(fileList));
-    } catch (error) {
-      createMessage(`获取文件列表失败: ${error.message}`, 'error');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // 上传文件处理函数
-  const uploadFile = async (file) => {
+  // 上传文件处理函数 - 使用新的 Hook
+  const handleFileUpload = async (file) => {
     if (!file) return;
-
-    setIsLoading(true);
-    setUploadProgress(0);
-    
-    // 使用公共组件显示消息
-    createMessage('正在上传文件...', 'info');
-
-    const formData = new FormData();
-    formData.append('file', file);
-
-    try {
-      await axios.post('/api/files', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-        onUploadProgress: (progressEvent) => {
-          const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-          setUploadProgress(percentCompleted);
-        },
-      });
-
-      createMessage('文件上传成功！', 'success');
-      fetchFiles(); // 刷新文件列表
-    } catch (error) {
-      createMessage(`文件上传失败: ${error.message}`, 'error');
-    } finally {
-      setIsLoading(false);
-      setUploadProgress(0);
-    }
+    await uploadSingleFile(file);
   };
 
-  // 批量操作功能
-  const toggleFileSelection = (fileId) => {
-    const newSelected = new Set(selectedFiles);
-    if (newSelected.has(fileId)) {
-      newSelected.delete(fileId);
-    } else {
-      newSelected.add(fileId);
-    }
-    setSelectedFiles(newSelected);
+  // 批量操作功能已由 Hook 提供
+
+  const handleSelectAll = () => {
+    toggleSelectAll();
   };
 
-  const selectAllFiles = () => {
-    if (selectedFiles.size === filteredFiles.length) {
-      setSelectedFiles(new Set());
-    } else {
-      setSelectedFiles(new Set(filteredFiles.map(file => file.fileId)));
-    }
-  };
-
-  const batchDeleteFiles = async () => {
-    if (selectedFiles.size === 0) {
-      createMessage('请先选择要删除的文件', 'warning');
+  const handleBatchDelete = async () => {
+    if (selectedFiles.length === 0) {
+      createWarningMessage('请先选择要删除的文件');
       return;
     }
 
-    createConfirmDialog(
-      `确定要删除选中的 ${selectedFiles.size} 个文件吗？此操作无法撤销。`,
-      async () => {
-        setIsLoading(true);
-        try {
-          const deletePromises = Array.from(selectedFiles).map(fileId => {
-            const file = files.find(f => f.fileId === fileId);
-            return axios.delete(`/api/files?messageId=${file.messageId}`);
-          });
-          
-          await Promise.all(deletePromises);
-          createMessage(`成功删除 ${selectedFiles.size} 个文件！`, 'success');
-          setSelectedFiles(new Set());
-          fetchFiles();
-        } catch (error) {
-          createMessage(`批量删除失败: ${error.message}`, 'error');
-        } finally {
-          setIsLoading(false);
-        }
-      }
-    );
+    await deleteSelectedFiles();
   };
 
-  // 处理文件选择上传
+  // 处理文件选择上传 - 使用新的 Hook
   const handleUpload = async (event) => {
-    const files = event.target.files;
-    if (!files || files.length === 0) return;
+    const fileList = event.target.files;
+    if (!fileList || fileList.length === 0) return;
 
-    if (files.length === 1) {
-      // 单文件上传，保持原有逻辑
-      const file = files[0];
-      await uploadFile(file);
-    } else {
-      // 多文件上传，使用新的队列系统
-      await handleMultipleFiles(files);
-    }
+    await uploadFiles(Array.from(fileList));
     
     // 清空文件输入
     event.target.value = '';
   };
 
-  // 处理拖拽上传
+  // 处理拖拽上传 - 使用新的 Hook
   const handleDragOver = (e) => {
     e.preventDefault();
     setIsDragging(true);
@@ -394,98 +321,34 @@ export default function Home() {
   const handleDrop = async (e) => {
     e.preventDefault();
     setIsDragging(false);
-    const files = e.dataTransfer.files;
     
-    if (files.length === 1) {
-      // 单文件上传
-      const file = files[0];
-      await uploadFile(file);
-    } else if (files.length > 1) {
-      // 多文件上传
-      await handleMultipleFiles(files);
-    }
+    const fileList = Array.from(e.dataTransfer.files);
+    if (fileList.length === 0) return;
+
+    await uploadFiles(fileList);
   };
 
-  // 下载文件
+  // 下载文件 - 使用新的 Hook
   const handleDownload = (fileId, fileName) => {
-    const downloadUrl = `/api/download?fileId=${fileId}`;
-    
-    // 创建一个临时的a标签来触发下载
-    const link = document.createElement('a');
-    link.href = downloadUrl;
-    link.download = fileName || 'download';
-    link.target = '_blank';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    downloadFile(fileId, fileName);
   };
 
-  // 生成短链接
+  // 生成短链接 - 使用新的 Hook
   const handleGenerateShortLink = async (fileId, fileName) => {
-    try {
-      setIsLoading(true);
-      const response = await axios.post('/api/short-link', {
-        fileId: fileId,
-        expiresIn: 3600 // 1小时过期
-      });
-      
-      if (response.data.success) {
-        const shortUrl = response.data.shortUrl;
-        
-        // 使用公共组件复制到剪贴板
-        const success = await copyToClipboard(shortUrl);
-        if (success) {
-          createMessage(`短链接已生成并复制到剪贴板: ${shortUrl}`, 'success');
-        } else {
-          createMessage(`短链接已生成: ${shortUrl}`, 'info');
-        }
-      }
-    } catch (error) {
-      createMessage(`生成短链接失败: ${error.response?.data?.error || error.message}`, 'error');
-    } finally {
-      setIsLoading(false);
-    }
+    await generateShortLink(fileId);
   };
 
-  // 删除文件
+  // 删除文件 - 使用新的 Hook
   const handleDelete = async (messageId) => {
-    createConfirmDialog(
-      '确定要删除此文件吗？此操作无法撤销。',
-      async () => {
-        setIsLoading(true);
-        try {
-          await axios.delete(`/api/files?messageId=${messageId}`);
-          createMessage('文件删除成功！', 'success');
-          fetchFiles(); // 刷新文件列表
-        } catch (error) {
-          createMessage(`文件删除失败: ${error.message}`, 'error');
-        } finally {
-          setIsLoading(false);
-        }
-      }
-    );
+    await deleteFile(messageId);
   };
 
 
 
-  // 组件加载时获取文件列表
+  // 使用防抖搜索功能
   useEffect(() => {
-    fetchFiles();
-  }, []);
-
-  // 创建防抖的搜索函数
-  const debouncedSearch = debounce((term) => {
-    setFilteredFiles(filterAndSortFiles(files));
-  }, 300);
-
-  // 监听文件列表变化，重新过滤和排序
-  useEffect(() => {
-    if (searchTerm) {
-      debouncedSearch(searchTerm);
-    } else {
-      setFilteredFiles(filterAndSortFiles(files));
-    }
-  }, [files, searchTerm, sortBy, sortOrder, filterType]);
+    setSearchTerm(debouncedSearchTerm || '');
+  }, [debouncedSearchTerm, setSearchTerm]);
 
   return (
     <div className="app">
@@ -517,25 +380,33 @@ export default function Home() {
         <section className="upload-section">
           <div className="upload-container">
             <div 
-              className={`upload-zone ${isDragging ? 'dragging' : ''} ${isLoading ? 'uploading' : ''}`}
+              className={`upload-zone ${isDragging ? 'dragging' : ''} ${isUploading ? 'uploading' : ''}`}
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
               onDrop={handleDrop}
             >
               <div className="upload-content">
-                <div className="upload-icon">📁</div>
-                <h3>拖拽文件到此处或点击上传</h3>
-                <p>支持所有文件类型，单文件最大50MB</p>
-                <label className="upload-button">
+                <div className="upload-icon">
+                  <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="7,10 12,15 17,10"/>
+                    <line x1="12" y1="15" x2="12" y2="3"/>
+                  </svg>
+                </div>
+                <div className="upload-text-content">
+                  <h3 className="upload-title-text">拖拽文件到此处或点击上传</h3>
+                  <p className="upload-description">支持所有文件类型，单文件最大50MB</p>
+                </div>
+                <button className="upload-select-button" onClick={() => document.querySelector('input[type="file"]').click()}>
                   <span>选择文件</span>
-                  <input
-                    type="file"
-                    multiple
-                    onChange={handleUpload}
-                    disabled={isLoading}
-                    style={{ display: 'none' }}
-                  />
-                </label>
+                </button>
+                <input
+                  type="file"
+                  multiple
+                  onChange={handleUpload}
+                  disabled={isUploading}
+                  style={{ display: 'none' }}
+                />
               </div>
 
               {uploadProgress > 0 && (
@@ -685,7 +556,7 @@ export default function Home() {
           <div className="section-header">
             <h2>📂 我的文件</h2>
             <div className="file-stats">
-              共 {files.length} 个文件 {filteredFiles.length !== files.length && `(显示 ${filteredFiles.length} 个)`}
+              共 {files.length} 个文件
             </div>
           </div>
 
@@ -757,29 +628,29 @@ export default function Home() {
           </div>
 
           {/* 批量操作栏 */}
-          {filteredFiles.length > 0 && (
+          {files.length > 0 && (
             <div className="batch-actions">
               <div className="batch-select">
                 <label className="checkbox-container">
                   <input
                     type="checkbox"
-                    checked={selectedFiles.size === filteredFiles.length && filteredFiles.length > 0}
-                    onChange={selectAllFiles}
+                    checked={selectedFiles.length === files.length && files.length > 0}
+                    onChange={handleSelectAll}
                   />
                   <span className="checkmark"></span>
-                  全选 ({selectedFiles.size}/{filteredFiles.length})
+                  全选 ({selectedFiles.length}/{files.length})
                 </label>
               </div>
 
-              {selectedFiles.size > 0 && (
+              {selectedFiles.length > 0 && (
                 <div className="batch-buttons">
                   <button
-                    onClick={batchDeleteFiles}
+                    onClick={handleBatchDelete}
                     className="batch-btn delete-btn"
-                    disabled={isLoading}
+                    disabled={isUploading}
                   >
                     <span className="btn-icon">🗑️</span>
-                    删除选中 ({selectedFiles.size})
+                    删除选中 ({selectedFiles.length})
                   </button>
                   <button
                     onClick={() => setSelectedFiles(new Set())}
@@ -792,14 +663,14 @@ export default function Home() {
             </div>
           )}
 
-          {isLoading && !uploadProgress && (
+          {filesLoading && !uploadProgress && (
             <div className="loading-container">
               <div className="loading-spinner"></div>
               <p>加载中...</p>
             </div>
           )}
           
-          {!isLoading && files.length === 0 && (
+          {!filesLoading && files.length === 0 && (
             <div className="empty-state">
               <div className="empty-icon">📭</div>
               <h3>还没有文件</h3>
@@ -808,14 +679,14 @@ export default function Home() {
           )}
 
           <div className={`file-container ${viewMode}`}>
-            {filteredFiles.map((file) => (
-              <div key={file.fileId} className={`file-item ${selectedFiles.has(file.fileId) ? 'selected' : ''}`}>
+              {files.map((file) => (
+              <div key={file.fileId} className={`file-item ${selectedFiles.includes(file.fileId) ? 'selected' : ''}`}>
                 {/* 选择框 */}
                 <div className="file-select">
                   <label className="checkbox-container">
                     <input
                       type="checkbox"
-                      checked={selectedFiles.has(file.fileId)}
+                      checked={selectedFiles.includes(file.fileId)}
                       onChange={() => toggleFileSelection(file.fileId)}
                     />
                     <span className="checkmark"></span>
@@ -848,7 +719,7 @@ export default function Home() {
                     <button
                       onClick={() => handleDownload(file.fileId, file.fileName)}
                       className="action-btn download-btn"
-                      disabled={isLoading}
+                      disabled={filesLoading}
                       title="下载文件"
                     >
                       <span className="btn-icon">⬇️</span>
@@ -857,7 +728,7 @@ export default function Home() {
                     <button
                       onClick={() => handleGenerateShortLink(file.fileId, file.fileName)}
                       className="action-btn share-btn"
-                      disabled={isLoading}
+                      disabled={filesLoading}
                       title="生成分享链接"
                     >
                       <span className="btn-icon">🔗</span>
@@ -866,7 +737,7 @@ export default function Home() {
                     <button
                       onClick={() => handleDelete(file.messageId)}
                       className="action-btn delete-btn"
-                      disabled={isLoading}
+                      disabled={filesLoading}
                       title="删除文件"
                     >
                       <span className="btn-icon">🗑️</span>

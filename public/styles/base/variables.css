@@ -218,6 +218,12 @@
   --z-toast: 1700;
   --z-tooltip: 1800;
   
+  /* 兼容性别名 - 与现有代码中使用的变量名保持一致 */
+  --z-index-modal-backdrop: var(--z-overlay);
+  --z-index-modal: var(--z-modal);
+  --z-index-toast: var(--z-toast);
+  --z-index-sidebar: var(--z-sticky);
+  
  /* ========== 现代化断点系统 ========== */
   
   --breakpoint-xs: 475px;

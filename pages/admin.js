@@ -7,14 +7,17 @@ import Head from 'next/head';
 import AdminHeader from '../components/AdminHeader';
 import Footer from '../components/Footer';
 import axios from 'axios';
+import { createFileCard } from '../components/common';
 import { 
-  createMessage, 
-  createLoader, 
-  createConfirmDialog,
-  formatFileSize,
-  formatDate,
-  AnimationUtils 
-} from '../components/common';
+  createSuccessMessage, 
+  createErrorMessage, 
+  createWarningMessage 
+} from '../components/ui/Message';
+import { createLoader } from '../components/ui/ProgressBar';
+import { createConfirmDialog } from '../components/ui/Modal';
+import { formatFileSize } from '../utils/fileUtils';
+import { formatDate } from '../utils/formatUtils';
+import { AnimationUtils } from '../utils/commonUtils';
 
 /**
  * 后端管理页面
@@ -39,7 +42,7 @@ export default function AdminPanel() {
       setSystemStats(response.data.success ? response.data.data : response.data);
     } catch (error) {
       console.error('获取系统统计失败:', error);
-      createMessage('获取系统统计失败', 'error');
+      createErrorMessage('获取系统统计失败');
     }
   };
 
@@ -54,7 +57,7 @@ export default function AdminPanel() {
       setSystemStatus(response.data.success ? response.data.data : response.data);
     } catch (error) {
       console.error('获取系统状态失败:', error);
-      createMessage('获取系统状态失败', 'error');
+      createErrorMessage('获取系统状态失败');
     }
   };
 
@@ -65,7 +68,7 @@ export default function AdminPanel() {
       setActivityLogs(response.data.success ? response.data.data : response.data);
     } catch (error) {
       console.error('获取活动日志失败:', error);
-      createMessage('获取活动日志失败', 'error');
+      createErrorMessage('获取活动日志失败');
     }
   };
 
@@ -81,10 +84,10 @@ export default function AdminPanel() {
     setLoading(true);
     try {
       const response = await axios.post('/api/cleanup-short-links');
-      createMessage(`清理完成：扫描 ${response.data.scannedCount} 个键，删除 ${response.data.deletedCount} 个短链接`, 'success');
+      createSuccessMessage(`清理完成：扫描 ${response.data.scannedCount} 个键，删除 ${response.data.deletedCount} 个短链接`);
       fetchSystemStats(); // 刷新统计
     } catch (error) {
-      createMessage(`清理失败: ${error.message}`, 'error');
+      createErrorMessage(`清理失败: ${error.message}`);
     } finally {
       setLoading(false);
     }
@@ -98,10 +101,10 @@ export default function AdminPanel() {
     setLoading(true);
     try {
       const response = await axios.post('/api/admin/sync-files');
-      createMessage(`同步完成：处理 ${response.data.syncedCount} 个文件`, 'success');
+      createSuccessMessage(`同步完成：处理 ${response.data.syncedCount} 个文件`);
       fetchSystemStats(); // 刷新统计
     } catch (error) {
-      createMessage(`同步失败: ${error.message}`, 'error');
+      createErrorMessage(`同步失败: ${error.message}`);
     } finally {
       setLoading(false);
     }
@@ -115,12 +118,12 @@ export default function AdminPanel() {
     setLoading(true);
     try {
       const response = await axios.post('/api/admin/backup');
-      createMessage(`备份完成：${response.data.message || '数据库备份成功'}`, 'success');
+      createSuccessMessage(`备份完成：${response.data.message || '数据库备份成功'}`);
       if (response.data.data) {
-        createMessage(`备份完成：${response.data.data.filename} (${response.data.data.keysCount} 个键)`, 'success');
+        createSuccessMessage(`备份完成：${response.data.data.filename} (${response.data.data.keysCount} 个键)`);
       }
     } catch (error) {
-      createMessage(`备份失败: ${error.response?.data?.error || error.message}`, 'error');
+      createErrorMessage(`备份失败: ${error.response?.data?.error || error.message}`);
     } finally {
       setLoading(false);
     }
