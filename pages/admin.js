@@ -519,6 +519,34 @@ export default function AdminPanel() {
     </div>
   );
 
+  // 导航菜单配置
+  const menuItems = [
+    {
+      id: 'overview',
+      icon: '📊',
+      title: '系统概览',
+      description: '查看系统状态和统计信息'
+    },
+    {
+      id: 'database',
+      icon: '🗄️',
+      title: '数据库管理',
+      description: '管理文件数据和存储'
+    },
+    {
+      id: 'logs',
+      icon: '📋',
+      title: '活动日志',
+      description: '查看系统操作记录'
+    },
+    {
+      id: 'settings',
+      icon: '⚙️',
+      title: '系统设置',
+      description: '配置系统参数'
+    }
+  ];
+
   return (
     <div className="admin-container">
       <Head>
@@ -529,32 +557,102 @@ export default function AdminPanel() {
       </Head>
 
       <div className="admin-layout">
-        <AdminHeader
-          activeTab={activeTab}
-          onTabChange={handleNavClick}
-          isMobileMenuOpen={isMobileMenuOpen}
-          toggleMobileMenu={toggleMobileMenu}
-          closeMobileMenu={closeMobileMenu}
-          onRefresh={() => {
-            if (activeTab === 'overview') {
-              fetchSystemStats();
-              fetchSystemStatus();
-            } else if (activeTab === 'logs') {
-              fetchActivityLogs();
-            }
-          }}
-          loading={loading}
-        />
+        {/* 移动端菜单切换按钮 */}
+        <button 
+          className="sidebar-toggle"
+          onClick={toggleMobileMenu}
+          aria-label="切换菜单"
+        >
+          <span className="sidebar-toggle-icon">☰</span>
+        </button>
+
+        {/* 移动端遮罩层 */}
+        <div 
+          className={`sidebar-overlay ${isMobileMenuOpen ? 'active' : ''}`}
+          onClick={closeMobileMenu}
+        ></div>
+
+        {/* 侧边栏导航 */}
+        <aside className={`admin-sidebar ${isMobileMenuOpen ? 'open' : ''}`}>
+          <div className="sidebar-header">
+            <div className="sidebar-brand">
+              <div className="sidebar-icon">🚀</div>
+              <div className="sidebar-info">
+                <h2 className="sidebar-title">TgNetBucket</h2>
+                <span className="sidebar-subtitle">管理面板</span>
+              </div>
+            </div>
+          </div>
+
+          <nav className="sidebar-nav">
+            <ul className="sidebar-nav-list">
+              {menuItems.map((item) => (
+                <li key={item.id} className="sidebar-nav-item">
+                  <button
+                    className={`sidebar-nav-link ${activeTab === item.id ? 'active' : ''}`}
+                    onClick={() => handleNavClick(item.id)}
+                  >
+                    <span className="sidebar-nav-icon">{item.icon}</span>
+                    <div className="sidebar-nav-content">
+                      <span className="sidebar-nav-title">{item.title}</span>
+                      <span className="sidebar-nav-description">{item.description}</span>
+                    </div>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </nav>
+
+          <div className="sidebar-footer">
+            <a href="/" className="sidebar-back-link">
+              <span className="sidebar-back-icon">🏠</span>
+              <span className="sidebar-back-text">返回首页</span>
+            </a>
+          </div>
+        </aside>
 
         {/* 主内容区域 */}
         <main className="admin-main">
+          {/* 顶部操作栏 */}
+          <header className="admin-header">
+            <div className="admin-header-left">
+              <h1 className="page-title">
+                {menuItems.find(item => item.id === activeTab)?.title || '管理面板'}
+              </h1>
+              <span className="page-subtitle">
+                {menuItems.find(item => item.id === activeTab)?.description || '系统管理'}
+              </span>
+            </div>
+            
+            <div className="admin-header-actions">
+              <button
+                className="header-action"
+                onClick={() => {
+                  if (activeTab === 'overview') {
+                    fetchSystemStats();
+                    fetchSystemStatus();
+                  } else if (activeTab === 'logs') {
+                    fetchActivityLogs();
+                  }
+                }}
+                disabled={loading}
+                title="刷新数据"
+              >
+                <span className={loading ? '⏳' : '🔄'}>
+                  {loading ? '⏳' : '🔄'}
+                </span>
+              </button>
+            </div>
+          </header>
 
           {/* 内容区域 */}
-          <div className="content-body">
-            {activeTab === 'overview' && renderOverview()}
-            {activeTab === 'database' && renderDatabase()}
-            {activeTab === 'logs' && renderLogs()}
-            {activeTab === 'settings' && renderSettings()}
+          <div className="admin-content">
+            <div className="content-body">
+              {activeTab === 'overview' && renderOverview()}
+              {activeTab === 'database' && renderDatabase()}
+              {activeTab === 'logs' && renderLogs()}
+              {activeTab === 'settings' && renderSettings()}
+            </div>
           </div>
         </main>
       </div>
