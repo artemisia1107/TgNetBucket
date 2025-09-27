@@ -1,7 +1,7 @@
 {
   "name": "tg-net-bucket",
-  "version": "0.1.0",
-  "description": "使用Telegram存储文件的网络存储桶",
+  "version": "0.3.0",
+  "description": "使用Telegram和Redis存储文件的网络存储桶",
   "main": "index.js",
   "scripts": {
     "test": "mocha tests/**/*.js",
