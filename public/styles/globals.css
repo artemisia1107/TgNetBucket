@@ -13,6 +13,9 @@
 @import './components/forms.css';
 @import './components/messages.css';
 @import './components/dialogs.css';
+@import './components/header.css';
+@import './components/footer.css';
+@import './components/admin-header.css';
 
 /* ========== 页面样式 ========== */
 @import './pages/index.css';

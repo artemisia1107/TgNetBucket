@@ -15,6 +15,8 @@ import {
   debounce,
   AnimationUtils
 } from '../components/common.js';
+import Header from '../components/Header';
+import Footer from '../components/Footer';
 
 /**
  * TgNetBucket 主页面组件
@@ -50,7 +52,11 @@ export default function Home() {
   const [previewFiles, setPreviewFiles] = useState([]);
   const [showPreview, setShowPreview] = useState(false);
 
-  // 获取文件类型
+  /**
+   * 根据文件名获取文件类型
+   * @param {string} fileName - 文件名
+   * @returns {string} 文件类型 ('image', 'document', 'video', 'audio', 'other')
+   */
   const getFileType = (fileName) => {
     const ext = fileName.split('.').pop().toLowerCase();
     if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'].includes(ext)) return 'image';
@@ -181,6 +187,13 @@ export default function Home() {
   };
 
   // 上传单个文件
+  /**
+   * 上传单个文件
+   * @param {Object} fileItem - 文件项对象
+   * @param {File} fileItem.file - 文件对象
+   * @param {string} fileItem.previewId - 预览ID
+   * @returns {Promise<void>}
+   */
   const uploadSingleFile = async (fileItem) => {
     const formData = new FormData();
     formData.append('file', fileItem.file);
@@ -460,9 +473,18 @@ export default function Home() {
     fetchFiles();
   }, []);
 
-  // 监听搜索和过滤条件变化
-  useEffect(() => {
+  // 创建防抖的搜索函数
+  const debouncedSearch = debounce((term) => {
     setFilteredFiles(filterAndSortFiles(files));
+  }, 300);
+
+  // 监听文件列表变化，重新过滤和排序
+  useEffect(() => {
+    if (searchTerm) {
+      debouncedSearch(searchTerm);
+    } else {
+      setFilteredFiles(filterAndSortFiles(files));
+    }
   }, [files, searchTerm, sortBy, sortOrder, filterType]);
 
   return (
@@ -473,53 +495,12 @@ export default function Home() {
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <link rel="icon" href="/favicon.ico" />
         <link rel="stylesheet" href="/styles/globals.css" />
-        <link rel="stylesheet" href="/styles/globals.css" />
       </Head>
 
-      {/* 导航栏 */}
-      <nav className="navbar">
-        <div className="nav-container">
-          <div className="nav-brand">
-            <h1>📦 TgNetBucket</h1>
-            <span className="nav-subtitle">现代化文件存储</span>
-          </div>
-          
-          {/* 面包屑导航 */}
-          <div className="breadcrumb">
-            <span className="breadcrumb-item active">
-              <span className="breadcrumb-icon">🏠</span>
-              文件管理
-            </span>
-          </div>
-          
-          {/* 快速操作栏 */}
-          <div className="nav-actions">
-            <div className="quick-actions">
-              <button 
-                className="quick-action-btn"
-                onClick={() => document.querySelector('input[type="file"]').click()}
-                title="快速上传"
-              >
-                <span className="action-icon">⬆️</span>
-                <span className="action-text">上传</span>
-              </button>
-              <button 
-                className="quick-action-btn"
-                onClick={() => fetchFiles()}
-                title="刷新列表"
-              >
-                <span className="action-icon">🔄</span>
-                <span className="action-text">刷新</span>
-              </button>
-            </div>
-            <div className="nav-divider"></div>
-            <a href="/admin" className="admin-link">
-              <span className="admin-icon">⚙️</span>
-              <span className="admin-text">管理面板</span>
-            </a>
-          </div>
-        </div>
-      </nav>
+      <Header 
+        onUpload={() => document.querySelector('input[type="file"]').click()}
+        onRefresh={() => fetchFiles()}
+      />
 
       <main className="main-content">
         {/* 英雄区域 */}
@@ -593,7 +574,12 @@ export default function Home() {
                   <div key={fileItem.id} className="preview-item">
                     <div className="preview-thumbnail">
                       {fileItem.preview ? (
-                        <img src={fileItem.preview} alt={fileItem.name} />
+                        <img 
+                      src={fileItem.preview} 
+                      alt={fileItem.name}
+                      loading="lazy"
+                      decoding="async"
+                    />
                       ) : (
                         <div className="file-type-icon">
                           {getFileIcon(fileItem.name)}
@@ -894,12 +880,7 @@ export default function Home() {
         </section>
       </main>
 
-      {/* 页脚 */}
-      <footer className="footer">
-        <div className="footer-content">
-          <p>&copy; 2024 TgNetBucket. 基于 Telegram 的现代化文件存储服务</p>
-        </div>
-      </footer>
+      <Footer />
 
 
     </div>

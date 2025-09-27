@@ -4,6 +4,8 @@
  */
 import { useState, useEffect } from 'react';
 import Head from 'next/head';
+import AdminHeader from '../components/AdminHeader';
+import Footer from '../components/Footer';
 import axios from 'axios';
 import { 
   createMessage, 
@@ -27,6 +29,10 @@ export default function AdminPanel() {
   const [message, setMessage] = useState('');
 
   // 获取系统统计信息
+  /**
+   * 获取系统统计信息
+   * @returns {Promise<void>}
+   */
   const fetchSystemStats = async () => {
     try {
       const response = await axios.get('/api/admin/stats');
@@ -38,6 +44,10 @@ export default function AdminPanel() {
   };
 
   // 获取系统状态
+  /**
+   * 获取系统状态信息
+   * @returns {Promise<void>}
+   */
   const fetchSystemStatus = async () => {
     try {
       const response = await axios.get('/api/admin/status');
@@ -60,6 +70,10 @@ export default function AdminPanel() {
   };
 
   // 清理短链接数据
+  /**
+   * 清理过期的短链接
+   * @returns {Promise<void>}
+   */
   const handleCleanupShortLinks = async () => {
     const confirmed = await createConfirmDialog('确定要清理所有旧的短链接数据吗？');
     if (!confirmed) return;
@@ -148,33 +162,61 @@ export default function AdminPanel() {
       <h2>系统概览</h2>
       
       {/* 系统状态卡片 */}
-      <div className="status-cards">
-        <div className="status-card">
-          <h3>🔗 Redis 状态</h3>
-          <div className={`status-indicator ${systemStatus?.redis?.connected ? 'online' : 'offline'}`}>
-            {systemStatus?.redis?.connected ? '已连接' : '未连接'}
+      <div className="stats-grid">
+        <div className="stat-card success">
+          <div className="stat-header">
+            <div className="stat-icon">🔗</div>
+            <h3 className="stat-title">Redis 状态</h3>
           </div>
-          <p>{systemStatus?.redis?.environment || '未知环境'}</p>
-        </div>
-
-        <div className="status-card">
-          <h3>🤖 Telegram Bot</h3>
-          <div className={`status-indicator ${systemStatus?.telegram?.configured ? 'online' : 'offline'}`}>
-            {systemStatus?.telegram?.configured ? '已配置' : '未配置'}
+          <div className="stat-body">
+            <div className={`stat-value ${systemStatus?.redis?.connected ? 'success' : 'error'}`}>
+              {systemStatus?.redis?.connected ? '已连接' : '未连接'}
+            </div>
+            <div className="stat-change neutral">
+              <span className="stat-change-text">{systemStatus?.redis?.environment || '未知环境'}</span>
+            </div>
           </div>
-          <p>Chat ID: {systemStatus?.telegram?.chatId || '未设置'}</p>
         </div>
 
-        <div className="status-card">
-          <h3>📁 文件总数</h3>
-          <div className="stat-number">{systemStats?.totalFiles || 0}</div>
-          <p>总大小: {formatFileSize(systemStats?.totalSize || 0)}</p>
+        <div className="stat-card warning">
+          <div className="stat-header">
+            <div className="stat-icon">🤖</div>
+            <h3 className="stat-title">Telegram Bot</h3>
+          </div>
+          <div className="stat-body">
+            <div className={`stat-value ${systemStatus?.telegram?.configured ? 'success' : 'error'}`}>
+              {systemStatus?.telegram?.configured ? '已配置' : '未配置'}
+            </div>
+            <div className="stat-change neutral">
+              <span className="stat-change-text">Chat ID: {systemStatus?.telegram?.chatId || '未设置'}</span>
+            </div>
+          </div>
         </div>
 
-        <div className="status-card">
-          <h3>🔗 短链接</h3>
-          <div className="stat-number">{systemStats?.shortLinks || 0}</div>
-          <p>活跃链接数量</p>
+        <div className="stat-card">
+          <div className="stat-header">
+            <div className="stat-icon">📁</div>
+            <h3 className="stat-title">文件总数</h3>
+          </div>
+          <div className="stat-body">
+            <div className="stat-value">{systemStats?.totalFiles || 0}</div>
+            <div className="stat-change positive">
+              <span className="stat-change-text">总大小: {formatFileSize(systemStats?.totalSize || 0)}</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="stat-card error">
+          <div className="stat-header">
+            <div className="stat-icon">🔗</div>
+            <h3 className="stat-title">短链接</h3>
+          </div>
+          <div className="stat-body">
+            <div className="stat-value">{systemStats?.shortLinks || 0}</div>
+            <div className="stat-change positive">
+              <span className="stat-change-text">活跃链接数量</span>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -197,56 +239,80 @@ export default function AdminPanel() {
 
   // 渲染数据库管理页面
   const renderDatabase = () => (
-    <div className="database-section">
-      <div className="section-header">
-        <h2>数据库管理</h2>
-        <p>管理系统数据和缓存</p>
-      </div>
-
-      <div className="database-actions">
-        <div className="action-card">
-          <div className="card-header">
-            <h3>🔄 同步操作</h3>
-            <span className="card-badge">系统维护</span>
+    <div className="admin-content">
+      <div className="admin-table-container">
+        <div className="admin-table-header">
+          <h2 className="admin-table-title">数据库管理</h2>
+          <div className="admin-table-actions">
+            <button className="header-action" onClick={() => window.location.reload()}>
+              <span>🔄</span>
+            </button>
           </div>
-          <p>同步文件系统与数据库，确保数据一致性</p>
-          <button 
-            className="action-btn primary"
-            onClick={handleSyncFiles}
-            disabled={loading}
-          >
-            {loading ? '同步中...' : '同步文件列表'}
-          </button>
         </div>
 
-        <div className="action-card">
-          <div className="card-header">
-            <h3>🗑️ 清理操作</h3>
-            <span className="card-badge warning">数据清理</span>
+        <div className="stats-grid">
+          <div className="stat-card">
+            <div className="stat-header">
+              <div className="stat-icon">🔄</div>
+              <h3 className="stat-title">同步操作</h3>
+            </div>
+            <div className="stat-body">
+              <div className="stat-value">文件同步</div>
+              <div className="stat-change neutral">
+                <span className="stat-change-text">同步文件系统与数据库，确保数据一致性</span>
+              </div>
+              <button 
+                className="table-action"
+                onClick={handleSyncFiles}
+                disabled={loading}
+                style={{ marginTop: 'var(--spacing-4)', width: '100%', height: 'auto', padding: 'var(--spacing-3)' }}
+              >
+                {loading ? '同步中...' : '同步文件列表'}
+              </button>
+            </div>
           </div>
-          <p>清理过期的短链接数据，释放存储空间</p>
-          <button 
-            className="action-btn warning"
-            onClick={handleCleanupShortLinks}
-            disabled={loading}
-          >
-            {loading ? '清理中...' : '清理短链接'}
-          </button>
-        </div>
 
-        <div className="action-card">
-          <div className="card-header">
-            <h3>💾 备份操作</h3>
-            <span className="card-badge secondary">数据安全</span>
+          <div className="stat-card warning">
+            <div className="stat-header">
+              <div className="stat-icon">🗑️</div>
+              <h3 className="stat-title">清理操作</h3>
+            </div>
+            <div className="stat-body">
+              <div className="stat-value">数据清理</div>
+              <div className="stat-change neutral">
+                <span className="stat-change-text">清理过期的短链接数据，释放存储空间</span>
+              </div>
+              <button 
+                className="table-action danger"
+                onClick={handleCleanupShortLinks}
+                disabled={loading}
+                style={{ marginTop: 'var(--spacing-4)', width: '100%', height: 'auto', padding: 'var(--spacing-3)' }}
+              >
+                {loading ? '清理中...' : '清理短链接'}
+              </button>
+            </div>
           </div>
-          <p>备份数据库到本地文件，保障数据安全</p>
-          <button 
-            className="action-btn secondary"
-            onClick={handleBackupDatabase}
-            disabled={loading}
-          >
-            {loading ? '备份中...' : '备份数据库'}
-          </button>
+
+          <div className="stat-card success">
+            <div className="stat-header">
+              <div className="stat-icon">💾</div>
+              <h3 className="stat-title">备份操作</h3>
+            </div>
+            <div className="stat-body">
+              <div className="stat-value">数据安全</div>
+              <div className="stat-change neutral">
+                <span className="stat-change-text">备份数据库到本地文件，保障数据安全</span>
+              </div>
+              <button 
+                className="table-action"
+                onClick={handleBackupDatabase}
+                disabled={loading}
+                style={{ marginTop: 'var(--spacing-4)', width: '100%', height: 'auto', padding: 'var(--spacing-3)' }}
+              >
+                {loading ? '备份中...' : '备份数据库'}
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -254,67 +320,75 @@ export default function AdminPanel() {
 
   // 渲染活动日志页面
   const renderLogs = () => (
-    <div className="logs-section">
-      <div className="section-header">
-        <h2>活动日志</h2>
-        <p>查看系统操作记录和活动历史</p>
-      </div>
-
-      <div className="logs-filters">
-        <div className="filter-group">
-          <label>时间范围：</label>
-          <select className="filter-select">
-            <option value="today">今天</option>
-            <option value="week">最近一周</option>
-            <option value="month">最近一月</option>
-            <option value="all">全部</option>
-          </select>
-        </div>
-        <div className="filter-group">
-          <label>操作类型：</label>
-          <select className="filter-select">
-            <option value="all">全部操作</option>
-            <option value="upload">文件上传</option>
-            <option value="download">文件下载</option>
-            <option value="delete">文件删除</option>
-            <option value="admin">管理操作</option>
-          </select>
-        </div>
-      </div>
-
-      <div className="logs-container">
-        {activityLogs && activityLogs.length > 0 ? (
-          <div className="logs-table">
-            <div className="table-header">
-              <div className="header-cell">时间</div>
-              <div className="header-cell">操作</div>
-              <div className="header-cell">详情</div>
-              <div className="header-cell">状态</div>
-            </div>
-            <div className="table-body">
-              {activityLogs.map((log, index) => (
-                <div key={index} className="table-row">
-                  <div className="table-cell">
-                    <span className="log-time">{new Date(log.timestamp).toLocaleString()}</span>
-                  </div>
-                  <div className="table-cell">
-                    <span className="log-action">{log.action}</span>
-                  </div>
-                  <div className="table-cell">
-                    <span className="log-details">{log.details}</span>
-                  </div>
-                  <div className="table-cell">
-                    <span className="log-status success">成功</span>
-                  </div>
-                </div>
-              ))}
-            </div>
+    <div className="admin-content">
+      <div className="admin-table-container">
+        <div className="admin-table-header">
+          <h2 className="admin-table-title">活动日志</h2>
+          <div className="admin-table-actions">
+            <select className="header-action" style={{ width: 'auto', padding: 'var(--spacing-2) var(--spacing-3)' }}>
+              <option value="today">今天</option>
+              <option value="week">最近一周</option>
+              <option value="month">最近一月</option>
+              <option value="all">全部</option>
+            </select>
+            <select className="header-action" style={{ width: 'auto', padding: 'var(--spacing-2) var(--spacing-3)' }}>
+              <option value="all">全部操作</option>
+              <option value="upload">文件上传</option>
+              <option value="download">文件下载</option>
+              <option value="delete">文件删除</option>
+              <option value="admin">管理操作</option>
+            </select>
+            <button className="header-action" onClick={() => fetchActivityLogs()}>
+              <span>🔄</span>
+            </button>
           </div>
+        </div>
+
+        {activityLogs && activityLogs.length > 0 ? (
+          <table className="admin-table">
+            <thead>
+              <tr>
+                <th>时间</th>
+                <th>操作</th>
+                <th>详情</th>
+                <th>状态</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              {activityLogs.map((log, index) => (
+                <tr key={index}>
+                  <td>
+                    <span className="log-time">{new Date(log.timestamp).toLocaleString()}</span>
+                  </td>
+                  <td>
+                    <span className="log-action">{log.action}</span>
+                  </td>
+                  <td>
+                    <span className="log-details">{log.details}</span>
+                  </td>
+                  <td>
+                    <span className="stat-change positive">成功</span>
+                  </td>
+                  <td>
+                    <div className="table-actions">
+                      <button className="table-action" title="查看详情">
+                        <span>👁️</span>
+                      </button>
+                      <button className="table-action danger" title="删除记录">
+                        <span>🗑️</span>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         ) : (
-          <div className="empty-state">
-            <div className="empty-icon">📋</div>
-            <h3>暂无活动记录</h3>
-            <p>系统活动日志将在这里显示</p>
+          <div style={{ padding: 'var(--spacing-12)', textAlign: 'center', color: 'var(--color-text-muted)' }}>
+            <div style={{ fontSize: 'var(--font-size-4xl)', marginBottom: 'var(--spacing-4)' }}>📋</div>
+            <h3 style={{ margin: '0 0 var(--spacing-2)', color: 'var(--color-text-secondary)' }}>暂无活动记录</h3>
+            <p style={{ margin: 0 }}>系统活动日志将在这里显示</p>
           </div>
         )}
       </div>
@@ -323,97 +397,124 @@ export default function AdminPanel() {
 
   // 渲染系统设置页面
   const renderSettings = () => (
-    <div className="settings-section">
-      <div className="section-header">
-        <h2>系统设置</h2>
-        <p>配置系统参数和功能选项</p>
-      </div>
-
-      <div className="settings-groups">
-        <div className="settings-group">
-          <h3>🔧 基础设置</h3>
-          <div className="setting-item">
-            <label className="setting-label">
-              <span>系统名称</span>
-              <input 
-                type="text" 
-                className="setting-input" 
-                defaultValue="TgNetBucket"
-                placeholder="输入系统名称"
-              />
-            </label>
-          </div>
-          <div className="setting-item">
-            <label className="setting-label">
-              <span>最大文件大小 (MB)</span>
-              <input 
-                type="number" 
-                className="setting-input" 
-                defaultValue="100"
-                placeholder="输入最大文件大小"
-              />
-            </label>
-          </div>
-          <div className="setting-item">
-            <label className="setting-label checkbox">
-              <input type="checkbox" defaultChecked />
-              <span>启用文件上传</span>
-            </label>
+    <div className="admin-content">
+      <div className="admin-table-container">
+        <div className="admin-table-header">
+          <h2 className="admin-table-title">系统设置</h2>
+          <div className="admin-table-actions">
+            <button className="header-action" title="保存设置">
+              <span>💾</span>
+            </button>
+            <button className="header-action" title="重置设置">
+              <span>🔄</span>
+            </button>
+            <button className="header-action" title="导出配置">
+              <span>📤</span>
+            </button>
           </div>
         </div>
 
-        <div className="settings-group">
-          <h3>🔒 安全设置</h3>
-          <div className="setting-item">
-            <label className="setting-label checkbox">
-              <input type="checkbox" defaultChecked />
-              <span>启用访问日志</span>
-            </label>
+        <div className="settings-form">
+          <div className="settings-section">
+            <div className="section-header">
+              <h3 className="section-title">
+                <span className="section-icon">🔧</span>
+                基础设置
+              </h3>
+            </div>
+            <div className="form-grid">
+              <div className="form-group">
+                <label className="form-label">系统名称</label>
+                <input 
+                  type="text" 
+                  className="form-input"
+                  defaultValue="TgNetBucket"
+                  placeholder="输入系统名称"
+                />
+              </div>
+              <div className="form-group">
+                <label className="form-label">最大文件大小 (MB)</label>
+                <input 
+                  type="number" 
+                  className="form-input"
+                  defaultValue="100"
+                  placeholder="输入最大文件大小"
+                />
+              </div>
+              <div className="form-group checkbox-group">
+                <label className="checkbox-label">
+                  <input type="checkbox" defaultChecked />
+                  <span>启用文件上传</span>
+                </label>
+              </div>
+            </div>
           </div>
-          <div className="setting-item">
-            <label className="setting-label checkbox">
-              <input type="checkbox" />
-              <span>启用IP限制</span>
-            </label>
+
+          <div className="settings-section">
+            <div className="section-header">
+              <h3 className="section-title">
+                <span className="section-icon">🔒</span>
+                安全设置
+              </h3>
+            </div>
+            <div className="form-grid">
+              <div className="form-group checkbox-group">
+                <label className="checkbox-label">
+                  <input type="checkbox" defaultChecked />
+                  <span>启用访问日志</span>
+                </label>
+              </div>
+              <div className="form-group checkbox-group">
+                <label className="checkbox-label">
+                  <input type="checkbox" />
+                  <span>启用IP限制</span>
+                </label>
+              </div>
+              <div className="form-group">
+                <label className="form-label">短链接过期时间 (天)</label>
+                <input 
+                  type="number" 
+                  className="form-input"
+                  defaultValue="30"
+                  placeholder="输入过期天数"
+                />
+              </div>
+            </div>
           </div>
-          <div className="setting-item">
-            <label className="setting-label">
-              <span>短链接过期时间 (天)</span>
-              <input 
-                type="number" 
-                className="setting-input" 
-                defaultValue="30"
-                placeholder="输入过期天数"
-              />
-            </label>
+
+          <div className="settings-section">
+            <div className="section-header">
+              <h3 className="section-title">
+                <span className="section-icon">🤖</span>
+                Telegram 设置
+              </h3>
+            </div>
+            <div className="form-grid">
+              <div className="form-group">
+                <label className="form-label">Bot Token</label>
+                <input 
+                  type="password" 
+                  className="form-input"
+                  placeholder="输入 Telegram Bot Token"
+                />
+              </div>
+              <div className="form-group">
+                <label className="form-label">Chat ID</label>
+                <input 
+                  type="text" 
+                  className="form-input"
+                  placeholder="输入 Chat ID"
+                />
+              </div>
+              <div className="form-group checkbox-group">
+                <label className="checkbox-label">
+                  <input type="checkbox" />
+                  <span>启用 Telegram 通知</span>
+                </label>
+              </div>
+            </div>
           </div>
         </div>
-
-        <div className="settings-group">
-          <h3>📊 性能设置</h3>
-          <div className="setting-item">
-            <label className="setting-label">
-              <span>Redis缓存TTL (秒)</span>
-              <input 
-                type="number" 
-                className="setting-input" 
-                defaultValue="3600"
-                placeholder="输入缓存时间"
-              />
-            </label>
-          </div>
-          <div className="setting-item">
-            <label className="setting-label checkbox">
-              <input type="checkbox" defaultChecked />
-              <span>启用文件压缩</span>
-            </label>
-          </div>
-        </div>
-      </div>
-
-      <div className="settings-actions">
-        <button className="action-btn primary">保存设置</button>
-        <button className="action-btn secondary">重置默认</button>
       </div>
     </div>
   );
@@ -425,137 +526,28 @@ export default function AdminPanel() {
         <meta name="description" content="TgNetBucket 后端管理面板" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="stylesheet" href="/styles/globals.css" />
-        <link rel="stylesheet" href="/styles/pages/admin.css" />
       </Head>
 
       <div className="admin-layout">
-        {/* 移动端菜单切换按钮 */}
-        <button 
-          className="mobile-menu-toggle"
-          onClick={toggleMobileMenu}
-          aria-label="切换菜单"
-        >
-          <span className="menu-icon">☰</span>
-        </button>
-
-        {/* 移动端遮罩层 */}
-        <div 
-          className={`sidebar-overlay ${isMobileMenuOpen ? 'active' : ''}`}
-          onClick={closeMobileMenu}
-        ></div>
-
-        {/* 侧边栏导航 */}
-        <aside className={`admin-sidebar ${isMobileMenuOpen ? 'open' : ''}`}>
-          <div className="sidebar-header">
-            <div className="brand">
-              <div className="brand-icon">🚀</div>
-              <div className="brand-info">
-                <h2 className="brand-title">TgNetBucket</h2>
-                <span className="brand-subtitle">管理面板</span>
-              </div>
-            </div>
-          </div>
-
-          <nav className="sidebar-nav">
-            <div className="nav-section">
-              <h3 className="nav-section-title">主要功能</h3>
-              <ul className="nav-list">
-                <li className="nav-item">
-                  <button 
-                    className={`nav-link ${activeTab === 'overview' ? 'active' : ''}`}
-                    onClick={() => handleNavClick('overview')}
-                  >
-                    <span className="nav-icon">📊</span>
-                    <span className="nav-text">系统概览</span>
-                  </button>
-                </li>
-                <li className="nav-item">
-                  <button 
-                    className={`nav-link ${activeTab === 'database' ? 'active' : ''}`}
-                    onClick={() => handleNavClick('database')}
-                  >
-                    <span className="nav-icon">🗄️</span>
-                    <span className="nav-text">数据库管理</span>
-                  </button>
-                </li>
-                <li className="nav-item">
-                  <button 
-                    className={`nav-link ${activeTab === 'logs' ? 'active' : ''}`}
-                    onClick={() => handleNavClick('logs')}
-                  >
-                    <span className="nav-icon">📋</span>
-                    <span className="nav-text">活动日志</span>
-                  </button>
-                </li>
-                <li className="nav-item">
-                  <button 
-                    className={`nav-link ${activeTab === 'settings' ? 'active' : ''}`}
-                    onClick={() => handleNavClick('settings')}
-                  >
-                    <span className="nav-icon">⚙️</span>
-                    <span className="nav-text">系统设置</span>
-                  </button>
-                </li>
-              </ul>
-            </div>
-
-            <div className="nav-section">
-              <h3 className="nav-section-title">快速操作</h3>
-              <ul className="nav-list">
-                <li className="nav-item">
-                  <a href="/" className="nav-link external">
-                    <span className="nav-icon">🏠</span>
-                    <span className="nav-text">返回主页</span>
-                  </a>
-                </li>
-              </ul>
-            </div>
-          </nav>
-
-          <div className="sidebar-footer">
-            <div className="system-status">
-              <div className="status-indicator">
-                <span className={`status-dot ${systemStatus?.redis?.connected ? 'online' : 'offline'}`}></span>
-                <span className="status-text">
-                  {systemStatus?.redis?.connected ? '系统正常' : '系统异常'}
-                </span>
-              </div>
-            </div>
-          </div>
-        </aside>
+        <AdminHeader
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+          isMobileMenuOpen={isMobileMenuOpen}
+          toggleMobileMenu={toggleMobileMenu}
+          closeMobileMenu={closeMobileMenu}
+          onRefresh={() => {
+            if (activeTab === 'overview') {
+              fetchSystemStats();
+              fetchSystemStatus();
+            } else if (activeTab === 'logs') {
+              fetchActivityLogs();
+            }
+          }}
+          loading={loading}
+        />
 
         {/* 主内容区域 */}
         <main className="admin-main">
-          {/* 顶部面包屑导航 */}
-          <header className="content-header">
-            <div className="breadcrumb">
-              <span className="breadcrumb-item">管理面板</span>
-              <span className="breadcrumb-separator">/</span>
-              <span className="breadcrumb-item current">
-                {activeTab === 'overview' && '系统概览'}
-                {activeTab === 'database' && '数据库管理'}
-                {activeTab === 'logs' && '活动日志'}
-                {activeTab === 'settings' && '系统设置'}
-              </span>
-            </div>
-            
-            <div className="header-actions">
-              <button 
-                className="refresh-btn"
-                onClick={() => {
-                  fetchSystemStats();
-                  fetchSystemStatus();
-                  if (activeTab === 'logs') {
-                    fetchActivityLogs();
-                  }
-                }}
-                disabled={loading}
-              >
-                <span className="btn-icon">🔄</span>
-                刷新数据
-              </button>
-            </div>
-          </header>
 
           {/* 内容区域 */}
           <div className="content-body">
@@ -566,6 +558,8 @@ export default function AdminPanel() {
           </div>
         </main>
       </div>
+      
+      <Footer />
     </div>
   );
 }

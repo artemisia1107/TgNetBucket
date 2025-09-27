@@ -313,3 +313,82 @@
 
 .pointer-events-none { pointer-events: none; }
 .pointer-events-auto { pointer-events: auto; }
+
+/* ========== 性能优化工具类 ========== */
+
+/* GPU加速 */
+.gpu-accelerated {
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+/* 动画性能优化 */
+.animate-optimized {
+  backface-visibility: hidden;
+  perspective: 1000px;
+  transform: translateZ(0);
+}
+
+/* 悬停动画优化 */
+.hover-lift {
+  transition: transform var(--transition-normal) var(--ease-out);
+}
+
+.hover-lift:hover {
+  transform: translateY(-2px);
+  will-change: transform;
+}
+
+/* 平滑滚动 */
+.smooth-scroll {
+  scroll-behavior: smooth;
+}
+
+/* 减少重绘 */
+.contain-layout {
+  contain: layout;
+}
+
+.contain-paint {
+  contain: paint;
+}
+
+.contain-strict {
+  contain: strict;
+}
+
+/* 字体渲染优化 */
+.font-smooth {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* 图像渲染优化 */
+.image-crisp {
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+}
+
+.image-smooth {
+  image-rendering: auto;
+}
+
+/* 过渡性能优化 */
+.transition-transform {
+  transition: transform var(--transition-normal) var(--ease-out);
+}
+
+.transition-opacity {
+  transition: opacity var(--transition-normal) var(--ease-out);
+}
+
+.transition-colors {
+  transition: color var(--transition-normal) var(--ease-out),
+              background-color var(--transition-normal) var(--ease-out),
+              border-color var(--transition-normal) var(--ease-out);
+}
+
+.transition-all {
+  transition: all var(--transition-normal) var(--ease-out);
+}
