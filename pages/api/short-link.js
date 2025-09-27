@@ -11,6 +11,7 @@ const telegramStorage = new TelegramStorage({
 /**
  * 短链接生成API
  * 为文件生成短链接，支持自定义过期时间
+ * 优化版本：将短链接信息存储在文件信息中，避免创建额外的键
  */
 export default async function handler(req, res) {
   const { method } = req;
@@ -30,9 +31,10 @@ export default async function handler(req, res) {
       });
     }
 
-    // 验证文件是否存在
+    // 获取文件信息
+    let fileInfo;
     try {
-      await telegramStorage.getFileInfo(fileId);
+      fileInfo = await telegramStorage.getFileInfo(fileId);
     } catch (error) {
       return res.status(404).json({ 
         success: false, 
@@ -40,32 +42,58 @@ export default async function handler(req, res) {
       });
     }
 
-    // 生成短链接ID（8位随机字符串）
+    const now = new Date();
+    const expiresAt = new Date(now.getTime() + expiresIn * 1000);
+    
+    // 检查是否已有有效的短链接
+    if (fileInfo.shortLink && fileInfo.shortLink.expiresAt) {
+      const existingExpiresAt = new Date(fileInfo.shortLink.expiresAt);
+      if (existingExpiresAt > now) {
+        // 已有有效短链接，直接返回
+        const baseUrl = req.headers.host ? `https://${req.headers.host}` : 'http://localhost:3000';
+        const shortUrl = `${baseUrl}/api/download?s=${fileInfo.shortLink.shortId}`;
+        
+        console.log(`使用现有短链接: ${shortUrl} -> ${fileId}`);
+        
+        return res.status(200).json({ 
+          success: true, 
+          shortUrl: shortUrl,
+          shortId: fileInfo.shortLink.shortId,
+          expiresIn: Math.floor((existingExpiresAt - now) / 1000),
+          expiresAt: fileInfo.shortLink.expiresAt,
+          isExisting: true
+        });
+      }
+    }
+
+    // 生成新的短链接ID（8位随机字符串）
     const shortId = crypto.randomBytes(4).toString('hex');
     
-    // 存储短链接映射到Redis
-    const shortLinkKey = `short:${shortId}`;
-    const shortLinkData = {
-      fileId: fileId,
-      createdAt: new Date().toISOString(),
-      expiresAt: new Date(Date.now() + expiresIn * 1000).toISOString(),
+    // 将短链接信息添加到文件信息中
+    fileInfo.shortLink = {
+      shortId: shortId,
+      createdAt: now.toISOString(),
+      expiresAt: expiresAt.toISOString(),
       accessCount: 0
     };
     
-    await redisClient.set(shortLinkKey, shortLinkData, expiresIn);
+    // 更新文件信息到Redis
+    const fileKey = `file:${fileId}`;
+    await redisClient.set(fileKey, fileInfo, 86400 * 30); // 30天过期
     
     // 生成短链接URL
     const baseUrl = req.headers.host ? `https://${req.headers.host}` : 'http://localhost:3000';
     const shortUrl = `${baseUrl}/api/download?s=${shortId}`;
     
-    console.log(`生成短链接: ${shortUrl} -> ${fileId}, 过期时间: ${expiresIn}秒`);
+    console.log(`生成新短链接: ${shortUrl} -> ${fileId}, 过期时间: ${expiresIn}秒`);
     
     res.status(200).json({ 
       success: true, 
       shortUrl: shortUrl,
       shortId: shortId,
       expiresIn: expiresIn,
-      expiresAt: shortLinkData.expiresAt
+      expiresAt: fileInfo.shortLink.expiresAt,
+      isExisting: false
     });
     
   } catch (error) {

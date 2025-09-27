@@ -29,37 +29,81 @@ export default async function handler(req, res) {
   if (s) {
     isShortLink = true;
     try {
-      const shortLinkKey = `short:${s}`;
-      const shortLinkData = await redisClient.get(shortLinkKey);
+      // 新的短链接处理逻辑：从所有文件中查找匹配的短链接
+      let foundFileInfo = null;
+      let foundFileId = null;
       
-      if (!shortLinkData) {
-        return res.status(404).json({ 
-          success: false, 
-          error: '短链接不存在或已过期' 
-        });
+      // 首先尝试从旧的短链接键获取（向后兼容）
+      const oldShortLinkKey = `short:${s}`;
+      const oldShortLinkData = await redisClient.get(oldShortLinkKey);
+      
+      if (oldShortLinkData) {
+        // 处理旧格式的短链接
+        const expiresAt = new Date(oldShortLinkData.expiresAt);
+        if (expiresAt < new Date()) {
+          await redisClient.del(oldShortLinkKey); // 删除过期的短链接
+          return res.status(410).json({ 
+            success: false, 
+            error: '短链接已过期' 
+          });
+        }
+        
+        actualFileId = oldShortLinkData.fileId;
+        
+        // 更新访问计数
+        oldShortLinkData.accessCount = (oldShortLinkData.accessCount || 0) + 1;
+        oldShortLinkData.lastAccessAt = new Date().toISOString();
+        
+        const remainingTtl = Math.max(0, Math.floor((expiresAt - new Date()) / 1000));
+        await redisClient.set(oldShortLinkKey, oldShortLinkData, remainingTtl);
+        
+        console.log(`旧短链接访问: ${s} -> ${actualFileId}, 访问次数: ${oldShortLinkData.accessCount}`);
+      } else {
+        // 新格式：从文件信息中查找短链接
+        const files = await telegramStorage.listFiles();
+        
+        for (const file of files) {
+          const fileInfo = await telegramStorage.getFileInfo(file.fileId);
+          if (fileInfo.shortLink && fileInfo.shortLink.shortId === s) {
+            // 检查是否过期
+            const expiresAt = new Date(fileInfo.shortLink.expiresAt);
+            if (expiresAt < new Date()) {
+              // 清除过期的短链接
+              delete fileInfo.shortLink;
+              const fileKey = `file:${file.fileId}`;
+              await redisClient.set(fileKey, fileInfo, 86400 * 30);
+              
+              return res.status(410).json({ 
+                success: false, 
+                error: '短链接已过期' 
+              });
+            }
+            
+            foundFileInfo = fileInfo;
+            foundFileId = file.fileId;
+            break;
+          }
+        }
+        
+        if (!foundFileInfo) {
+          return res.status(404).json({ 
+            success: false, 
+            error: '短链接不存在或已过期' 
+          });
+        }
+        
+        actualFileId = foundFileId;
+        
+        // 更新访问计数
+        foundFileInfo.shortLink.accessCount = (foundFileInfo.shortLink.accessCount || 0) + 1;
+        foundFileInfo.shortLink.lastAccessAt = new Date().toISOString();
+        
+        // 更新文件信息
+        const fileKey = `file:${foundFileId}`;
+        await redisClient.set(fileKey, foundFileInfo, 86400 * 30);
+        
+        console.log(`新短链接访问: ${s} -> ${actualFileId}, 访问次数: ${foundFileInfo.shortLink.accessCount}`);
       }
-      
-      // 检查是否过期
-      const expiresAt = new Date(shortLinkData.expiresAt);
-      if (expiresAt < new Date()) {
-        await redisClient.del(shortLinkKey); // 删除过期的短链接
-        return res.status(410).json({ 
-          success: false, 
-          error: '短链接已过期' 
-        });
-      }
-      
-      actualFileId = shortLinkData.fileId;
-      
-      // 更新访问计数
-      shortLinkData.accessCount = (shortLinkData.accessCount || 0) + 1;
-      shortLinkData.lastAccessAt = new Date().toISOString();
-      
-      // 计算剩余过期时间
-      const remainingTtl = Math.max(0, Math.floor((expiresAt - new Date()) / 1000));
-      await redisClient.set(shortLinkKey, shortLinkData, remainingTtl);
-      
-      console.log(`短链接访问: ${s} -> ${actualFileId}, 访问次数: ${shortLinkData.accessCount}`);
       
     } catch (error) {
       console.error('处理短链接失败:', error);
