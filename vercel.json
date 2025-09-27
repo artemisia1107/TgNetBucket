@@ -5,7 +5,6 @@
       "maxDuration": 30
     }
   },
-  "regions": ["hkg1", "sin1", "sfo1"],
   "env": {
     "NODE_ENV": "production"
   }
