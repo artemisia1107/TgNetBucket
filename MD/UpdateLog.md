@@ -150,9 +150,9 @@
 
 欢迎为TgNetBucket项目贡献代码！请查看以下文档：
 
-- [ARCHITECTURE.md](./ARCHITECTURE.md) - 项目架构说明
-- [COMPONENTS_GUIDE.md](./COMPONENTS_GUIDE.md) - 组件开发指南
-- [HOOKS_GUIDE.md](./HOOKS_GUIDE.md) - Hook使用指南
+- [ARCHITECTURE.md](ARCHITECTURE.md) - 项目架构说明
+- [COMPONENTS_GUIDE.md](COMPONENTS_GUIDE.md) - 组件开发指南
+- [HOOKS_GUIDE.md](HOOKS_GUIDE.md) - Hook使用指南
 
 ### 提交规范
 - 使用语义化版本号（Semantic Versioning）

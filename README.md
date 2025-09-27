@@ -126,15 +126,15 @@ TgNetBucket/
 ## 📚 文档导航
 
 ### 核心文档
-- **[Q&A.md](./Q&A.md)** - 常见问题与故障排除
-- **[UpdateLog.md](./UpdateLog.md)** - 完整版本更新日志
-- **[UPSTASH_SETUP.md](./UPSTASH_SETUP.md)** - Redis配置详细指南
+- **[Q&A.md](./MD/Q&A.md)** - 常见问题与故障排除
+- **[UpdateLog.md](./MD/UpdateLog.md)** - 完整版本更新日志
+- **[UPSTASH_SETUP.md](./MD/UPSTASH_SETUP.md)** - Redis配置详细指南
 
 ### 开发文档
-- **[ARCHITECTURE.md](./ARCHITECTURE.md)** - 项目架构详细说明
-- **[COMPONENTS_GUIDE.md](./COMPONENTS_GUIDE.md)** - 组件开发指南
-- **[HOOKS_GUIDE.md](./HOOKS_GUIDE.md)** - Hook使用指南
-- **[REFACTOR_PLAN.md](./REFACTOR_PLAN.md)** - 重构计划
+- **[ARCHITECTURE.md](./MD/ARCHITECTURE.md)** - 项目架构详细说明
+- **[COMPONENTS_GUIDE.md](./MD/COMPONENTS_GUIDE.md)** - 组件开发指南
+- **[HOOKS_GUIDE.md](./MD/HOOKS_GUIDE.md)** - Hook使用指南
+- **[REFACTOR_PLAN.md](./MD/REFACTOR_PLAN.md)** - 重构计划
 
 ## 📈 当前版本
 
@@ -150,11 +150,11 @@ TgNetBucket/
 - 字体演示区域展示
 - 统一的字体变量系统
 
-> 📖 查看完整更新历史：[UpdateLog.md](./UpdateLog.md)
+> 📖 查看完整更新历史：[UpdateLog.md](./MD/UpdateLog.md)
 
 ## ❓ 需要帮助？
 
-- 🔧 **遇到问题**: 查看 [Q&A.md](./Q&A.md) 获取解决方案
+- 🔧 **遇到问题**: 查看 [Q&A.md](./MD/Q&A.md) 获取解决方案
 - 🐛 **发现Bug**: 在GitHub Issues中提交问题
 - 💡 **功能建议**: 参与GitHub Discussions讨论
 - 📖 **深入了解**: 阅读项目架构和开发文档
