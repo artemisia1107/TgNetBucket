@@ -69,6 +69,38 @@ class TelegramStorage {
   }
 
   /**
+   * 获取文件信息
+   * @param {string} fileId - 文件ID
+   * @returns {Promise<Object>} - 文件信息对象
+   */
+  async getFileInfo(fileId) {
+    try {
+      // 首先尝试从Redis获取文件信息
+      const fileKey = `file:${fileId}`;
+      let fileInfo = await redisClient.get(fileKey);
+      
+      if (fileInfo) {
+        return fileInfo;
+      }
+      
+      // 如果Redis中没有，尝试从文件列表中查找
+      const files = await this.listFiles();
+      fileInfo = files.find(file => file.fileId === fileId);
+      
+      if (fileInfo) {
+        // 将找到的文件信息存储到Redis
+        await redisClient.set(fileKey, fileInfo, 86400 * 30); // 30天过期
+        return fileInfo;
+      }
+      
+      throw new Error('文件信息未找到');
+    } catch (error) {
+      console.error('获取文件信息失败:', error);
+      throw new Error(`获取文件信息失败: ${error.message}`);
+    }
+  }
+
+  /**
    * 列出文件列表
    * 优先从Redis获取，如果Redis为空则从Telegram同步
    * @returns {Promise<Array<{fileId: string, fileName: string, messageId: string}>>} - 文件列表

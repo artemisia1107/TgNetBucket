@@ -1,0 +1,78 @@
+import { TelegramStorage } from '../../src/telegram_storage';
+import { redisClient } from '../../src/redis_client';
+import crypto from 'crypto';
+
+// 创建TelegramStorage实例
+const telegramStorage = new TelegramStorage({
+  botToken: process.env.TELEGRAM_BOT_TOKEN,
+  chatId: process.env.TELEGRAM_CHAT_ID
+});
+
+/**
+ * 短链接生成API
+ * 为文件生成短链接，支持自定义过期时间
+ */
+export default async function handler(req, res) {
+  const { method } = req;
+
+  if (method !== 'POST') {
+    res.setHeader('Allow', ['POST']);
+    return res.status(405).end(`Method ${method} Not Allowed`);
+  }
+
+  try {
+    const { fileId, expiresIn = 3600 } = req.body; // 默认1小时过期
+    
+    if (!fileId) {
+      return res.status(400).json({ 
+        success: false, 
+        error: '没有提供文件ID' 
+      });
+    }
+
+    // 验证文件是否存在
+    try {
+      await telegramStorage.getFileInfo(fileId);
+    } catch (error) {
+      return res.status(404).json({ 
+        success: false, 
+        error: '文件不存在' 
+      });
+    }
+
+    // 生成短链接ID（8位随机字符串）
+    const shortId = crypto.randomBytes(4).toString('hex');
+    
+    // 存储短链接映射到Redis
+    const shortLinkKey = `short:${shortId}`;
+    const shortLinkData = {
+      fileId: fileId,
+      createdAt: new Date().toISOString(),
+      expiresAt: new Date(Date.now() + expiresIn * 1000).toISOString(),
+      accessCount: 0
+    };
+    
+    await redisClient.set(shortLinkKey, shortLinkData, expiresIn);
+    
+    // 生成短链接URL
+    const baseUrl = req.headers.host ? `https://${req.headers.host}` : 'http://localhost:3000';
+    const shortUrl = `${baseUrl}/api/download?s=${shortId}`;
+    
+    console.log(`生成短链接: ${shortUrl} -> ${fileId}, 过期时间: ${expiresIn}秒`);
+    
+    res.status(200).json({ 
+      success: true, 
+      shortUrl: shortUrl,
+      shortId: shortId,
+      expiresIn: expiresIn,
+      expiresAt: shortLinkData.expiresAt
+    });
+    
+  } catch (error) {
+    console.error('生成短链接失败:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: `生成短链接失败: ${error.message}` 
+    });
+  }
+}
