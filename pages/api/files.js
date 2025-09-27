@@ -1,5 +1,5 @@
 import { TelegramStorage } from '../../src/telegram_storage';
-import formidable from 'formidable';
+import { IncomingForm } from 'formidable';
 import fs from 'fs';
 
 // 禁用Next.js的默认body解析，以便处理文件上传
@@ -60,7 +60,7 @@ export default async function handler(req, res) {
     case 'POST':
       // 上传文件
       try {
-        const form = new formidable.IncomingForm();
+        const form = new IncomingForm();
         form.parse(req, async (err, fields, files) => {
           if (err) {
             console.error('文件解析错误:', err);
