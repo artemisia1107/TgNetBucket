@@ -531,7 +531,7 @@ export default function AdminPanel() {
       <div className="admin-layout">
         <AdminHeader
           activeTab={activeTab}
-          onTabChange={setActiveTab}
+          onTabChange={handleNavClick}
           isMobileMenuOpen={isMobileMenuOpen}
           toggleMobileMenu={toggleMobileMenu}
           closeMobileMenu={closeMobileMenu}
