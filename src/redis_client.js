@@ -149,7 +149,23 @@ class RedisClient {
     try {
       if (this.redis) {
         const items = await this.redis.lrange(key, start, end);
-        return items.map(item => JSON.parse(item));
+        return items.map(item => {
+          try {
+            // 如果item已经是对象，直接返回
+            if (typeof item === 'object' && item !== null) {
+              return item;
+            }
+            // 如果是字符串，尝试解析JSON
+            if (typeof item === 'string') {
+              return JSON.parse(item);
+            }
+            // 其他情况直接返回
+            return item;
+          } catch (parseError) {
+            console.warn(`JSON解析失败，返回原始值: ${item}`, parseError);
+            return item;
+          }
+        });
       } else {
         // 使用内存存储作为后备
         const list = this.memoryStore.get(key)?.value || [];

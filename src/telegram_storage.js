@@ -19,8 +19,10 @@ class TelegramStorage {
    */
   async uploadFile(fileBuffer, fileName) {
     try {
-      const response = await this.telegramClient.sendDocument(this.chatId, fileBuffer, {
-        filename: fileName
+      // 使用正确的文件选项格式来避免废弃警告
+      const response = await this.telegramClient.sendDocument(this.chatId, fileBuffer, {}, {
+        filename: fileName,
+        contentType: 'application/octet-stream'
       });
       
       const fileInfo = {
