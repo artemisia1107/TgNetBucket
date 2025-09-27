@@ -8,9 +8,6 @@ class TelegramStorage {
     
     // 允许注入客户端用于测试
     this.telegramClient = options.telegramClient || new TelegramBot(this.botToken, { polling: false });
-    
-    // 简单的内存文件列表存储（在生产环境中应使用数据库）
-    this.fileList = [];
   }
 
   /**
@@ -25,19 +22,9 @@ class TelegramStorage {
         filename: fileName
       });
       
-      const fileInfo = {
-        fileId: response.document?.file_id || '',
-        messageId: response.message_id.toString(),
-        fileName: fileName,
-        uploadTime: new Date().toISOString()
-      };
-      
-      // 将文件信息添加到内存列表中
-      this.fileList.push(fileInfo);
-      
       return {
-        fileId: fileInfo.fileId,
-        messageId: fileInfo.messageId
+        fileId: response.document?.file_id || '',
+        messageId: response.message_id.toString()
       };
     } catch (error) {
       console.error('上传文件到Telegram失败:', error);
@@ -63,18 +50,40 @@ class TelegramStorage {
 
   /**
    * 列出Telegram中的文件
-   * 注意：由于Telegram Bot API的限制，无法直接获取历史消息
-   * 这个方法返回内存中维护的文件列表
+   * 通过获取聊天记录中的文档消息来获取文件列表
    * @returns {Promise<Array<{fileId: string, fileName: string, messageId: string}>>} - 文件列表
    */
   async listFiles() {
     try {
-      // 返回内存中存储的文件列表
-      return this.fileList.map(file => ({
-        fileId: file.fileId,
-        fileName: file.fileName,
-        messageId: file.messageId
-      }));
+      // 使用getUpdates获取最近的消息（包含文档的消息）
+      const updates = await this.telegramClient.getUpdates({
+        limit: 100, // 获取最近100条更新
+        allowed_updates: ['message'] // 只获取消息更新
+      });
+      
+      const files = [];
+      
+      // 遍历更新，查找包含文档的消息
+      for (const update of updates) {
+        if (update.message && 
+            update.message.chat.id.toString() === this.chatId.toString() &&
+            update.message.document) {
+          
+          const doc = update.message.document;
+          files.push({
+            fileId: doc.file_id,
+            fileName: doc.file_name || `document_${doc.file_id.slice(-8)}`,
+            messageId: update.message.message_id.toString(),
+            fileSize: doc.file_size,
+            uploadTime: new Date(update.message.date * 1000).toISOString()
+          });
+        }
+      }
+      
+      // 按上传时间倒序排列（最新的在前面）
+      files.sort((a, b) => new Date(b.uploadTime) - new Date(a.uploadTime));
+      
+      return files;
     } catch (error) {
       console.error('列出Telegram文件失败:', error);
       throw new Error(`列出文件失败: ${error.message}`);
@@ -89,10 +98,6 @@ class TelegramStorage {
   async deleteFile(messageId) {
     try {
       await this.telegramClient.deleteMessage(this.chatId, messageId);
-      
-      // 从内存列表中移除对应的文件信息
-      this.fileList = this.fileList.filter(file => file.messageId !== messageId);
-      
       return true;
     } catch (error) {
       console.error('从Telegram删除文件失败:', error);
