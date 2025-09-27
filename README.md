@@ -4,10 +4,109 @@ TgNetBucket是一个使用Telegram作为存储后端的文件存储服务，通�
 
 ## 功能特点
 
-- 使用Telegram Bot API存储文件
-- 支持文件上传、下载、列表查看和删除
-- 简洁美观的Web界面
-- 易于部署到Vercel平台
+- 🚀 使用Telegram Bot API存储文件
+- 📁 支持文件上传、下载、列表查看和删除
+- 💾 集成Upstash Redis持久化存储
+- 🎨 简洁美观的Web界面
+- ☁️ 易于部署到Vercel平台
+- 🔄 智能降级机制，确保服务稳定性
+- 🌍 全球低延迟访问
+
+## 系统架构
+
+```mermaid
+graph TB
+    subgraph "前端层"
+        A[Web界面] --> B[Next.js应用]
+    end
+    
+    subgraph "API层"
+        B --> C[文件管理API]
+        B --> D[下载API]
+    end
+    
+    subgraph "存储层"
+        C --> E[TelegramStorage]
+        E --> F[Redis客户端]
+        E --> G[Telegram Bot API]
+    end
+    
+    subgraph "外部服务"
+        F --> H[Upstash Redis]
+        G --> I[Telegram服务器]
+    end
+    
+    subgraph "部署平台"
+        B --> J[Vercel无服务器]
+    end
+    
+    style A fill:#e1f5fe
+    style H fill:#f3e5f5
+    style I fill:#e8f5e8
+    style J fill:#fff3e0
+```
+
+## 文件操作流程
+
+```mermaid
+sequenceDiagram
+    participant U as 用户
+    participant W as Web界面
+    participant A as API
+    participant T as TelegramStorage
+    participant R as Redis
+    participant TG as Telegram
+
+    Note over U,TG: 文件上传流程
+    U->>W: 选择文件上传
+    W->>A: POST /api/files
+    A->>T: uploadFile()
+    T->>TG: 发送文件到Telegram
+    TG-->>T: 返回文件信息
+    T->>R: 存储文件元数据
+    R-->>T: 确认存储
+    T-->>A: 返回成功
+    A-->>W: 返回文件信息
+    W-->>U: 显示上传成功
+
+    Note over U,TG: 文件列表获取
+    U->>W: 请求文件列表
+    W->>A: GET /api/files
+    A->>T: listFiles()
+    T->>R: 获取文件列表
+    alt Redis有数据
+        R-->>T: 返回文件列表
+    else Redis无数据
+        T->>TG: 获取历史消息
+        TG-->>T: 返回消息列表
+        T->>R: 同步到Redis
+    end
+    T-->>A: 返回文件列表
+    A-->>W: 返回JSON数据
+    W-->>U: 显示文件列表
+
+    Note over U,TG: 文件下载流程
+    U->>W: 点击下载链接
+    W->>A: GET /api/download
+    A->>T: getFileUrl()
+    T->>TG: 获取文件URL
+    TG-->>T: 返回下载链接
+    T-->>A: 返回URL
+    A-->>W: 重定向到文件
+    W-->>U: 开始下载
+
+    Note over U,TG: 文件删除流程
+    U->>W: 点击删除按钮
+    W->>A: DELETE /api/files
+    A->>T: deleteFile()
+    T->>TG: 删除Telegram消息
+    TG-->>T: 确认删除
+    T->>R: 删除Redis记录
+    R-->>T: 确认删除
+    T-->>A: 返回成功
+    A-->>W: 返回删除结果
+    W-->>U: 更新界面
+```
 
 ## 快速开始
 
@@ -32,13 +131,19 @@ npm install
 
 3. 创建`.env.local`文件并添加以下内容（可以参考`.env.local.example`）
 ```
+# Telegram配置（必需）
 TELEGRAM_BOT_TOKEN=your_bot_token
 TELEGRAM_CHAT_ID=your_chat_id
+
+# Upstash Redis配置（可选，推荐用于生产环境）
+UPSTASH_REDIS_REST_URL=your_redis_url
+UPSTASH_REDIS_REST_TOKEN=your_redis_token
 ```
 
    **获取配置信息：**
    - `TELEGRAM_BOT_TOKEN`: 通过 [@BotFather](https://t.me/BotFather) 创建Bot后获得
    - `TELEGRAM_CHAT_ID`: 可以是个人聊天ID或群组ID，用于存储文件
+   - `UPSTASH_REDIS_REST_URL` 和 `UPSTASH_REDIS_REST_TOKEN`: 可选配置，用于持久化存储文件列表。详见 [UPSTASH_SETUP.md](./UPSTASH_SETUP.md)
 
 4. 启动开发服务器
 ```bash
@@ -54,33 +159,44 @@ npm run dev
 2. 在环境变量中添加：
    - `TELEGRAM_BOT_TOKEN`: 你的Telegram Bot Token
    - `TELEGRAM_CHAT_ID`: 你的Telegram Chat ID
+   - `UPSTASH_REDIS_REST_URL`: 你的Upstash Redis URL（可选）
+   - `UPSTASH_REDIS_REST_TOKEN`: 你的Upstash Redis Token（可选）
 
 3. 部署项目
 
+> 💡 **提示**: 虽然Redis配置是可选的，但强烈建议在生产环境中配置Upstash Redis以获得更好的文件列表持久化体验。
+
 ## 技术栈
 
-- Next.js - React框架
-- Node.js - 后端运行环境
-- Telegram Bot API - 文件存储
-- Vercel - 部署和托管
+- **前端框架**: Next.js - React全栈框架
+- **运行环境**: Node.js - 后端运行环境
+- **文件存储**: Telegram Bot API - 主要存储后端
+- **数据持久化**: Upstash Redis - 文件列表缓存和持久化
+- **部署平台**: Vercel - 无服务器部署和托管
+- **HTTP客户端**: Axios - API请求处理
 
 ## 项目结构
 
 ```
 TgNetBucket/
-├── pages/            # Next.js页面
-│   ├── api/          # API接口
-│   │   ├── files.js  # 文件管理API
-│   │   └── download.js # 文件下载API
-│   └── index.js      # 主页面
-├── src/              # 源代码
-│   └── telegram_storage.js # Telegram存储实现
-├── tests/            # 测试文件
+├── pages/                    # Next.js页面
+│   ├── api/                  # API接口
+│   │   ├── files.js          # 文件管理API
+│   │   └── download.js       # 文件下载API
+│   └── index.js              # 主页面
+├── src/                      # 源代码
+│   ├── telegram_storage.js   # Telegram存储实现
+│   └── redis_client.js       # Redis客户端配置
+├── tests/                    # 测试文件
 │   └── telegram_storage_test.js # 存储功能测试
-├── .env.local.example # 环境变量配置模板
-├── package.json      # 项目依赖
-├── vercel.json       # Vercel配置
-└── README.md         # 项目说明
+├── .env.local.example        # 环境变量配置模板
+├── .gitignore               # Git忽略文件
+├── UPSTASH_SETUP.md         # Upstash Redis配置指南
+├── package.json             # 项目依赖
+├── package-lock.json        # 依赖锁定文件
+├── vercel.json              # Vercel配置
+├── LICENSE                  # 开源许可证
+└── README.md                # 项目说明
 ```
 
 ## 故障排除
@@ -104,7 +220,7 @@ TgNetBucket/
 ### 常见问题
 
 **Q: 为什么文件列表为空？**
-A: 由于Telegram Bot API的限制，无法直接获取历史消息。文件列表基于内存存储，应用重启后会丢失。建议使用数据库存储文件信息。
+A: 如果未配置Redis，文件列表基于内存存储，应用重启后会丢失。配置Upstash Redis可以解决此问题。如果已配置Redis但仍为空，请检查Redis连接配置是否正确。
 
 **Q: 如何获取Chat ID？**
 A: 可以向Bot发送消息，然后访问 `https://api.telegram.org/bot<YOUR_BOT_TOKEN>/getUpdates` 查看消息中的chat id。
@@ -112,9 +228,39 @@ A: 可以向Bot发送消息，然后访问 `https://api.telegram.org/bot<YOUR_BO
 **Q: 部署后仍然出现500错误？**
 A: 检查Vercel的Function Logs，查看详细的错误信息。通常是环境变量配置问题。
 
+**Q: Redis连接失败怎么办？**
+A: 
+1. 检查`UPSTASH_REDIS_REST_URL`和`UPSTASH_REDIS_REST_TOKEN`是否正确配置
+2. 确认Upstash Redis数据库状态正常
+3. 如果Redis不可用，系统会自动降级到内存存储，不影响基本功能
+
+**Q: 如何监控Redis使用情况？**
+A: 登录Upstash控制台查看数据库使用统计，包括请求次数、存储大小等信息。
+
+**Q: 文件上传后按钮不显示？**
+A: 这通常是文件列表同步问题。配置Redis后，文件信息会持久化存储，确保上传后能正确显示操作按钮。
+
 ## 更新日志
 
-### v0.2.0 (最新)
+### v0.3.0 (最新)
+- 💾 **集成Upstash Redis持久化存储**
+  - 添加Redis客户端支持，解决文件列表丢失问题
+  - 实现智能降级机制，Redis不可用时自动切换到内存存储
+  - 文件上传后自动存储元数据到Redis，确保按钮正确显示
+- 🔄 **改进文件管理逻辑**
+  - 优化`listFiles`方法，优先从Redis获取数据
+  - 增强`uploadFile`和`deleteFile`方法，同步操作Redis和Telegram
+  - 添加自动同步机制，从Telegram历史消息恢复文件列表
+- 📚 **完善文档和配置**
+  - 添加详细的Upstash配置指南 (`UPSTASH_SETUP.md`)
+  - 更新环境变量配置示例
+  - 添加Mermaid架构图和流程图
+- 🎨 **用户体验优化**
+  - 解决文件上传后按钮不显示的问题
+  - 提供全球低延迟访问体验
+  - 零维护成本的持久化存储方案
+
+### v0.2.0
 - 🐛 修复文件上传500错误问题
 - 🔧 将模块系统从CommonJS改为ES6模块语法，提高Next.js兼容性
 - 📝 改进错误处理和日志记录，提供更详细的调试信息
