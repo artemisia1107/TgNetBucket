@@ -1,0 +1,385 @@
+/**
+ * 对话框组件样式
+ * 包含模态框、确认对话框、抽屉等
+ */
+
+/* ========== 对话框遮罩 ========== */
+
+.dialog-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: var(--z-index-modal-backdrop);
+  opacity: 0;
+  visibility: hidden;
+  transition: all var(--transition-normal);
+  backdrop-filter: blur(2px);
+}
+
+.dialog-overlay.visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* ========== 基础对话框 ========== */
+
+.dialog {
+  background: var(--color-background);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-2xl);
+  max-width: 500px;
+  width: 90%;
+  max-height: 90vh;
+  overflow: hidden;
+  transform: scale(0.9) translateY(-20px);
+  transition: transform var(--transition-normal);
+  position: relative;
+  border: 1px solid var(--color-border);
+}
+
+.dialog-overlay.visible .dialog {
+  transform: scale(1) translateY(0);
+}
+
+/* ========== 对话框尺寸 ========== */
+
+.dialog-sm {
+  max-width: 400px;
+}
+
+.dialog-md {
+  max-width: 500px;
+}
+
+.dialog-lg {
+  max-width: 700px;
+}
+
+.dialog-xl {
+  max-width: 900px;
+}
+
+.dialog-full {
+  max-width: 95vw;
+  max-height: 95vh;
+}
+
+/* ========== 对话框头部 ========== */
+
+.dialog-header {
+  padding: var(--spacing-6) var(--spacing-6) var(--spacing-4);
+  border-bottom: 1px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-4);
+}
+
+.dialog-title {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  margin: 0;
+  line-height: var(--line-height-tight);
+}
+
+.dialog-close {
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  border-radius: var(--border-radius-md);
+  color: var(--color-text-muted);
+  transition: all var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.dialog-close:hover {
+  color: var(--color-text-primary);
+  background-color: var(--color-hover);
+}
+
+.dialog-close:focus {
+  outline: none;
+  color: var(--color-text-primary);
+  background-color: var(--color-hover);
+  box-shadow: 0 0 0 2px var(--color-focus);
+}
+
+/* ========== 对话框内容 ========== */
+
+.dialog-content {
+  padding: var(--spacing-6);
+  overflow-y: auto;
+  max-height: calc(90vh - 140px);
+}
+
+.dialog-message {
+  font-size: var(--font-size-base);
+  color: var(--color-text-secondary);
+  line-height: var(--line-height-relaxed);
+  margin: 0;
+}
+
+.dialog-description {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  line-height: var(--line-height-relaxed);
+  margin-top: var(--spacing-2);
+}
+
+/* ========== 对话框底部 ========== */
+
+.dialog-footer {
+  padding: var(--spacing-4) var(--spacing-6) var(--spacing-6);
+  border-top: 1px solid var(--color-border);
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--spacing-3);
+  background-color: var(--color-surface);
+}
+
+.dialog-footer.centered {
+  justify-content: center;
+}
+
+.dialog-footer.space-between {
+  justify-content: space-between;
+}
+
+/* ========== 确认对话框 ========== */
+
+.confirm-dialog .dialog-content {
+  text-align: center;
+  padding: var(--spacing-8) var(--spacing-6);
+}
+
+.confirm-dialog .dialog-icon {
+  width: 3rem;
+  height: 3rem;
+  margin: 0 auto var(--spacing-4);
+  border-radius: var(--border-radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.confirm-dialog.warning .dialog-icon {
+  background-color: var(--color-warning-light);
+  color: var(--color-warning);
+}
+
+.confirm-dialog.error .dialog-icon {
+  background-color: var(--color-error-light);
+  color: var(--color-error);
+}
+
+.confirm-dialog.info .dialog-icon {
+  background-color: var(--color-info-light);
+  color: var(--color-info);
+}
+
+.confirm-dialog.success .dialog-icon {
+  background-color: var(--color-success-light);
+  color: var(--color-success);
+}
+
+/* ========== 抽屉样式 ========== */
+
+.drawer-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: var(--z-index-modal-backdrop);
+  opacity: 0;
+  visibility: hidden;
+  transition: all var(--transition-normal);
+}
+
+.drawer-overlay.visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+.drawer {
+  position: fixed;
+  background: var(--color-background);
+  box-shadow: var(--shadow-2xl);
+  z-index: var(--z-index-modal);
+  transition: transform var(--transition-normal);
+  border: 1px solid var(--color-border);
+}
+
+/* 右侧抽屉 */
+.drawer-right {
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 400px;
+  max-width: 90vw;
+  transform: translateX(100%);
+}
+
+.drawer-overlay.visible .drawer-right {
+  transform: translateX(0);
+}
+
+/* 左侧抽屉 */
+.drawer-left {
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 400px;
+  max-width: 90vw;
+  transform: translateX(-100%);
+}
+
+.drawer-overlay.visible .drawer-left {
+  transform: translateX(0);
+}
+
+/* 顶部抽屉 */
+.drawer-top {
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 400px;
+  max-height: 90vh;
+  transform: translateY(-100%);
+}
+
+.drawer-overlay.visible .drawer-top {
+  transform: translateY(0);
+}
+
+/* 底部抽屉 */
+.drawer-bottom {
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 400px;
+  max-height: 90vh;
+  transform: translateY(100%);
+  border-top-left-radius: var(--border-radius-lg);
+  border-top-right-radius: var(--border-radius-lg);
+}
+
+.drawer-overlay.visible .drawer-bottom {
+  transform: translateY(0);
+}
+
+/* ========== 抽屉内容 ========== */
+
+.drawer-header {
+  padding: var(--spacing-4) var(--spacing-6);
+  border-bottom: 1px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-4);
+}
+
+.drawer-title {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.drawer-content {
+  padding: var(--spacing-6);
+  overflow-y: auto;
+  flex: 1;
+}
+
+.drawer-footer {
+  padding: var(--spacing-4) var(--spacing-6);
+  border-top: 1px solid var(--color-border);
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--spacing-3);
+  background-color: var(--color-surface);
+}
+
+/* ========== 动画效果 ========== */
+
+@keyframes dialog-fade-in {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes dialog-fade-out {
+  from {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.9) translateY(-20px);
+  }
+}
+
+.dialog-enter {
+  animation: dialog-fade-in var(--transition-normal) ease-out;
+}
+
+.dialog-exit {
+  animation: dialog-fade-out var(--transition-normal) ease-in;
+}
+
+/* ========== 响应式设计 ========== */
+
+@media (max-width: 640px) {
+  .dialog {
+    width: 95%;
+    max-height: 95vh;
+    margin: var(--spacing-4);
+  }
+  
+  .dialog-header,
+  .dialog-content,
+  .dialog-footer {
+    padding-left: var(--spacing-4);
+    padding-right: var(--spacing-4);
+  }
+  
+  .dialog-footer {
+    flex-direction: column-reverse;
+    gap: var(--spacing-2);
+  }
+  
+  .dialog-footer .btn {
+    width: 100%;
+  }
+  
+  .drawer-right,
+  .drawer-left {
+    width: 100%;
+    max-width: none;
+  }
+  
+  .drawer-top,
+  .drawer-bottom {
+    height: 90vh;
+    max-height: none;
+  }
+}

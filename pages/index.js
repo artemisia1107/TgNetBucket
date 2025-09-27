@@ -173,8 +173,7 @@ export default function Home() {
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <link rel="icon" href="/favicon.ico" />
         <link rel="stylesheet" href="/styles/globals.css" />
-        <link rel="stylesheet" href="/styles/home.css" />
-        <link rel="stylesheet" href="/styles/components.css" />
+        <link rel="stylesheet" href="/styles/globals.css" />
       </Head>
 
       {/* 导航栏 */}

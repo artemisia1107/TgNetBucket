@@ -231,8 +231,6 @@ export default function AdminPanel() {
         <meta name="description" content="TgNetBucket 后端管理面板" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="stylesheet" href="/styles/globals.css" />
-        <link rel="stylesheet" href="/styles/admin.css" />
-        <link rel="stylesheet" href="/styles/components.css" />
       </Head>
 
       {/* 顶部导航栏 */}

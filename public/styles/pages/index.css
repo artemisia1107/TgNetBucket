@@ -1,0 +1,480 @@
+/**
+ * 首页样式
+ * 包含文件上传、文件列表、搜索等功能的样式
+ */
+
+/* ========== 页面布局 ========== */
+
+.index-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, var(--color-primary-light) 0%, var(--color-background) 100%);
+}
+
+.index-header {
+  background: var(--color-background);
+  border-bottom: 1px solid var(--color-border);
+  padding: var(--spacing-4) 0;
+  position: sticky;
+  top: 0;
+  z-index: var(--z-index-sticky);
+  backdrop-filter: blur(8px);
+  background-color: rgba(255, 255, 255, 0.95);
+}
+
+.index-header .container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-4);
+}
+
+.index-title {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-primary);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+}
+
+.index-title-icon {
+  width: 2rem;
+  height: 2rem;
+  color: var(--color-primary);
+}
+
+/* ========== 主要内容区域 ========== */
+
+.index-main {
+  padding: var(--spacing-8) 0;
+}
+
+.index-content {
+  display: grid;
+  gap: var(--spacing-8);
+}
+
+/* ========== 上传区域 ========== */
+
+.upload-section {
+  background: var(--color-background);
+  border-radius: var(--border-radius-xl);
+  padding: var(--spacing-8);
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--color-border);
+}
+
+.upload-title {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  margin: 0 0 var(--spacing-6);
+  text-align: center;
+}
+
+.upload-area {
+  border: 2px dashed var(--color-border);
+  border-radius: var(--border-radius-lg);
+  padding: var(--spacing-12) var(--spacing-6);
+  text-align: center;
+  transition: all var(--transition-normal);
+  cursor: pointer;
+  position: relative;
+  background: var(--color-surface);
+}
+
+.upload-area:hover {
+  border-color: var(--color-primary);
+  background-color: var(--color-primary-light);
+}
+
+.upload-area.dragover {
+  border-color: var(--color-primary);
+  background-color: var(--color-primary-light);
+  transform: scale(1.02);
+}
+
+.upload-icon {
+  width: 4rem;
+  height: 4rem;
+  margin: 0 auto var(--spacing-4);
+  color: var(--color-text-muted);
+  transition: color var(--transition-normal);
+}
+
+.upload-area:hover .upload-icon,
+.upload-area.dragover .upload-icon {
+  color: var(--color-primary);
+}
+
+.upload-text {
+  font-size: var(--font-size-lg);
+  color: var(--color-text-secondary);
+  margin: 0 0 var(--spacing-2);
+}
+
+.upload-hint {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+.upload-input {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+
+/* ========== 上传进度 ========== */
+
+.upload-progress {
+  margin-top: var(--spacing-6);
+  display: none;
+}
+
+.upload-progress.visible {
+  display: block;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 0.5rem;
+  background-color: var(--color-surface);
+  border-radius: var(--border-radius-full);
+  overflow: hidden;
+  margin-bottom: var(--spacing-2);
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-primary), var(--color-primary-dark));
+  border-radius: var(--border-radius-full);
+  transition: width var(--transition-normal);
+  width: 0%;
+}
+
+.progress-text {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+/* ========== 搜索区域 ========== */
+
+.search-section {
+  background: var(--color-background);
+  border-radius: var(--border-radius-xl);
+  padding: var(--spacing-6);
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--color-border);
+}
+
+.search-form {
+  display: flex;
+  gap: var(--spacing-3);
+  align-items: center;
+}
+
+.search-input {
+  flex: 1;
+  padding: var(--spacing-3) var(--spacing-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-lg);
+  font-size: var(--font-size-base);
+  transition: all var(--transition-normal);
+  background: var(--color-background);
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-focus);
+}
+
+.search-button {
+  padding: var(--spacing-3) var(--spacing-6);
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: var(--border-radius-lg);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+}
+
+.search-button:hover {
+  background: var(--color-primary-dark);
+  transform: translateY(-1px);
+}
+
+.search-button:active {
+  transform: translateY(0);
+}
+
+/* ========== 文件列表区域 ========== */
+
+.files-section {
+  background: var(--color-background);
+  border-radius: var(--border-radius-xl);
+  padding: var(--spacing-6);
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--color-border);
+}
+
+.files-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--spacing-6);
+  padding-bottom: var(--spacing-4);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.files-title {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.files-count {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  background: var(--color-surface);
+  padding: var(--spacing-1) var(--spacing-3);
+  border-radius: var(--border-radius-full);
+}
+
+.files-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--spacing-4);
+}
+
+.file-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-lg);
+  padding: var(--spacing-4);
+  transition: all var(--transition-normal);
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.file-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--color-primary-light);
+}
+
+.file-card-header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  margin-bottom: var(--spacing-3);
+}
+
+.file-icon {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: var(--border-radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+  flex-shrink: 0;
+}
+
+.file-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.file-name {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+  margin: 0 0 var(--spacing-1);
+  word-break: break-word;
+  line-height: var(--line-height-tight);
+}
+
+.file-size {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+.file-actions {
+  display: flex;
+  gap: var(--spacing-2);
+  margin-top: var(--spacing-3);
+  padding-top: var(--spacing-3);
+  border-top: 1px solid var(--color-border);
+}
+
+.file-action {
+  flex: 1;
+  padding: var(--spacing-2) var(--spacing-3);
+  border: 1px solid var(--color-border);
+  background: var(--color-background);
+  color: var(--color-text-secondary);
+  border-radius: var(--border-radius-md);
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  text-align: center;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-1);
+}
+
+.file-action:hover {
+  background: var(--color-hover);
+  color: var(--color-text-primary);
+  border-color: var(--color-primary-light);
+}
+
+.file-action.primary {
+  background: var(--color-primary);
+  color: white;
+  border-color: var(--color-primary);
+}
+
+.file-action.primary:hover {
+  background: var(--color-primary-dark);
+  border-color: var(--color-primary-dark);
+}
+
+/* ========== 空状态 ========== */
+
+.empty-state {
+  text-align: center;
+  padding: var(--spacing-12) var(--spacing-6);
+  color: var(--color-text-muted);
+}
+
+.empty-icon {
+  width: 4rem;
+  height: 4rem;
+  margin: 0 auto var(--spacing-4);
+  opacity: 0.5;
+}
+
+.empty-title {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
+  margin: 0 0 var(--spacing-2);
+}
+
+.empty-description {
+  font-size: var(--font-size-base);
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+/* ========== 加载状态 ========== */
+
+.loading-state {
+  text-align: center;
+  padding: var(--spacing-8);
+}
+
+.loading-spinner {
+  width: 2rem;
+  height: 2rem;
+  border: 2px solid var(--color-border);
+  border-top: 2px solid var(--color-primary);
+  border-radius: var(--border-radius-full);
+  animation: spin 1s linear infinite;
+  margin: 0 auto var(--spacing-4);
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading-text {
+  font-size: var(--font-size-base);
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+/* ========== 响应式设计 ========== */
+
+@media (max-width: 768px) {
+  .index-header .container {
+    flex-direction: column;
+    gap: var(--spacing-3);
+  }
+  
+  .index-title {
+    font-size: var(--font-size-xl);
+  }
+  
+  .upload-section,
+  .search-section,
+  .files-section {
+    padding: var(--spacing-6) var(--spacing-4);
+  }
+  
+  .upload-area {
+    padding: var(--spacing-8) var(--spacing-4);
+  }
+  
+  .search-form {
+    flex-direction: column;
+  }
+  
+  .search-button {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .files-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .file-actions {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 480px) {
+  .index-main {
+    padding: var(--spacing-4) 0;
+  }
+  
+  .index-content {
+    gap: var(--spacing-6);
+  }
+  
+  .upload-title,
+  .files-title {
+    font-size: var(--font-size-lg);
+  }
+  
+  .upload-icon {
+    width: 3rem;
+    height: 3rem;
+  }
+  
+  .upload-text {
+    font-size: var(--font-size-base);
+  }
+}

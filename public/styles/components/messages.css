@@ -1,0 +1,308 @@
+/**
+ * 消息提示组件样式
+ * 包含成功、错误、警告、信息等各种消息提示
+ */
+
+/* ========== 基础消息样式 ========== */
+
+.message {
+  position: fixed;
+  top: var(--spacing-5);
+  right: var(--spacing-5);
+  padding: var(--spacing-4) var(--spacing-5);
+  border-radius: var(--border-radius-md);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-normal);
+  z-index: var(--z-index-toast);
+  max-width: 400px;
+  min-width: 300px;
+  box-shadow: var(--shadow-lg);
+  opacity: 0;
+  transform: translateX(100%);
+  transition: all var(--transition-normal);
+  border: 1px solid transparent;
+  word-wrap: break-word;
+}
+
+.message.visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.message.hiding {
+  opacity: 0;
+  transform: translateX(100%);
+}
+
+/* ========== 消息类型 ========== */
+
+.message.success {
+  background-color: var(--color-success-light);
+  color: var(--color-success);
+  border-color: var(--color-success);
+  border-left-width: 4px;
+}
+
+.message.error {
+  background-color: var(--color-error-light);
+  color: var(--color-error);
+  border-color: var(--color-error);
+  border-left-width: 4px;
+}
+
+.message.warning {
+  background-color: var(--color-warning-light);
+  color: var(--color-warning);
+  border-color: var(--color-warning);
+  border-left-width: 4px;
+}
+
+.message.info {
+  background-color: var(--color-info-light);
+  color: var(--color-info);
+  border-color: var(--color-info);
+  border-left-width: 4px;
+}
+
+/* ========== 消息内容 ========== */
+
+.message-content {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-3);
+}
+
+.message-icon {
+  flex-shrink: 0;
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-top: 1px;
+}
+
+.message-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.message-title {
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: var(--spacing-1);
+}
+
+.message-description {
+  font-size: var(--font-size-xs);
+  opacity: 0.9;
+  line-height: var(--line-height-relaxed);
+}
+
+/* ========== 关闭按钮 ========== */
+
+.message-close {
+  position: absolute;
+  top: var(--spacing-2);
+  right: var(--spacing-2);
+  width: 1.5rem;
+  height: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  border-radius: var(--border-radius-sm);
+  color: currentColor;
+  opacity: 0.7;
+  transition: all var(--transition-fast);
+}
+
+.message-close:hover {
+  opacity: 1;
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.message-close:focus {
+  outline: none;
+  opacity: 1;
+  box-shadow: 0 0 0 2px currentColor;
+}
+
+/* ========== 消息位置变体 ========== */
+
+.message-top-left {
+  top: var(--spacing-5);
+  left: var(--spacing-5);
+  right: auto;
+  transform: translateX(-100%);
+}
+
+.message-top-left.visible {
+  transform: translateX(0);
+}
+
+.message-top-center {
+  top: var(--spacing-5);
+  left: 50%;
+  right: auto;
+  transform: translateX(-50%) translateY(-100%);
+}
+
+.message-top-center.visible {
+  transform: translateX(-50%) translateY(0);
+}
+
+.message-bottom-right {
+  top: auto;
+  bottom: var(--spacing-5);
+  right: var(--spacing-5);
+  transform: translateX(100%);
+}
+
+.message-bottom-right.visible {
+  transform: translateX(0);
+}
+
+.message-bottom-left {
+  top: auto;
+  bottom: var(--spacing-5);
+  left: var(--spacing-5);
+  right: auto;
+  transform: translateX(-100%);
+}
+
+.message-bottom-left.visible {
+  transform: translateX(0);
+}
+
+.message-bottom-center {
+  top: auto;
+  bottom: var(--spacing-5);
+  left: 50%;
+  right: auto;
+  transform: translateX(-50%) translateY(100%);
+}
+
+.message-bottom-center.visible {
+  transform: translateX(-50%) translateY(0);
+}
+
+/* ========== 消息尺寸 ========== */
+
+.message-sm {
+  padding: var(--spacing-2) var(--spacing-3);
+  font-size: var(--font-size-xs);
+  min-width: 200px;
+  max-width: 300px;
+}
+
+.message-lg {
+  padding: var(--spacing-5) var(--spacing-6);
+  font-size: var(--font-size-base);
+  min-width: 400px;
+  max-width: 500px;
+}
+
+/* ========== 消息容器 ========== */
+
+.message-container {
+  position: fixed;
+  top: var(--spacing-5);
+  right: var(--spacing-5);
+  z-index: var(--z-index-toast);
+  pointer-events: none;
+}
+
+.message-container .message {
+  position: relative;
+  top: auto;
+  right: auto;
+  margin-bottom: var(--spacing-3);
+  pointer-events: auto;
+}
+
+.message-container .message:last-child {
+  margin-bottom: 0;
+}
+
+/* ========== 进度条 ========== */
+
+.message-progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 3px;
+  background-color: currentColor;
+  opacity: 0.3;
+  transition: width linear;
+  border-radius: 0 0 var(--border-radius-md) var(--border-radius-md);
+}
+
+/* ========== 动画效果 ========== */
+
+@keyframes message-shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+.message-shake {
+  animation: message-shake 0.5s ease-in-out;
+}
+
+@keyframes message-bounce {
+  0%, 20%, 53%, 80%, 100% { transform: translateY(0); }
+  40%, 43% { transform: translateY(-10px); }
+  70% { transform: translateY(-5px); }
+  90% { transform: translateY(-2px); }
+}
+
+.message-bounce {
+  animation: message-bounce 1s ease-in-out;
+}
+
+/* ========== 响应式设计 ========== */
+
+@media (max-width: 640px) {
+  .message {
+    top: var(--spacing-3);
+    right: var(--spacing-3);
+    left: var(--spacing-3);
+    max-width: none;
+    min-width: auto;
+    transform: translateY(-100%);
+  }
+  
+  .message.visible {
+    transform: translateY(0);
+  }
+  
+  .message.hiding {
+    transform: translateY(-100%);
+  }
+  
+  .message-top-left,
+  .message-top-center,
+  .message-bottom-left,
+  .message-bottom-right,
+  .message-bottom-center {
+    top: var(--spacing-3);
+    bottom: auto;
+    left: var(--spacing-3);
+    right: var(--spacing-3);
+    transform: translateY(-100%);
+  }
+  
+  .message-top-left.visible,
+  .message-top-center.visible,
+  .message-bottom-left.visible,
+  .message-bottom-right.visible,
+  .message-bottom-center.visible {
+    transform: translateY(0);
+  }
+  
+  .message-container {
+    top: var(--spacing-3);
+    right: var(--spacing-3);
+    left: var(--spacing-3);
+  }
+}
