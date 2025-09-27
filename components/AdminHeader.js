@@ -2,6 +2,7 @@
  * AdminHeader 组件
  * 提供管理面板的侧边栏导航和顶部操作栏
  */
+import Link from 'next/link';
 
 /**
  * AdminHeader 组件
@@ -94,10 +95,10 @@ export default function AdminHeader({
       </nav>
 
       <div className="sidebar-footer">
-        <a href="/" className="sidebar-back-link">
+        <Link href="/" className="sidebar-back-link">
           <span className="sidebar-back-icon">🏠</span>
           <span className="sidebar-back-text">返回首页</span>
-        </a>
+        </Link>
       </div>
     </aside>
   );

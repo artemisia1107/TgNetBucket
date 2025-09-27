@@ -82,7 +82,7 @@ export default async function handler(req, res) {
       keysCount: Object.keys(backupData.data).length,
       fileSize: fs.statSync(backupPath).size,
       filePath: backupPath,
-      filename: filename
+      filename
     };
 
     console.log('数据库备份完成:', stats);
@@ -91,7 +91,7 @@ export default async function handler(req, res) {
       success: true,
       message: '数据库备份完成',
       data: {
-        filename: filename,
+        filename,
         keysCount: stats.keysCount,
         fileSize: stats.fileSize,
         timestamp: backupData.timestamp,

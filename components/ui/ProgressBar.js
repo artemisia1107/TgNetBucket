@@ -158,7 +158,7 @@ function createCircularProgress(progress = 0, options = {}) {
         transform="rotate(-90 ${size / 2} ${size / 2})"
       />
     </svg>
-    ${showText ? `<div class="circular-progress-text">${text || Math.round(progress) + '%'}</div>` : ''}
+    ${showText ? `<div class="circular-progress-text">${text || `${Math.round(progress)}%`}</div>` : ''}
   `;
   
   return container;
@@ -186,7 +186,7 @@ function updateCircularProgress(container, progress, text = '') {
   }
   
   if (textEl) {
-    textEl.textContent = text || Math.round(progress) + '%';
+    textEl.textContent = text || `${Math.round(progress)}%`;
   }
 }
 

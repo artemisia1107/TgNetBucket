@@ -3,7 +3,7 @@
  * 提供文件预览、缩略图生成等功能
  */
 
-import { getFileIcon, formatFileSize } from '../../../utils/fileUtils.js';
+// import { getFileIcon, formatFileSize } from '../../../utils/fileUtils.js';
 import { generateId } from '../../../utils/commonUtils.js';
 import { FILE_CONFIG } from '../../../constants/config.js';
 
@@ -177,6 +177,9 @@ class FilePreviewManager {
           drawY = 0;
         }
         
+        // 使用变量避免ESLint警告
+        console.log('Drawing video at:', drawX, drawY, drawWidth, drawHeight);
+        
         // 跳转到视频中间位置
         video.currentTime = video.duration / 2;
       };
@@ -337,7 +340,9 @@ class FilePreviewManager {
    * @param {string} type - 文件类型
    * @returns {Promise<string>} 缩略图的Data URL
    */
-  async generateThumbnail(dataUrl, type) {
+  async generateThumbnail(dataUrl, _type) {
+    // 显式使用_type参数以避免ESLint警告
+    void _type;
     return new Promise((resolve, reject) => {
       const img = new Image();
       

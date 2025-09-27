@@ -5,7 +5,7 @@
 
 import axios from 'axios';
 import { createMessage } from '../../ui/Message.js';
-import { createProgressBar, updateProgressBar } from '../../ui/ProgressBar.js';
+// import { createProgressBar, updateProgressBar } from '../../ui/ProgressBar.js';
 import { formatFileSize } from '../../../utils/fileUtils.js';
 import { FILE_CONFIG, UPLOAD_CONFIG } from '../../../constants/config.js';
 

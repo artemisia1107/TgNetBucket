@@ -23,11 +23,9 @@ export default async function handler(req, res) {
 
   const { fileId, s } = req.query; // s参数用于短链接
   let actualFileId = fileId;
-  let isShortLink = false;
   
   // 处理短链接
   if (s) {
-    isShortLink = true;
     try {
       // 新的短链接处理逻辑：从所有文件中查找匹配的短链接
       let foundFileInfo = null;

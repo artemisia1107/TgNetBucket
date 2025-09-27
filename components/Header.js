@@ -3,6 +3,7 @@
  * 提供统一的页面头部导航栏
  * 支持不同页面的自定义配置
  */
+import Link from 'next/link';
 
 /**
  * Header 组件
@@ -106,20 +107,20 @@ export default function Header({
         {currentPage === 'home' && (
           <>
             <div className="nav-divider"></div>
-            <a href="/admin" className="admin-link">
+            <Link href="/admin" className="admin-link">
               <span className="admin-icon">⚙️</span>
               <span className="admin-text">管理面板</span>
-            </a>
+            </Link>
           </>
         )}
         
         {currentPage === 'admin' && (
           <>
             <div className="nav-divider"></div>
-            <a href="/" className="home-link">
+            <Link href="/" className="home-link">
               <span className="home-icon">🏠</span>
               <span className="home-text">返回首页</span>
-            </a>
+            </Link>
           </>
         )}
       </div>

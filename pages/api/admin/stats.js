@@ -55,7 +55,7 @@ export default async function handler(req, res) {
               filesData = listData.map(item => {
                 try {
                   return typeof item === 'string' ? JSON.parse(item) : item;
-                } catch (e) {
+                } catch {
                   return null;
                 }
               }).filter(item => item !== null);
@@ -144,14 +144,14 @@ export default async function handler(req, res) {
                 stats.shortLinks += oldShortLinks.length;
               }
             }
-          } catch (scanError) {
+          } catch {
             // 如果SCAN不支持，尝试KEYS
             try {
               const keys = await redis.keys('short:*');
               if (Array.isArray(keys)) {
                 stats.shortLinks += keys.length;
               }
-            } catch (keysError) {
+            } catch {
               console.log('无法扫描旧短链接，跳过统计');
             }
           }

@@ -35,7 +35,7 @@ export default async function handler(req, res) {
     let fileInfo;
     try {
       fileInfo = await telegramStorage.getFileInfo(fileId);
-    } catch (error) {
+    } catch {
       return res.status(404).json({ 
         success: false, 
         error: '文件不存在' 
@@ -57,7 +57,7 @@ export default async function handler(req, res) {
         
         return res.status(200).json({ 
           success: true, 
-          shortUrl: shortUrl,
+          shortUrl,
           shortId: fileInfo.shortLink.shortId,
           expiresIn: Math.floor((existingExpiresAt - now) / 1000),
           expiresAt: fileInfo.shortLink.expiresAt,
@@ -71,7 +71,7 @@ export default async function handler(req, res) {
     
     // 将短链接信息添加到文件信息中
     fileInfo.shortLink = {
-      shortId: shortId,
+      shortId,
       createdAt: now.toISOString(),
       expiresAt: expiresAt.toISOString(),
       accessCount: 0
@@ -89,9 +89,9 @@ export default async function handler(req, res) {
     
     res.status(200).json({ 
       success: true, 
-      shortUrl: shortUrl,
-      shortId: shortId,
-      expiresIn: expiresIn,
+      shortUrl,
+      shortId,
+      expiresIn,
       expiresAt: fileInfo.shortLink.expiresAt,
       isExisting: false
     });

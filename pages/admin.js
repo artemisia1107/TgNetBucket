@@ -4,20 +4,25 @@
  */
 import { useState, useEffect } from 'react';
 import Head from 'next/head';
-import AdminHeader from '../components/AdminHeader';
+import Link from 'next/link';
+// import AdminHeader from '../components/AdminHeader';
 import Footer from '../components/Footer';
 import axios from 'axios';
-import { createFileCard } from '../components/common';
 import { 
   createSuccessMessage, 
-  createErrorMessage, 
-  createWarningMessage 
+  createErrorMessage
+  // createWarningMessage 
 } from '../components/ui/Message';
-import { createLoader } from '../components/ui/ProgressBar';
 import { createConfirmDialog } from '../components/ui/Modal';
-import { formatFileSize } from '../utils/fileUtils';
-import { formatDate } from '../utils/formatUtils';
-import { AnimationUtils } from '../utils/commonUtils';
+
+// 临时定义formatFileSize函数，避免导入错误
+const formatFileSize = (bytes) => {
+  if (bytes === 0) return '0 Bytes';
+  const k = 1024;
+  const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return `${parseFloat((bytes / Math.pow(k, i)).toFixed(2))} ${sizes[i]}`;
+};
 
 /**
  * 后端管理页面
@@ -29,7 +34,7 @@ export default function AdminPanel() {
   const [systemStatus, setSystemStatus] = useState(null);
   const [activityLogs, setActivityLogs] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState('');
+  // const [message, setMessage] = useState('');
 
   // 获取系统统计信息
   /**
@@ -556,7 +561,6 @@ export default function AdminPanel() {
         <title>TgNetBucket - 管理面板</title>
         <meta name="description" content="TgNetBucket 后端管理面板" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="stylesheet" href="/styles/globals.css" />
       </Head>
 
       <div className="admin-layout">
@@ -607,10 +611,10 @@ export default function AdminPanel() {
           </nav>
 
           <div className="sidebar-footer">
-            <a href="/" className="sidebar-back-link">
+            <Link href="/" className="sidebar-back-link">
               <span className="sidebar-back-icon">🏠</span>
               <span className="sidebar-back-text">返回首页</span>
-            </a>
+            </Link>
           </div>
         </aside>
 

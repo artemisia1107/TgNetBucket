@@ -1,5 +1,4 @@
 import TelegramBot from 'node-telegram-bot-api';
-import axios from 'axios';
 import { redisClient } from './redis_client.js';
 
 class TelegramStorage {
@@ -28,7 +27,7 @@ class TelegramStorage {
       const fileInfo = {
         fileId: response.document?.file_id || '',
         messageId: response.message_id.toString(),
-        fileName: fileName,
+        fileName,
         fileSize: response.document?.file_size || fileBuffer.length,
         uploadTime: new Date().toISOString(),
         chatId: this.chatId

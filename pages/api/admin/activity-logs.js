@@ -74,8 +74,8 @@ async function getActivityLogs(req, res) {
     res.status(200).json({
       success: true,
       data: {
-        logs: logs,
-        stats: stats,
+        logs,
+        stats,
         pagination: {
           limit: parseInt(limit),
           offset: parseInt(offset),
@@ -110,7 +110,7 @@ async function logActivity(req, res) {
     const logEntry = {
       id: Date.now().toString(),
       timestamp: new Date().toISOString(),
-      action: action,
+      action,
       details: details || '',
       fileId: fileId || null,
       ip: ip || req.headers['x-forwarded-for'] || req.connection.remoteAddress || 'unknown',
@@ -225,7 +225,7 @@ async function updateActivityStats(action) {
     } else {
       const memoryStore = redisClient.memoryStore;
       const statsData = memoryStore.get(statsKey);
-      let stats = statsData ? statsData.value || {} : {};
+      const stats = statsData ? statsData.value || {} : {};
       
       stats[action] = (stats[action] || 0) + 1;
       stats['total'] = (stats['total'] || 0) + 1;
