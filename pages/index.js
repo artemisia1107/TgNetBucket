@@ -125,8 +125,11 @@ export default function Home() {
       </Head>
 
       <main>
-        <h1 className="title">TgNetBucket</h1>
-        <p className="description">使用Telegram存储文件的网络存储桶</p>
+        <div className="header-section">
+          <h1 className="title">TgNetBucket</h1>
+          <p className="description">使用Telegram存储文件的网络存储桶</p>
+          <a href="/admin" className="admin-link">🔧 管理面板</a>
+        </div>
 
         <div className="upload-section">
           <label className="upload-button">
@@ -223,18 +226,37 @@ export default function Home() {
           width: 100%;
         }
 
+        .header-section {
+          text-align: center;
+          margin-bottom: 2rem;
+        }
+
         .title {
           margin: 0;
           line-height: 1.15;
-          font-size: 3rem;
-          text-align: center;
+          font-size: 4rem;
         }
 
         .description {
-          text-align: center;
           line-height: 1.5;
           font-size: 1.5rem;
           margin: 1rem 0;
+        }
+
+        .admin-link {
+          display: inline-block;
+          padding: 8px 16px;
+          background: #f0f0f0;
+          color: #333;
+          text-decoration: none;
+          border-radius: 4px;
+          font-size: 0.9rem;
+          margin-top: 1rem;
+          transition: background-color 0.2s;
+        }
+
+        .admin-link:hover {
+          background: #e0e0e0;
         }
 
         .upload-section {
