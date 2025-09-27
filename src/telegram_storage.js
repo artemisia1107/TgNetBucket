@@ -1,5 +1,5 @@
-const TelegramBot = require('node-telegram-bot-api');
-const axios = require('axios');
+import TelegramBot from 'node-telegram-bot-api';
+import axios from 'axios';
 
 class TelegramStorage {
   constructor(options) {
@@ -101,4 +101,4 @@ class TelegramStorage {
   }
 }
 
-module.exports = { TelegramStorage };
+export { TelegramStorage };
