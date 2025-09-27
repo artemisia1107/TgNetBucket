@@ -2,11 +2,16 @@ import { useState, useEffect } from 'react';
 import Head from 'next/head';
 import axios from 'axios';
 
+/**
+ * TgNetBucket 主页面组件
+ * 提供文件上传、下载、管理等功能
+ */
 export default function Home() {
   const [files, setFiles] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [message, setMessage] = useState('');
+  const [isDragging, setIsDragging] = useState(false);
 
   // 获取文件列表
   const fetchFiles = async () => {
@@ -21,9 +26,8 @@ export default function Home() {
     }
   };
 
-  // 上传文件
-  const handleUpload = async (event) => {
-    const file = event.target.files[0];
+  // 上传文件处理函数
+  const uploadFile = async (file) => {
     if (!file) return;
 
     setIsLoading(true);
@@ -44,13 +48,39 @@ export default function Home() {
         },
       });
 
-      setMessage('文件上传成功！');
+      setMessage('✅ 文件上传成功！');
       fetchFiles(); // 刷新文件列表
+      setTimeout(() => setMessage(''), 3000); // 3秒后清除消息
     } catch (error) {
-      setMessage(`文件上传失败: ${error.message}`);
+      setMessage(`❌ 文件上传失败: ${error.message}`);
     } finally {
       setIsLoading(false);
+      setUploadProgress(0);
     }
+  };
+
+  // 处理文件选择上传
+  const handleUpload = async (event) => {
+    const file = event.target.files[0];
+    await uploadFile(file);
+  };
+
+  // 处理拖拽上传
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+
+  const handleDrop = async (e) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const file = e.dataTransfer.files[0];
+    await uploadFile(file);
   };
 
   // 下载文件
@@ -111,338 +141,812 @@ export default function Home() {
     }
   };
 
+  // 获取文件图标
+  const getFileIcon = (fileName) => {
+    if (!fileName) return '📄';
+    const ext = fileName.split('.').pop()?.toLowerCase();
+    
+    const iconMap = {
+      // 图片
+      'jpg': '🖼️', 'jpeg': '🖼️', 'png': '🖼️', 'gif': '🖼️', 'bmp': '🖼️', 'svg': '🖼️', 'webp': '🖼️',
+      // 视频
+      'mp4': '🎬', 'avi': '🎬', 'mov': '🎬', 'wmv': '🎬', 'flv': '🎬', 'mkv': '🎬', 'webm': '🎬',
+      // 音频
+      'mp3': '🎵', 'wav': '🎵', 'flac': '🎵', 'aac': '🎵', 'ogg': '🎵', 'm4a': '🎵',
+      // 文档
+      'pdf': '📕', 'doc': '📘', 'docx': '📘', 'txt': '📄', 'rtf': '📄',
+      'xls': '📗', 'xlsx': '📗', 'csv': '📗',
+      'ppt': '📙', 'pptx': '📙',
+      // 压缩包
+      'zip': '📦', 'rar': '📦', '7z': '📦', 'tar': '📦', 'gz': '📦',
+      // 代码
+      'js': '💻', 'ts': '💻', 'jsx': '💻', 'tsx': '💻', 'vue': '💻', 'react': '💻',
+      'html': '🌐', 'css': '🎨', 'scss': '🎨', 'sass': '🎨', 'less': '🎨',
+      'py': '🐍', 'java': '☕', 'cpp': '⚙️', 'c': '⚙️', 'php': '🐘', 'go': '🐹',
+      'json': '📋', 'xml': '📋', 'yaml': '📋', 'yml': '📋',
+      // 其他
+      'exe': '⚙️', 'msi': '⚙️', 'dmg': '💿', 'iso': '💿', 'apk': '📱'
+    };
+    
+    return iconMap[ext] || '📄';
+  };
+
   // 组件加载时获取文件列表
   useEffect(() => {
     fetchFiles();
   }, []);
 
   return (
-    <div className="container">
+    <div className="app">
       <Head>
-        <title>TgNetBucket - Telegram文件存储</title>
-        <meta name="description" content="使用Telegram存储文件的网络存储桶" />
+        <title>TgNetBucket - 现代化文件存储</title>
+        <meta name="description" content="基于Telegram的现代化文件存储服务" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <main>
-        <div className="header-section">
-          <h1 className="title">TgNetBucket</h1>
-          <p className="description">使用Telegram存储文件的网络存储桶</p>
-          <a href="/admin" className="admin-link">🔧 管理面板</a>
+      {/* 导航栏 */}
+      <nav className="navbar">
+        <div className="nav-container">
+          <div className="nav-brand">
+            <h1>📦 TgNetBucket</h1>
+            <span className="nav-subtitle">现代化文件存储</span>
+          </div>
+          <div className="nav-actions">
+            <a href="/admin" className="admin-link">
+              <span className="admin-icon">⚙️</span>
+              管理面板
+            </a>
+          </div>
         </div>
+      </nav>
 
-        <div className="upload-section">
-          <label className="upload-button">
-            选择文件上传
-            <input
-              type="file"
-              onChange={handleUpload}
-              disabled={isLoading}
-              style={{ display: 'none' }}
-            />
-          </label>
+      <main className="main-content">
+        {/* 英雄区域 */}
+        <section className="hero-section">
+          <div className="hero-content">
+            <h2 className="hero-title">安全、快速的文件存储</h2>
+            <p className="hero-description">
+              基于Telegram的云存储服务，支持拖拽上传、一键分享、永久保存
+            </p>
+          </div>
+        </section>
 
-          {uploadProgress > 0 && uploadProgress < 100 && (
-            <div className="progress-bar">
-              <div
-                className="progress"
-                style={{ width: `${uploadProgress}%` }}
-              ></div>
-              <span>{uploadProgress}%</span>
+        {/* 上传区域 */}
+        <section className="upload-section">
+          <div className="upload-container">
+            <div 
+              className={`upload-zone ${isDragging ? 'dragging' : ''} ${isLoading ? 'uploading' : ''}`}
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
+            >
+              <div className="upload-content">
+                <div className="upload-icon">📁</div>
+                <h3>拖拽文件到此处或点击上传</h3>
+                <p>支持所有文件类型，单文件最大50MB</p>
+                <label className="upload-button">
+                  <span>选择文件</span>
+                  <input
+                    type="file"
+                    onChange={handleUpload}
+                    disabled={isLoading}
+                    style={{ display: 'none' }}
+                  />
+                </label>
+              </div>
+
+              {uploadProgress > 0 && (
+                <div className="progress-container">
+                  <div className="progress-bar">
+                    <div
+                      className="progress-fill"
+                      style={{ width: `${uploadProgress}%` }}
+                    ></div>
+                  </div>
+                  <span className="progress-text">{uploadProgress}%</span>
+                </div>
+              )}
+            </div>
+
+            {message && (
+              <div className={`message ${message.includes('✅') ? 'success' : 'error'}`}>
+                {message}
+              </div>
+            )}
+          </div>
+        </section>
+
+        {/* 文件列表区域 */}
+        <section className="files-section">
+          <div className="section-header">
+            <h2>📂 我的文件</h2>
+            <div className="file-stats">
+              共 {files.length} 个文件
+            </div>
+          </div>
+
+          {isLoading && !uploadProgress && (
+            <div className="loading-container">
+              <div className="loading-spinner"></div>
+              <p>加载中...</p>
+            </div>
+          )}
+          
+          {!isLoading && files.length === 0 && (
+            <div className="empty-state">
+              <div className="empty-icon">📭</div>
+              <h3>还没有文件</h3>
+              <p>上传您的第一个文件开始使用吧！</p>
             </div>
           )}
 
-          {message && <p className="message">{message}</p>}
-        </div>
-
-        <div className="files-section">
-          <h2>文件列表</h2>
-          {isLoading && <p>加载中...</p>}
-          
-          {!isLoading && files.length === 0 && (
-            <p>没有文件</p>
-          )}
-
-          <ul className="file-list">
+          <div className="file-grid">
             {files.map((file) => (
-              <li key={file.fileId} className="file-item">
-                <div className="file-info">
-                  <span className="file-name">{file.fileName}</span>
-                  <span className="file-size">
-                    {file.fileSize ? `${(file.fileSize / 1024 / 1024).toFixed(2)} MB` : '未知大小'}
-                  </span>
-                  <span className="file-date">
-                    {file.uploadTime ? new Date(file.uploadTime).toLocaleDateString('zh-CN') : ''}
-                  </span>
+              <div key={file.fileId} className="file-card">
+                <div className="file-header">
+                  <div className="file-icon">
+                    {getFileIcon(file.fileName)}
+                  </div>
+                  <div className="file-info">
+                    <h4 className="file-name" title={file.fileName}>
+                      {file.fileName}
+                    </h4>
+                    <div className="file-meta">
+                      <span className="file-size">
+                        {file.fileSize ? `${(file.fileSize / 1024 / 1024).toFixed(2)} MB` : '未知大小'}
+                      </span>
+                      <span className="file-date">
+                        {file.uploadTime ? new Date(file.uploadTime).toLocaleDateString('zh-CN') : ''}
+                      </span>
+                    </div>
+                  </div>
                 </div>
+                
                 <div className="file-actions">
                   <button
                     onClick={() => handleDownload(file.fileId, file.fileName)}
-                    className="download-button"
+                    className="action-btn download-btn"
                     disabled={isLoading}
+                    title="下载文件"
                   >
-                    📥 下载
+                    <span className="btn-icon">⬇️</span>
+                    下载
                   </button>
                   <button
                     onClick={() => handleGenerateShortLink(file.fileId, file.fileName)}
-                    className="share-button"
+                    className="action-btn share-btn"
                     disabled={isLoading}
+                    title="生成分享链接"
                   >
-                    🔗 短链接
+                    <span className="btn-icon">🔗</span>
+                    分享
                   </button>
                   <button
                     onClick={() => handleDelete(file.messageId)}
-                    className="delete-button"
+                    className="action-btn delete-btn"
                     disabled={isLoading}
+                    title="删除文件"
                   >
-                    🗑️ 删除
+                    <span className="btn-icon">🗑️</span>
+                    删除
                   </button>
                 </div>
-              </li>
+              </div>
             ))}
-          </ul>
-        </div>
+          </div>
+        </section>
       </main>
 
+      {/* 页脚 */}
+      <footer className="footer">
+        <div className="footer-content">
+          <p>&copy; 2024 TgNetBucket. 基于 Telegram 的现代化文件存储服务</p>
+        </div>
+      </footer>
+
       <style jsx>{`
-        .container {
+        .app {
           min-height: 100vh;
-          padding: 0 0.5rem;
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          align-items: center;
-          max-width: 800px;
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          color: #333;
+        }
+
+        /* 导航栏 */
+        .navbar {
+          background: rgba(255, 255, 255, 0.95);
+          backdrop-filter: blur(10px);
+          border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+          position: sticky;
+          top: 0;
+          z-index: 100;
+          box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-container {
+          max-width: 1200px;
           margin: 0 auto;
-        }
-
-        main {
-          padding: 2rem 0;
-          flex: 1;
+          padding: 1rem 2rem;
           display: flex;
-          flex-direction: column;
-          justify-content: flex-start;
+          justify-content: space-between;
           align-items: center;
-          width: 100%;
         }
 
-        .header-section {
-          text-align: center;
-          margin-bottom: 2rem;
-        }
-
-        .title {
+        .nav-brand h1 {
           margin: 0;
-          line-height: 1.15;
-          font-size: 4rem;
+          font-size: 1.5rem;
+          font-weight: 700;
+          background: linear-gradient(135deg, #667eea, #764ba2);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
         }
 
-        .description {
-          line-height: 1.5;
-          font-size: 1.5rem;
-          margin: 1rem 0;
+        .nav-subtitle {
+          font-size: 0.8rem;
+          color: #666;
+          margin-left: 0.5rem;
         }
 
         .admin-link {
-          display: inline-block;
-          padding: 8px 16px;
-          background: #f0f0f0;
-          color: #333;
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          padding: 0.5rem 1rem;
+          background: linear-gradient(135deg, #667eea, #764ba2);
+          color: white;
           text-decoration: none;
-          border-radius: 4px;
+          border-radius: 25px;
           font-size: 0.9rem;
-          margin-top: 1rem;
-          transition: background-color 0.2s;
+          font-weight: 500;
+          transition: all 0.3s ease;
+          box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
         }
 
         .admin-link:hover {
-          background: #e0e0e0;
+          transform: translateY(-2px);
+          box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
         }
 
+        /* 主内容区域 */
+        .main-content {
+          max-width: 1200px;
+          margin: 0 auto;
+          padding: 0 2rem;
+        }
+
+        /* 英雄区域 */
+        .hero-section {
+          text-align: center;
+          padding: 4rem 0 2rem;
+          color: white;
+          animation: fadeInUp 0.8s ease-out;
+        }
+
+        .hero-title {
+          font-size: 3rem;
+          font-weight: 700;
+          margin: 0 0 1rem;
+          text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+          animation: fadeInUp 0.8s ease-out 0.2s both;
+        }
+
+        .hero-description {
+          font-size: 1.2rem;
+          opacity: 0.9;
+          max-width: 600px;
+          margin: 0 auto;
+          line-height: 1.6;
+          animation: fadeInUp 0.8s ease-out 0.4s both;
+        }
+
+        /* 上传区域 */
         .upload-section {
-          margin: 2rem 0;
-          width: 100%;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
+          background: rgba(255, 255, 255, 0.95);
+          backdrop-filter: blur(10px);
+          border-radius: 20px;
+          padding: 2rem;
+          margin-bottom: 3rem;
+          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          animation: fadeInLeft 0.8s ease-out 0.6s both;
+        }
+
+        .upload-container {
+          max-width: 600px;
+          margin: 0 auto;
+        }
+
+        .upload-zone {
+          background: rgba(255, 255, 255, 0.95);
+          border: 2px dashed #ddd;
+          border-radius: 20px;
+          padding: 3rem 2rem;
+          text-align: center;
+          transition: all 0.3s ease;
+          position: relative;
+          overflow: hidden;
+        }
+
+        .upload-zone.dragging {
+          border-color: #667eea;
+          background: rgba(102, 126, 234, 0.1);
+          transform: scale(1.02);
+        }
+
+        .upload-zone.uploading {
+          border-color: #28a745;
+        }
+
+        .upload-content {
+          position: relative;
+          z-index: 2;
+        }
+
+        .upload-icon {
+          font-size: 3rem;
+          margin-bottom: 1rem;
+        }
+
+        .upload-zone h3 {
+          margin: 0 0 0.5rem;
+          font-size: 1.3rem;
+          color: #333;
+        }
+
+        .upload-zone p {
+          margin: 0 0 1.5rem;
+          color: #666;
         }
 
         .upload-button {
-          background-color: #0070f3;
+          display: inline-block;
+          padding: 0.8rem 2rem;
+          background: linear-gradient(135deg, #667eea, #764ba2);
           color: white;
           border: none;
-          padding: 0.75rem 1.5rem;
-          border-radius: 5px;
-          cursor: pointer;
+          border-radius: 25px;
           font-size: 1rem;
-          transition: background-color 0.2s;
+          font-weight: 500;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+          position: relative;
+          overflow: hidden;
+        }
+
+        .upload-button::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: -100%;
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+          transition: left 0.5s ease;
         }
 
         .upload-button:hover {
-          background-color: #0051a8;
+          transform: translateY(-2px);
+          box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .upload-button:hover::before {
+          left: 100%;
+        }
+
+        .upload-button:active {
+          transform: translateY(0);
+        }
+
+        .progress-container {
+          margin-top: 1.5rem;
+          position: relative;
         }
 
         .progress-bar {
           width: 100%;
-          height: 20px;
-          background-color: #eee;
-          border-radius: 10px;
-          margin: 1rem 0;
+          height: 8px;
+          background: #f0f0f0;
+          border-radius: 4px;
           overflow: hidden;
-          position: relative;
+          margin-bottom: 0.5rem;
         }
 
-        .progress {
+        .progress-fill {
           height: 100%;
-          background-color: #0070f3;
+          background: linear-gradient(90deg, #667eea, #764ba2);
           transition: width 0.3s ease;
+          border-radius: 4px;
         }
 
-        .progress-bar span {
-          position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          color: #333;
-          font-weight: bold;
+        .progress-text {
+          font-size: 0.9rem;
+          color: #666;
+          font-weight: 500;
         }
 
         .message {
-          margin: 1rem 0;
-          padding: 0.5rem 1rem;
-          background-color: #f0f0f0;
-          border-radius: 5px;
+          margin-top: 1rem;
+          padding: 1rem;
+          border-radius: 10px;
+          font-weight: 500;
           text-align: center;
         }
 
+        .message.success {
+          background: rgba(40, 167, 69, 0.1);
+          color: #28a745;
+          border: 1px solid rgba(40, 167, 69, 0.2);
+        }
+
+        .message.error {
+          background: rgba(220, 53, 69, 0.1);
+          color: #dc3545;
+          border: 1px solid rgba(220, 53, 69, 0.2);
+        }
+
+        /* 文件列表区域 */
         .files-section {
-          width: 100%;
+          background: rgba(255, 255, 255, 0.95);
+          backdrop-filter: blur(10px);
+          border-radius: 20px;
+          padding: 2rem;
+          margin-bottom: 3rem;
+          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          animation: fadeInRight 0.8s ease-out 0.8s both;
         }
 
-        .file-list {
-          list-style: none;
-          padding: 0;
-          width: 100%;
-        }
-
-        .file-item {
+        .section-header {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          padding: 1rem;
-          border: 1px solid #ddd;
-          border-radius: 8px;
-          margin-bottom: 0.5rem;
-          background-color: #f9f9f9;
-          transition: background-color 0.2s ease;
+          margin-bottom: 2rem;
+          color: white;
         }
 
-        .file-item:hover {
-          background-color: #f0f0f0;
+        .section-header h2 {
+          margin: 0;
+          font-size: 1.8rem;
+          font-weight: 600;
+        }
+
+        .file-stats {
+          background: rgba(255, 255, 255, 0.2);
+          padding: 0.5rem 1rem;
+          border-radius: 20px;
+          font-size: 0.9rem;
+          backdrop-filter: blur(10px);
+        }
+
+        .loading-container {
+          text-align: center;
+          padding: 3rem;
+          color: white;
+        }
+
+        .loading-spinner {
+          width: 40px;
+          height: 40px;
+          border: 3px solid rgba(255, 255, 255, 0.3);
+          border-top: 3px solid white;
+          border-radius: 50%;
+          animation: spin 1s linear infinite;
+          margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+
+        /* 动画效果 */
+        @keyframes fadeInUp {
+          from {
+            opacity: 0;
+            transform: translateY(30px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        @keyframes fadeInLeft {
+          from {
+            opacity: 0;
+            transform: translateX(-30px);
+          }
+          to {
+            opacity: 1;
+            transform: translateX(0);
+          }
+        }
+
+        @keyframes fadeInRight {
+          from {
+            opacity: 0;
+            transform: translateX(30px);
+          }
+          to {
+            opacity: 1;
+            transform: translateX(0);
+          }
+        }
+
+        @keyframes pulse {
+          0%, 100% {
+            transform: scale(1);
+          }
+          50% {
+            transform: scale(1.05);
+          }
+        }
+
+        @keyframes bounce {
+          0%, 20%, 53%, 80%, 100% {
+            transform: translateY(0);
+          }
+          40%, 43% {
+            transform: translateY(-10px);
+          }
+          70% {
+            transform: translateY(-5px);
+          }
+        }
+
+        @keyframes shimmer {
+          0% {
+            background-position: -200px 0;
+          }
+          100% {
+            background-position: calc(200px + 100%) 0;
+          }
+        }
+
+        @keyframes float {
+          0%, 100% {
+            transform: translateY(0px);
+          }
+          50% {
+            transform: translateY(-10px);
+          }
+        }
+
+        @keyframes slideInScale {
+          from {
+            opacity: 0;
+            transform: translateY(20px) scale(0.9);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+          }
+        }
+
+        .empty-state {
+          text-align: center;
+          padding: 4rem 2rem;
+          color: white;
+        }
+
+        .empty-icon {
+          font-size: 4rem;
+          margin-bottom: 1rem;
+          opacity: 0.7;
+        }
+
+        .empty-state h3 {
+          margin: 0 0 0.5rem;
+          font-size: 1.5rem;
+        }
+
+        .empty-state p {
+          opacity: 0.8;
+          font-size: 1rem;
+        }
+
+        /* 文件网格 */
+        .file-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+          gap: 1.5rem;
+        }
+
+        .file-card {
+          background: rgba(255, 255, 255, 0.95);
+          border-radius: 15px;
+          padding: 1.5rem;
+          transition: all 0.3s ease;
+          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+          backdrop-filter: blur(10px);
+          animation: slideInScale 0.5s ease-out both;
+          position: relative;
+          overflow: hidden;
+        }
+
+        .file-card::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: -100%;
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.1), transparent);
+          transition: left 0.5s ease;
+        }
+
+        .file-card:hover {
+          transform: translateY(-5px);
+          box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .file-card:hover::before {
+          left: 100%;
+        }
+
+        .file-header {
+          display: flex;
+          align-items: flex-start;
+          gap: 1rem;
+          margin-bottom: 1rem;
+        }
+
+        .file-icon {
+          font-size: 2rem;
+          flex-shrink: 0;
         }
 
         .file-info {
           flex: 1;
-          display: flex;
-          flex-direction: column;
-          gap: 0.25rem;
-          margin-right: 1rem;
+          min-width: 0;
         }
 
         .file-name {
-          font-weight: bold;
+          margin: 0 0 0.5rem;
           font-size: 1rem;
-          word-break: break-all;
+          font-weight: 600;
           color: #333;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
         }
 
-        .file-size {
+        .file-meta {
+          display: flex;
+          flex-direction: column;
+          gap: 0.25rem;
+        }
+
+        .file-size, .file-date {
           font-size: 0.85rem;
           color: #666;
-        }
-
-        .file-date {
-          font-size: 0.8rem;
-          color: #888;
         }
 
         .file-actions {
           display: flex;
           gap: 0.5rem;
-          flex-shrink: 0;
+          flex-wrap: wrap;
         }
 
-        .download-button, .share-button, .delete-button {
-          padding: 0.5rem 0.75rem;
+        .action-btn {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          padding: 0.5rem 1rem;
           border: none;
-          border-radius: 6px;
-          cursor: pointer;
+          border-radius: 8px;
           font-size: 0.85rem;
           font-weight: 500;
-          transition: all 0.2s ease;
-          white-space: nowrap;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          flex: 1;
+          justify-content: center;
+          min-width: 80px;
         }
 
-        .download-button {
-          background-color: #007bff;
+        .download-btn {
+          background: linear-gradient(135deg, #007bff, #0056b3);
           color: white;
         }
 
-        .download-button:hover:not(:disabled) {
-          background-color: #0056b3;
-          transform: translateY(-1px);
-        }
-
-        .share-button {
-          background-color: #28a745;
+        .share-btn {
+          background: linear-gradient(135deg, #28a745, #1e7e34);
           color: white;
         }
 
-        .share-button:hover:not(:disabled) {
-          background-color: #1e7e34;
-          transform: translateY(-1px);
-        }
-
-        .delete-button {
-          background-color: #dc3545;
+        .delete-btn {
+          background: linear-gradient(135deg, #dc3545, #c82333);
           color: white;
         }
 
-        .delete-button:hover:not(:disabled) {
-          background-color: #c82333;
-          transform: translateY(-1px);
+        .action-btn:hover:not(:disabled) {
+          transform: translateY(-2px);
+          box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
         }
 
-        .download-button:disabled, 
-        .share-button:disabled, 
-        .delete-button:disabled {
+        .action-btn:disabled {
           opacity: 0.6;
           cursor: not-allowed;
           transform: none;
         }
 
+        .btn-icon {
+          font-size: 1rem;
+        }
+
+        /* 页脚 */
+        .footer {
+          background: rgba(255, 255, 255, 0.1);
+          backdrop-filter: blur(10px);
+          border-top: 1px solid rgba(255, 255, 255, 0.2);
+          color: white;
+          text-align: center;
+          padding: 2rem;
+        }
+
+        .footer-content p {
+          margin: 0;
+          opacity: 0.8;
+        }
+
+        /* 响应式设计 */
         @media (max-width: 768px) {
-          .file-item {
-            flex-direction: column;
-            align-items: stretch;
-            gap: 1rem;
+          .nav-container {
+            padding: 1rem;
           }
 
-          .file-info {
-            margin-right: 0;
+          .main-content {
+            padding: 0 1rem;
+          }
+
+          .hero-title {
+            font-size: 2rem;
+          }
+
+          .hero-description {
+            font-size: 1rem;
+          }
+
+          .upload-zone {
+            padding: 2rem 1rem;
+          }
+
+          .file-grid {
+            grid-template-columns: 1fr;
+          }
+
+          .section-header {
+            flex-direction: column;
+            gap: 1rem;
+            align-items: flex-start;
           }
 
           .file-actions {
-            justify-content: center;
+            flex-direction: column;
           }
 
-          .download-button, .share-button, .delete-button {
-            flex: 1;
-            min-width: 0;
+          .action-btn {
+            flex: none;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .nav-brand h1 {
+            font-size: 1.2rem;
+          }
+
+          .nav-subtitle {
+            display: none;
+          }
+
+          .hero-title {
+            font-size: 1.8rem;
+          }
+
+          .upload-zone h3 {
+            font-size: 1.1rem;
           }
         }
       `}</style>

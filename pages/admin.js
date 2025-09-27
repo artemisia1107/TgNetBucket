@@ -1,3 +1,7 @@
+/**
+ * 管理面板页面组件
+ * 提供系统状态监控、数据库管理和活动日志查看功能
+ */
 import { useState, useEffect } from 'react';
 import Head from 'next/head';
 import axios from 'axios';
@@ -221,343 +225,681 @@ export default function AdminPanel() {
       <Head>
         <title>TgNetBucket - 管理面板</title>
         <meta name="description" content="TgNetBucket 后端管理面板" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
 
-      <header className="admin-header">
-        <h1>TgNetBucket 管理面板</h1>
-        <nav className="admin-nav">
-          <button 
-            className={activeTab === 'overview' ? 'nav-button active' : 'nav-button'}
-            onClick={() => setActiveTab('overview')}
-          >
-            📊 概览
-          </button>
-          <button 
-            className={activeTab === 'database' ? 'nav-button active' : 'nav-button'}
-            onClick={() => setActiveTab('database')}
-          >
-            🗄️ 数据库
-          </button>
-          <a href="/" className="nav-button back-button">
-            ← 返回主页
-          </a>
-        </nav>
-      </header>
-
-      <main className="admin-main">
-        {message && (
-          <div className="message-banner">
-            {message}
-            <button onClick={() => setMessage('')} className="close-message">×</button>
+      {/* 顶部导航栏 */}
+      <nav className="top-nav">
+        <div className="nav-container">
+          <div className="nav-brand">
+            <h1>🚀 TgNetBucket</h1>
+            <span className="nav-subtitle">管理面板</span>
           </div>
-        )}
+          <a href="/" className="back-home">
+            <span>🏠</span>
+            返回主页
+          </a>
+        </div>
+      </nav>
 
-        {activeTab === 'overview' && renderOverview()}
-        {activeTab === 'database' && renderDatabase()}
-      </main>
+      {/* 主要内容区域 */}
+      <div className="main-wrapper">
+        {/* 侧边栏导航 */}
+        <aside className="sidebar">
+          <div className="sidebar-content">
+            <div className="tab-buttons">
+              <button 
+                className={`tab-button ${activeTab === 'overview' ? 'active' : ''}`}
+                onClick={() => setActiveTab('overview')}
+              >
+                <span className="tab-icon">📊</span>
+                <span className="tab-text">系统概览</span>
+              </button>
+              <button 
+                className={`tab-button ${activeTab === 'database' ? 'active' : ''}`}
+                onClick={() => setActiveTab('database')}
+              >
+                <span className="tab-icon">🗄️</span>
+                <span className="tab-text">数据库管理</span>
+              </button>
+            </div>
+          </div>
+        </aside>
+
+        {/* 主内容区 */}
+        <main className="main-content">
+          {message && (
+            <div className="alert-message">
+              <div className="alert-content">
+                <span className="alert-icon">ℹ️</span>
+                <span className="alert-text">{message}</span>
+                <button onClick={() => setMessage('')} className="alert-close">×</button>
+              </div>
+            </div>
+          )}
+
+          <div className="content-area">
+            {activeTab === 'overview' && renderOverview()}
+            {activeTab === 'database' && renderDatabase()}
+          </div>
+        </main>
+      </div>
 
       <style jsx>{`
+        * {
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+        }
+
         .admin-container {
           min-height: 100vh;
-          background-color: #f5f5f5;
-          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        }
-
-        .admin-header {
-          background: white;
-          padding: 1rem 2rem;
-          box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-          border-bottom: 1px solid #e0e0e0;
-        }
-
-        .admin-header h1 {
-          margin: 0 0 1rem 0;
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
           color: #333;
-          font-size: 1.8rem;
         }
 
-        .admin-nav {
-          display: flex;
-          gap: 0.5rem;
-          align-items: center;
+        /* 顶部导航栏 */
+        .top-nav {
+          background: rgba(255, 255, 255, 0.95);
+          backdrop-filter: blur(10px);
+          border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+          position: sticky;
+          top: 0;
+          z-index: 100;
+          box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
         }
 
-        .nav-button {
-          padding: 0.5rem 1rem;
-          border: 1px solid #ddd;
-          background: white;
-          border-radius: 6px;
-          cursor: pointer;
-          transition: all 0.2s;
-          text-decoration: none;
-          color: #666;
-          font-size: 0.9rem;
-        }
-
-        .nav-button:hover {
-          background: #f0f0f0;
-          border-color: #ccc;
-        }
-
-        .nav-button.active {
-          background: #0070f3;
-          color: white;
-          border-color: #0070f3;
-        }
-
-        .back-button {
-          margin-left: auto;
-          background: #f8f9fa !important;
-          color: #666 !important;
-        }
-
-        .admin-main {
-          padding: 2rem;
-          max-width: 1200px;
+        .nav-container {
+          max-width: 1400px;
           margin: 0 auto;
-        }
-
-        .message-banner {
-          background: #e3f2fd;
-          border: 1px solid #2196f3;
-          border-radius: 6px;
-          padding: 1rem;
-          margin-bottom: 2rem;
+          padding: 1rem 2rem;
           display: flex;
           justify-content: space-between;
           align-items: center;
         }
 
-        .close-message {
-          background: none;
-          border: none;
-          font-size: 1.2rem;
-          cursor: pointer;
-          color: #666;
+        .nav-brand h1 {
+          font-size: 1.5rem;
+          font-weight: 700;
+          background: linear-gradient(135deg, #667eea, #764ba2);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+          margin: 0;
         }
 
+        .nav-subtitle {
+          font-size: 0.9rem;
+          color: #666;
+          margin-left: 0.5rem;
+        }
+
+        .back-home {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          padding: 0.75rem 1.5rem;
+          background: linear-gradient(135deg, #667eea, #764ba2);
+          color: white;
+          text-decoration: none;
+          border-radius: 50px;
+          font-weight: 500;
+          transition: all 0.3s ease;
+          box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .back-home:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        /* 主要布局 */
+        .main-wrapper {
+          display: flex;
+          max-width: 1400px;
+          margin: 0 auto;
+          min-height: calc(100vh - 80px);
+        }
+
+        /* 侧边栏 */
+        .sidebar {
+          width: 280px;
+          background: rgba(255, 255, 255, 0.95);
+          backdrop-filter: blur(10px);
+          border-right: 1px solid rgba(255, 255, 255, 0.2);
+          padding: 2rem 0;
+        }
+
+        .sidebar-content {
+          padding: 0 1.5rem;
+        }
+
+        .tab-buttons {
+          display: flex;
+          flex-direction: column;
+          gap: 0.5rem;
+        }
+
+        .tab-button {
+          display: flex;
+          align-items: center;
+          gap: 1rem;
+          padding: 1rem 1.5rem;
+          background: transparent;
+          border: none;
+          border-radius: 12px;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          text-align: left;
+          font-size: 1rem;
+          color: #666;
+          position: relative;
+          overflow: hidden;
+        }
+
+        .tab-button::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: -100%;
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(135deg, #667eea, #764ba2);
+          transition: left 0.3s ease;
+          z-index: -1;
+        }
+
+        .tab-button:hover::before {
+          left: 0;
+        }
+
+        .tab-button:hover {
+          color: white;
+          transform: translateX(5px);
+        }
+
+        .tab-button.active {
+          background: linear-gradient(135deg, #667eea, #764ba2);
+          color: white;
+          box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .tab-icon {
+          font-size: 1.2rem;
+        }
+
+        .tab-text {
+          font-weight: 500;
+        }
+
+        /* 主内容区 */
+        .main-content {
+          flex: 1;
+          padding: 2rem;
+          background: rgba(255, 255, 255, 0.1);
+        }
+
+        .content-area {
+          background: rgba(255, 255, 255, 0.95);
+          backdrop-filter: blur(10px);
+          border-radius: 20px;
+          padding: 2rem;
+          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+          border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        /* 消息提示 */
+        .alert-message {
+          margin-bottom: 2rem;
+          animation: slideDown 0.3s ease;
+        }
+
+        .alert-content {
+          display: flex;
+          align-items: center;
+          gap: 1rem;
+          padding: 1rem 1.5rem;
+          background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+          border-radius: 12px;
+          border-left: 4px solid #2196f3;
+          box-shadow: 0 4px 15px rgba(33, 150, 243, 0.2);
+        }
+
+        .alert-icon {
+          font-size: 1.2rem;
+        }
+
+        .alert-text {
+          flex: 1;
+          color: #1565c0;
+          font-weight: 500;
+        }
+
+        .alert-close {
+          background: none;
+          border: none;
+          font-size: 1.5rem;
+          cursor: pointer;
+          color: #1565c0;
+          padding: 0.25rem;
+          border-radius: 50%;
+          transition: all 0.2s ease;
+        }
+
+        .alert-close:hover {
+          background: rgba(21, 101, 192, 0.1);
+        }
+
+        @keyframes slideDown {
+          from {
+            opacity: 0;
+            transform: translateY(-20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        /* 状态卡片 */
         .status-cards {
           display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+          grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
           gap: 1.5rem;
           margin-bottom: 2rem;
         }
 
         .status-card {
-          background: white;
-          padding: 1.5rem;
-          border-radius: 8px;
-          box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-          border: 1px solid #e0e0e0;
+          background: rgba(255, 255, 255, 0.9);
+          backdrop-filter: blur(10px);
+          padding: 2rem;
+          border-radius: 16px;
+          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          transition: all 0.3s ease;
+          position: relative;
+          overflow: hidden;
+        }
+
+        .status-card::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          height: 4px;
+          background: linear-gradient(135deg, #667eea, #764ba2);
+        }
+
+        .status-card:hover {
+          transform: translateY(-5px);
+          box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
         }
 
         .status-card h3 {
-          margin: 0 0 1rem 0;
+          margin: 0 0 1.5rem 0;
           color: #333;
-          font-size: 1rem;
+          font-size: 1.1rem;
+          font-weight: 600;
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
         }
 
         .status-indicator {
-          padding: 0.25rem 0.75rem;
-          border-radius: 20px;
+          padding: 0.5rem 1rem;
+          border-radius: 25px;
           font-size: 0.85rem;
-          font-weight: 500;
-          display: inline-block;
-          margin-bottom: 0.5rem;
+          font-weight: 600;
+          display: inline-flex;
+          align-items: center;
+          gap: 0.5rem;
+          margin-bottom: 1rem;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
         .status-indicator.online {
-          background: #e8f5e8;
-          color: #2e7d32;
+          background: linear-gradient(135deg, #4caf50, #45a049);
+          color: white;
         }
 
         .status-indicator.offline {
-          background: #ffebee;
-          color: #c62828;
+          background: linear-gradient(135deg, #f44336, #d32f2f);
+          color: white;
         }
 
         .stat-number {
-          font-size: 2rem;
-          font-weight: bold;
-          color: #0070f3;
+          font-size: 2.5rem;
+          font-weight: 700;
+          background: linear-gradient(135deg, #667eea, #764ba2);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
           margin-bottom: 0.5rem;
+          line-height: 1;
         }
 
+        /* 文件类型统计 */
         .file-types-section {
-          background: white;
-          padding: 1.5rem;
-          border-radius: 8px;
-          box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-          border: 1px solid #e0e0e0;
+          background: rgba(255, 255, 255, 0.9);
+          backdrop-filter: blur(10px);
+          padding: 2rem;
+          border-radius: 16px;
+          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          margin-bottom: 2rem;
+        }
+
+        .file-types-section h3 {
+          margin: 0 0 1.5rem 0;
+          color: #333;
+          font-size: 1.2rem;
+          font-weight: 600;
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
         }
 
         .file-types-grid {
           display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+          grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
           gap: 1rem;
-          margin-top: 1rem;
+          margin-top: 1.5rem;
         }
 
         .file-type-item {
           display: flex;
           justify-content: space-between;
-          padding: 0.75rem;
-          background: #f8f9fa;
-          border-radius: 6px;
-          border: 1px solid #e9ecef;
+          align-items: center;
+          padding: 1rem;
+          background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+          border-radius: 12px;
+          border: 1px solid rgba(102, 126, 234, 0.2);
+          transition: all 0.3s ease;
+        }
+
+        .file-type-item:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 4px 15px rgba(102, 126, 234, 0.2);
         }
 
         .file-type {
-          font-weight: 500;
+          font-weight: 600;
           color: #495057;
         }
 
         .file-count {
-          color: #0070f3;
-          font-weight: bold;
+          background: linear-gradient(135deg, #667eea, #764ba2);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+          font-weight: 700;
+          font-size: 1.1rem;
         }
 
+        /* 管理操作 */
         .management-actions {
           display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+          grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
           gap: 1.5rem;
           margin-bottom: 2rem;
         }
 
         .action-card {
-          background: white;
-          padding: 1.5rem;
-          border-radius: 8px;
-          box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-          border: 1px solid #e0e0e0;
+          background: rgba(255, 255, 255, 0.9);
+          backdrop-filter: blur(10px);
+          padding: 2rem;
+          border-radius: 16px;
+          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          transition: all 0.3s ease;
+        }
+
+        .action-card:hover {
+          transform: translateY(-3px);
+          box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
         }
 
         .action-card h3 {
-          margin: 0 0 0.5rem 0;
+          margin: 0 0 0.75rem 0;
           color: #333;
+          font-size: 1.1rem;
+          font-weight: 600;
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
         }
 
         .action-card p {
           color: #666;
-          margin-bottom: 1rem;
-          font-size: 0.9rem;
+          margin-bottom: 1.5rem;
+          font-size: 0.95rem;
+          line-height: 1.5;
         }
 
         .action-button {
-          padding: 0.75rem 1.5rem;
+          padding: 1rem 2rem;
           border: none;
-          border-radius: 6px;
+          border-radius: 12px;
           cursor: pointer;
-          font-weight: 500;
-          transition: all 0.2s;
+          font-weight: 600;
+          font-size: 0.95rem;
+          transition: all 0.3s ease;
+          position: relative;
+          overflow: hidden;
+          width: 100%;
         }
 
         .action-button:disabled {
           opacity: 0.6;
           cursor: not-allowed;
+          transform: none !important;
         }
 
         .action-button.cleanup {
-          background: #ff5722;
+          background: linear-gradient(135deg, #ff5722, #e64a19);
           color: white;
+          box-shadow: 0 4px 15px rgba(255, 87, 34, 0.3);
         }
 
         .action-button.cleanup:hover:not(:disabled) {
-          background: #e64a19;
+          transform: translateY(-2px);
+          box-shadow: 0 6px 20px rgba(255, 87, 34, 0.4);
         }
 
         .action-button.sync {
-          background: #2196f3;
+          background: linear-gradient(135deg, #2196f3, #1976d2);
           color: white;
+          box-shadow: 0 4px 15px rgba(33, 150, 243, 0.3);
         }
 
         .action-button.sync:hover:not(:disabled) {
-          background: #1976d2;
+          transform: translateY(-2px);
+          box-shadow: 0 6px 20px rgba(33, 150, 243, 0.4);
         }
 
+        /* Redis信息 */
         .redis-info {
-          background: white;
-          padding: 1.5rem;
-          border-radius: 8px;
-          box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-          border: 1px solid #e0e0e0;
+          background: rgba(255, 255, 255, 0.9);
+          backdrop-filter: blur(10px);
+          padding: 2rem;
+          border-radius: 16px;
+          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          margin-bottom: 2rem;
+        }
+
+        .redis-info h3 {
+          margin: 0 0 1.5rem 0;
+          color: #333;
+          font-size: 1.2rem;
+          font-weight: 600;
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
         }
 
         .redis-stats {
-          margin-top: 1rem;
+          margin-top: 1.5rem;
         }
 
         .redis-stat {
           display: flex;
           justify-content: space-between;
-          padding: 0.5rem 0;
-          border-bottom: 1px solid #f0f0f0;
+          align-items: center;
+          padding: 1rem 0;
+          border-bottom: 1px solid rgba(102, 126, 234, 0.1);
+          transition: all 0.2s ease;
         }
 
         .redis-stat:last-child {
           border-bottom: none;
         }
 
-        .status-online {
-          color: #2e7d32;
-          font-weight: 500;
+        .redis-stat:hover {
+          background: rgba(102, 126, 234, 0.05);
+          margin: 0 -1rem;
+          padding: 1rem;
+          border-radius: 8px;
         }
 
+        .redis-stat span:first-child {
+          font-weight: 600;
+          color: #495057;
+        }
+
+        .status-online {
+          background: linear-gradient(135deg, #4caf50, #45a049);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+          font-weight: 600;
+        }
+
+        /* 活动日志 */
         .logs-container {
-          margin-top: 1rem;
-          max-height: 400px;
+          margin-top: 1.5rem;
+          max-height: 500px;
           overflow-y: auto;
-          border: 1px solid #ddd;
-          border-radius: 4px;
+          background: rgba(255, 255, 255, 0.9);
+          backdrop-filter: blur(10px);
+          border-radius: 16px;
+          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+          border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .logs-container h3 {
+          margin: 0 0 1.5rem 0;
+          padding: 1.5rem 1.5rem 0;
+          color: #333;
+          font-size: 1.2rem;
+          font-weight: 600;
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
         }
 
         .logs-list {
-          padding: 0;
+          padding: 0 1.5rem 1.5rem;
         }
 
         .log-item {
-          padding: 8px 12px;
-          border-bottom: 1px solid #eee;
+          padding: 1rem;
+          border-bottom: 1px solid rgba(102, 126, 234, 0.1);
           display: grid;
-          grid-template-columns: 150px 100px 1fr 120px;
-          gap: 12px;
+          grid-template-columns: 150px 120px 1fr 140px;
+          gap: 1rem;
           font-size: 0.9rem;
+          transition: all 0.2s ease;
+          border-radius: 8px;
+          margin-bottom: 0.5rem;
         }
 
         .log-item:last-child {
           border-bottom: none;
+          margin-bottom: 0;
+        }
+
+        .log-item:hover {
+          background: rgba(102, 126, 234, 0.05);
+          transform: translateX(5px);
         }
 
         .log-time {
           color: #666;
-          font-size: 0.8rem;
+          font-size: 0.85rem;
+          font-weight: 500;
         }
 
         .log-action {
-          font-weight: bold;
-          color: #007bff;
+          font-weight: 600;
+          background: linear-gradient(135deg, #667eea, #764ba2);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+          padding: 0.25rem 0.75rem;
+          border-radius: 20px;
+          background-color: rgba(102, 126, 234, 0.1);
+          text-align: center;
+          font-size: 0.8rem;
         }
 
         .log-details {
           color: #333;
+          font-weight: 500;
         }
 
         .log-ip {
           color: #888;
           font-size: 0.8rem;
+          font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+          background: rgba(102, 126, 234, 0.1);
+          padding: 0.25rem 0.5rem;
+          border-radius: 6px;
+          text-align: center;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 1024px) {
+          .main-wrapper {
+            flex-direction: column;
+          }
+
+          .sidebar {
+            width: 100%;
+            padding: 1rem 0;
+          }
+
+          .tab-buttons {
+            flex-direction: row;
+            justify-content: center;
+            gap: 1rem;
+          }
+
+          .tab-button {
+            flex: 1;
+            max-width: 200px;
+          }
         }
 
         @media (max-width: 768px) {
-          .admin-header {
+          .nav-container {
+            padding: 1rem;
+            flex-direction: column;
+            gap: 1rem;
+          }
+
+          .nav-brand {
+            text-align: center;
+          }
+
+          .main-content {
             padding: 1rem;
           }
 
-          .admin-nav {
-            flex-wrap: wrap;
-          }
-
-          .admin-main {
-            padding: 1rem;
+          .content-area {
+            padding: 1.5rem;
           }
 
           .status-cards {
@@ -566,6 +908,48 @@ export default function AdminPanel() {
 
           .management-actions {
             grid-template-columns: 1fr;
+          }
+
+          .file-types-grid {
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+          }
+
+          .log-item {
+            grid-template-columns: 1fr;
+            gap: 0.5rem;
+            text-align: left;
+          }
+
+          .log-action, .log-ip {
+            justify-self: start;
+            width: fit-content;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .nav-container {
+            padding: 0.75rem;
+          }
+
+          .nav-brand h1 {
+            font-size: 1.2rem;
+          }
+
+          .main-content {
+            padding: 0.75rem;
+          }
+
+          .content-area {
+            padding: 1rem;
+          }
+
+          .status-card, .action-card, .file-types-section, .redis-info, .logs-container {
+            padding: 1.5rem;
+          }
+
+          .tab-button {
+            padding: 0.75rem 1rem;
+            font-size: 0.9rem;
           }
         }
       `}</style>
