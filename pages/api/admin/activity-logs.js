@@ -51,8 +51,9 @@ async function getActivityLogs(req, res) {
       }
     } else {
       // 内存环境
-      const memoryStorage = redisClient.getMemoryStorage();
-      const allLogs = memoryStorage[logKey] || [];
+      const memoryStore = redisClient.memoryStore;
+      const logData = memoryStore.get(logKey);
+      const allLogs = logData ? logData.value || [] : [];
       
       // 确保allLogs是数组
       if (Array.isArray(allLogs)) {
@@ -134,19 +135,20 @@ async function logActivity(req, res) {
       
     } else {
       // 内存环境
-      const memoryStorage = redisClient.getMemoryStorage();
-      
-      if (!memoryStorage[logKey]) {
-        memoryStorage[logKey] = [];
-      }
+      const memoryStore = redisClient.memoryStore;
+      const logData = memoryStore.get(logKey);
+      let logs = logData ? logData.value || [] : [];
       
       // 添加到数组头部
-      memoryStorage[logKey].unshift(logEntry);
+      logs.unshift(logEntry);
       
       // 保持数组长度
-      if (memoryStorage[logKey].length > maxLogs) {
-        memoryStorage[logKey] = memoryStorage[logKey].slice(0, maxLogs);
+      if (logs.length > maxLogs) {
+        logs = logs.slice(0, maxLogs);
       }
+      
+      // 保存回内存存储
+      memoryStore.set(logKey, { value: logs, timestamp: Date.now() });
       
       // 更新统计
       await updateActivityStats(action);
@@ -180,6 +182,11 @@ async function getActivityStats() {
       const redis = redisClient.getClient();
       const stats = await redis.hgetall(statsKey);
       
+      // 检查stats是否为有效对象
+      if (!stats || typeof stats !== 'object') {
+        return {};
+      }
+      
       // 转换数值
       const result = {};
       for (const [key, value] of Object.entries(stats)) {
@@ -187,8 +194,16 @@ async function getActivityStats() {
       }
       return result;
     } else {
-      const memoryStorage = redisClient.getMemoryStorage();
-      return memoryStorage[statsKey] || {};
+      const memoryStore = redisClient.memoryStore;
+      const statsData = memoryStore.get(statsKey);
+      const stats = statsData ? statsData.value : null;
+      
+      // 检查stats是否为有效对象
+      if (!stats || typeof stats !== 'object') {
+        return {};
+      }
+      
+      return stats;
     }
   } catch (error) {
     console.error('获取活动统计失败:', error);
@@ -208,14 +223,15 @@ async function updateActivityStats(action) {
       await redis.hincrby(statsKey, action, 1);
       await redis.hincrby(statsKey, 'total', 1);
     } else {
-      const memoryStorage = redisClient.getMemoryStorage();
+      const memoryStore = redisClient.memoryStore;
+      const statsData = memoryStore.get(statsKey);
+      let stats = statsData ? statsData.value || {} : {};
       
-      if (!memoryStorage[statsKey]) {
-        memoryStorage[statsKey] = {};
-      }
+      stats[action] = (stats[action] || 0) + 1;
+      stats['total'] = (stats['total'] || 0) + 1;
       
-      memoryStorage[statsKey][action] = (memoryStorage[statsKey][action] || 0) + 1;
-      memoryStorage[statsKey]['total'] = (memoryStorage[statsKey]['total'] || 0) + 1;
+      // 保存回内存存储
+      memoryStore.set(statsKey, { value: stats, timestamp: Date.now() });
     }
   } catch (error) {
     console.error('更新活动统计失败:', error);

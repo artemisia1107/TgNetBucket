@@ -32,10 +32,36 @@ export default async function handler(req, res) {
       
       if (redis && chatId) {
         try {
-          const filesJson = await redis.get(`files:${chatId}`);
-          if (filesJson) {
-            const parsedData = typeof filesJson === 'string' ? JSON.parse(filesJson) : filesJson;
-            filesData = Array.isArray(parsedData) ? parsedData : parsedData.files || [];
+          // 先检查键的类型
+          const keyType = await redis.type(`files:${chatId}`);
+          
+          if (keyType === 'string') {
+            const filesJson = await redis.get(`files:${chatId}`);
+            if (filesJson) {
+              const parsedData = typeof filesJson === 'string' ? JSON.parse(filesJson) : filesJson;
+              filesData = Array.isArray(parsedData) ? parsedData : parsedData.files || [];
+            }
+          } else if (keyType === 'hash') {
+            // 如果是hash类型，尝试获取files字段
+            const hashData = await redis.hgetall(`files:${chatId}`);
+            if (hashData && hashData.files) {
+              const parsedData = typeof hashData.files === 'string' ? JSON.parse(hashData.files) : hashData.files;
+              filesData = Array.isArray(parsedData) ? parsedData : [];
+            }
+          } else if (keyType === 'list') {
+            // 如果是list类型，获取所有元素
+            const listData = await redis.lrange(`files:${chatId}`, 0, -1);
+            if (listData && listData.length > 0) {
+              filesData = listData.map(item => {
+                try {
+                  return typeof item === 'string' ? JSON.parse(item) : item;
+                } catch (e) {
+                  return null;
+                }
+              }).filter(item => item !== null);
+            }
+          } else if (keyType !== 'none') {
+            console.log(`文件数据键类型为 ${keyType}，跳过处理`);
           }
         } catch (error) {
           console.error('从Redis获取文件数据失败:', error);
