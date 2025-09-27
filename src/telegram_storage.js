@@ -1,5 +1,6 @@
 import TelegramBot from 'node-telegram-bot-api';
 import axios from 'axios';
+import { redisClient } from './redis_client.js';
 
 class TelegramStorage {
   constructor(options) {
@@ -22,9 +23,26 @@ class TelegramStorage {
         filename: fileName
       });
       
-      return {
+      const fileInfo = {
         fileId: response.document?.file_id || '',
-        messageId: response.message_id.toString()
+        messageId: response.message_id.toString(),
+        fileName: fileName,
+        fileSize: response.document?.file_size || fileBuffer.length,
+        uploadTime: new Date().toISOString(),
+        chatId: this.chatId
+      };
+      
+      // 将文件信息存储到Redis中
+      const fileListKey = `files:${this.chatId}`;
+      await redisClient.lpush(fileListKey, fileInfo);
+      
+      // 设置文件信息的单独键，方便快速查找
+      const fileKey = `file:${fileInfo.fileId}`;
+      await redisClient.set(fileKey, fileInfo, 86400 * 30); // 30天过期
+      
+      return {
+        fileId: fileInfo.fileId,
+        messageId: fileInfo.messageId
       };
     } catch (error) {
       console.error('上传文件到Telegram失败:', error);
@@ -49,11 +67,38 @@ class TelegramStorage {
   }
 
   /**
-   * 列出Telegram中的文件
-   * 通过获取聊天记录中的文档消息来获取文件列表
+   * 列出文件列表
+   * 优先从Redis获取，如果Redis为空则从Telegram同步
    * @returns {Promise<Array<{fileId: string, fileName: string, messageId: string}>>} - 文件列表
    */
   async listFiles() {
+    try {
+      const fileListKey = `files:${this.chatId}`;
+      
+      // 首先尝试从Redis获取文件列表
+      let files = await redisClient.lrange(fileListKey);
+      
+      // 如果Redis中没有数据，从Telegram同步
+      if (!files || files.length === 0) {
+        console.log('Redis中无文件列表，从Telegram同步...');
+        files = await this.syncFilesFromTelegram();
+      }
+      
+      // 按上传时间倒序排列（最新的在前面）
+      files.sort((a, b) => new Date(b.uploadTime) - new Date(a.uploadTime));
+      
+      return files;
+    } catch (error) {
+      console.error('列出文件失败:', error);
+      throw new Error(`列出文件失败: ${error.message}`);
+    }
+  }
+
+  /**
+   * 从Telegram同步文件列表到Redis
+   * @returns {Promise<Array>} 同步的文件列表
+   */
+  async syncFilesFromTelegram() {
     try {
       // 使用getUpdates获取最近的消息（包含文档的消息）
       const updates = await this.telegramClient.getUpdates({
@@ -62,6 +107,7 @@ class TelegramStorage {
       });
       
       const files = [];
+      const fileListKey = `files:${this.chatId}`;
       
       // 遍历更新，查找包含文档的消息
       for (const update of updates) {
@@ -70,23 +116,31 @@ class TelegramStorage {
             update.message.document) {
           
           const doc = update.message.document;
-          files.push({
+          const fileInfo = {
             fileId: doc.file_id,
             fileName: doc.file_name || `document_${doc.file_id.slice(-8)}`,
             messageId: update.message.message_id.toString(),
             fileSize: doc.file_size,
-            uploadTime: new Date(update.message.date * 1000).toISOString()
-          });
+            uploadTime: new Date(update.message.date * 1000).toISOString(),
+            chatId: this.chatId
+          };
+          
+          files.push(fileInfo);
+          
+          // 将文件信息存储到Redis
+          await redisClient.lpush(fileListKey, fileInfo);
+          
+          // 设置文件信息的单独键
+          const fileKey = `file:${fileInfo.fileId}`;
+          await redisClient.set(fileKey, fileInfo, 86400 * 30); // 30天过期
         }
       }
       
-      // 按上传时间倒序排列（最新的在前面）
-      files.sort((a, b) => new Date(b.uploadTime) - new Date(a.uploadTime));
-      
+      console.log(`从Telegram同步了 ${files.length} 个文件到Redis`);
       return files;
     } catch (error) {
-      console.error('列出Telegram文件失败:', error);
-      throw new Error(`列出文件失败: ${error.message}`);
+      console.error('从Telegram同步文件失败:', error);
+      return [];
     }
   }
 
@@ -97,7 +151,26 @@ class TelegramStorage {
    */
   async deleteFile(messageId) {
     try {
+      // 从Telegram删除消息
       await this.telegramClient.deleteMessage(this.chatId, messageId);
+      
+      // 从Redis中删除文件信息
+      const fileListKey = `files:${this.chatId}`;
+      const files = await redisClient.lrange(fileListKey);
+      
+      // 找到要删除的文件
+      const fileToDelete = files.find(file => file.messageId === messageId);
+      if (fileToDelete) {
+        // 从文件列表中移除
+        await redisClient.lrem(fileListKey, fileToDelete);
+        
+        // 删除文件的单独键
+        const fileKey = `file:${fileToDelete.fileId}`;
+        await redisClient.del(fileKey);
+        
+        console.log(`已从Redis删除文件: ${fileToDelete.fileName}`);
+      }
+      
       return true;
     } catch (error) {
       console.error('从Telegram删除文件失败:', error);
