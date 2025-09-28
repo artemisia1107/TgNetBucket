@@ -478,9 +478,9 @@
 }
 
 .download-btn:hover:not(:disabled) {
-  background: var(--color-success);
+  background: var(--color-primary);
   color: white;
-  border-color: var(--color-success);
+  border-color: var(--color-primary);
 }
 
 .share-btn:hover:not(:disabled) {
@@ -490,9 +490,9 @@
 }
 
 .delete-btn:hover:not(:disabled) {
-  background: var(--color-danger);
+  background: var(--color-primary);
   color: white;
-  border-color: var(--color-danger);
+  border-color: var(--color-primary);
 }
 
 .btn-icon {

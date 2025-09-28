@@ -118,7 +118,7 @@ export const useFileList = () => {
    */
   const generateShortLink = async (fileId) => {
     try {
-      const response = await axios.post('/api/shortlink', { fileId });
+      const response = await axios.post('/api/short-link', { fileId });
       return { success: true, shortLink: response.data.shortLink };
     } catch (error) {
       console.error('生成短链接失败:', error);

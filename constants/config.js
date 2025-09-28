@@ -84,29 +84,29 @@ const FILE_CONFIG = {
     'xml': 'application/xml'
   },
   
-  // 文件图标映射
+  // 文件图标映射 (Font Awesome类名)
   ICON_MAP: {
     // 图片
-    'image': '🖼️',
-    'jpg': '🖼️', 'jpeg': '🖼️', 'png': '🖼️', 'gif': '🖼️', 'webp': '🖼️', 'svg': '🖼️',
+    'image': 'fas fa-image',
+    'jpg': 'fas fa-image', 'jpeg': 'fas fa-image', 'png': 'fas fa-image', 'gif': 'fas fa-image', 'webp': 'fas fa-image', 'svg': 'fas fa-image',
     // 文档
-    'pdf': '📄',
-    'doc': '📝', 'docx': '📝',
-    'xls': '📊', 'xlsx': '📊',
-    'ppt': '📽️', 'pptx': '📽️',
-    'txt': '📄',
+    'pdf': 'fas fa-file-pdf',
+    'doc': 'fas fa-file-word', 'docx': 'fas fa-file-word',
+    'xls': 'fas fa-file-excel', 'xlsx': 'fas fa-file-excel',
+    'ppt': 'fas fa-file-powerpoint', 'pptx': 'fas fa-file-powerpoint',
+    'txt': 'fas fa-file-alt',
     // 压缩文件
-    'zip': '🗜️', 'rar': '🗜️', '7z': '🗜️',
+    'zip': 'fas fa-file-archive', 'rar': 'fas fa-file-archive', '7z': 'fas fa-file-archive',
     // 音频
-    'audio': '🎵',
-    'mp3': '🎵', 'wav': '🎵', 'ogg': '🎵', 'm4a': '🎵',
+    'audio': 'fas fa-file-audio',
+    'mp3': 'fas fa-file-audio', 'wav': 'fas fa-file-audio', 'ogg': 'fas fa-file-audio', 'm4a': 'fas fa-file-audio',
     // 视频
-    'video': '🎬',
-    'mp4': '🎬', 'avi': '🎬', 'mov': '🎬', 'wmv': '🎬', 'flv': '🎬', 'webm': '🎬',
+    'video': 'fas fa-file-video',
+    'mp4': 'fas fa-file-video', 'avi': 'fas fa-file-video', 'mov': 'fas fa-file-video', 'wmv': 'fas fa-file-video', 'flv': 'fas fa-file-video', 'webm': 'fas fa-file-video',
     // 代码文件
-    'js': '📜', 'css': '🎨', 'html': '🌐', 'json': '📋', 'xml': '📋',
+    'js': 'fas fa-file-code', 'css': 'fas fa-file-code', 'html': 'fas fa-file-code', 'json': 'fas fa-file-code', 'xml': 'fas fa-file-code',
     // 默认
-    'default': '📁'
+    'default': 'fas fa-file'
   }
 };
 

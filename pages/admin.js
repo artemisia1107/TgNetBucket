@@ -16,6 +16,7 @@ import {
 import { createConfirmDialog } from '../components/ui/Modal';
 import AuthModal from '../components/AuthModal';
 import { getAuthStatus, requiresAuth } from '../utils/authUtils';
+import { getIconClass } from '../utils/iconUtils';
 
 // 认证状态常量
 const AUTH_STATUS = {
@@ -155,6 +156,34 @@ export default function AdminPanel() {
 
   // 移动端菜单状态
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  
+  // 侧边栏显示状态（桌面端）
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+
+  /**
+   * 切换侧边栏显示状态（桌面端）
+   */
+  const toggleSidebar = () => {
+    setIsSidebarCollapsed(!isSidebarCollapsed);
+  };
+
+  // 切换移动端菜单
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
+  };
+
+  // 关闭移动端菜单
+  const closeMobileMenu = () => {
+    setIsMobileMenuOpen(false);
+  };
+
+  // 处理侧边栏链接点击（移动端自动关闭菜单）
+  const handleNavClick = (tab) => {
+    setActiveTab(tab);
+    if (window.innerWidth <= 768) {
+      closeMobileMenu();
+    }
+  };
 
   /**
    * 检查认证状态
@@ -163,17 +192,14 @@ export default function AdminPanel() {
     const authStatus = getAuthStatus();
     const authenticated = authStatus === AUTH_STATUS.AUTHENTICATED;
     
-    // 使用requiresAuth函数进行额外的认证检查
-    const authRequired = requiresAuth();
-    
-    setIsAuthenticated(authenticated && authRequired);
+    setIsAuthenticated(authenticated);
     setAuthChecked(true);
     
-    if (!authenticated || !authRequired) {
+    if (!authenticated) {
       setShowAuthModal(true);
     }
     
-    return authenticated && authRequired;
+    return authenticated;
   }, []);
 
   /**
@@ -279,26 +305,6 @@ export default function AdminPanel() {
     }
   }, []);
 
-  // 切换移动端菜单
-  const toggleMobileMenu = () => {
-    setIsMobileMenuOpen(!isMobileMenuOpen);
-  };
-
-  // 关闭移动端菜单
-  const closeMobileMenu = () => {
-    setIsMobileMenuOpen(false);
-  };
-
-  // 处理侧边栏链接点击（移动端自动关闭菜单）
-  const handleNavClick = (tab) => {
-    setActiveTab(tab);
-    if (window.innerWidth <= 768) {
-      closeMobileMenu();
-    }
-  };
-
-
-
   // 渲染概览页面
   const renderOverview = () => (
     <div className="overview-section">
@@ -308,7 +314,9 @@ export default function AdminPanel() {
       <div className="stats-grid">
         <div className="stat-card success">
           <div className="stat-header">
-            <div className="stat-icon">🔗</div>
+            <div className="stat-icon">
+              <i className="fas fa-database"></i>
+            </div>
             <h3 className="stat-title">Redis 状态</h3>
           </div>
           <div className="stat-body">
@@ -323,7 +331,9 @@ export default function AdminPanel() {
 
         <div className="stat-card warning">
           <div className="stat-header">
-            <div className="stat-icon">🤖</div>
+            <div className="stat-icon">
+              <i className="fab fa-telegram-plane"></i>
+            </div>
             <h3 className="stat-title">Telegram Bot</h3>
           </div>
           <div className="stat-body">
@@ -338,7 +348,9 @@ export default function AdminPanel() {
 
         <div className="stat-card">
           <div className="stat-header">
-            <div className="stat-icon">📁</div>
+            <div className="stat-icon">
+              <i className="fas fa-folder"></i>
+            </div>
             <h3 className="stat-title">文件总数</h3>
           </div>
           <div className="stat-body">
@@ -351,7 +363,9 @@ export default function AdminPanel() {
 
         <div className="stat-card error">
           <div className="stat-header">
-            <div className="stat-icon">🔗</div>
+            <div className="stat-icon">
+              <i className="fas fa-link"></i>
+            </div>
             <h3 className="stat-title">短链接</h3>
           </div>
           <div className="stat-body">
@@ -388,7 +402,7 @@ export default function AdminPanel() {
           <h2 className="admin-table-title">数据库管理</h2>
           <div className="admin-table-actions">
             <button className="header-action" onClick={() => window.location.reload()}>
-              <span>🔄</span>
+              <i className="fas fa-sync-alt"></i>
             </button>
           </div>
         </div>
@@ -396,7 +410,9 @@ export default function AdminPanel() {
         <div className="stats-grid">
           <div className="stat-card">
             <div className="stat-header">
-              <div className="stat-icon">🔄</div>
+              <div className="stat-icon">
+                <i className="fas fa-sync-alt"></i>
+              </div>
               <h3 className="stat-title">同步操作</h3>
             </div>
             <div className="stat-body">
@@ -410,14 +426,26 @@ export default function AdminPanel() {
                 disabled={loading}
                 style={{ marginTop: 'var(--spacing-4)', width: '100%', height: 'auto', padding: 'var(--spacing-3)' }}
               >
-                {loading ? '同步中...' : '同步文件列表'}
+                {loading ? (
+                  <>
+                    <i className="fas fa-spinner fa-spin"></i>
+                    <span style={{ marginLeft: '8px' }}>同步中...</span>
+                  </>
+                ) : (
+                  <>
+                    <i className="fas fa-sync-alt"></i>
+                    <span style={{ marginLeft: '8px' }}>同步文件列表</span>
+                  </>
+                )}
               </button>
             </div>
           </div>
 
           <div className="stat-card warning">
             <div className="stat-header">
-              <div className="stat-icon">🗑️</div>
+              <div className="stat-icon">
+                <i className="fas fa-trash-alt"></i>
+              </div>
               <h3 className="stat-title">清理操作</h3>
             </div>
             <div className="stat-body">
@@ -431,14 +459,26 @@ export default function AdminPanel() {
                 disabled={loading}
                 style={{ marginTop: 'var(--spacing-4)', width: '100%', height: 'auto', padding: 'var(--spacing-3)' }}
               >
-                {loading ? '清理中...' : '清理短链接'}
+                {loading ? (
+                  <>
+                    <i className="fas fa-spinner fa-spin"></i>
+                    <span style={{ marginLeft: '8px' }}>清理中...</span>
+                  </>
+                ) : (
+                  <>
+                    <i className="fas fa-trash-alt"></i>
+                    <span style={{ marginLeft: '8px' }}>清理短链接</span>
+                  </>
+                )}
               </button>
             </div>
           </div>
 
           <div className="stat-card success">
             <div className="stat-header">
-              <div className="stat-icon">💾</div>
+              <div className="stat-icon">
+                <i className="fas fa-save"></i>
+              </div>
               <h3 className="stat-title">备份操作</h3>
             </div>
             <div className="stat-body">
@@ -452,7 +492,17 @@ export default function AdminPanel() {
                 disabled={loading}
                 style={{ marginTop: 'var(--spacing-4)', width: '100%', height: 'auto', padding: 'var(--spacing-3)' }}
               >
-                {loading ? '备份中...' : '备份数据库'}
+                {loading ? (
+                  <>
+                    <i className="fas fa-spinner fa-spin"></i>
+                    <span style={{ marginLeft: '8px' }}>备份中...</span>
+                  </>
+                ) : (
+                  <>
+                    <i className="fas fa-save"></i>
+                    <span style={{ marginLeft: '8px' }}>备份数据库</span>
+                  </>
+                )}
               </button>
             </div>
           </div>
@@ -482,7 +532,7 @@ export default function AdminPanel() {
               <option value="admin">管理操作</option>
             </select>
             <button className="header-action" onClick={() => fetchActivityLogs()}>
-              <span>🔄</span>
+              <i className="fas fa-sync-alt"></i>
             </button>
           </div>
         </div>
@@ -516,10 +566,10 @@ export default function AdminPanel() {
                   <td>
                     <div className="table-actions">
                       <button className="table-action" title="查看详情">
-                        <span>👁️</span>
+                        <i className="fas fa-eye"></i>
                       </button>
                       <button className="table-action danger" title="删除记录">
-                        <span>🗑️</span>
+                        <i className="fas fa-trash-alt"></i>
                       </button>
                     </div>
                   </td>
@@ -529,7 +579,9 @@ export default function AdminPanel() {
           </table>
         ) : (
           <div style={{ padding: 'var(--spacing-12)', textAlign: 'center', color: 'var(--color-text-muted)' }}>
-            <div style={{ fontSize: 'var(--font-size-4xl)', marginBottom: 'var(--spacing-4)' }}>📋</div>
+            <div style={{ fontSize: 'var(--font-size-4xl)', marginBottom: 'var(--spacing-4)' }}>
+              <i className="fas fa-clipboard-list"></i>
+            </div>
             <h3 style={{ margin: '0 0 var(--spacing-2)', color: 'var(--color-text-secondary)' }}>暂无活动记录</h3>
             <p style={{ margin: 0 }}>系统活动日志将在这里显示</p>
           </div>
@@ -546,13 +598,13 @@ export default function AdminPanel() {
           <h2 className="admin-table-title">系统设置</h2>
           <div className="admin-table-actions">
             <button className="header-action" title="保存设置">
-              <span>💾</span>
+              <i className="fas fa-save"></i>
             </button>
             <button className="header-action" title="重置设置">
-              <span>🔄</span>
+              <i className="fas fa-undo"></i>
             </button>
             <button className="header-action" title="导出配置">
-              <span>📤</span>
+              <i className="fas fa-download"></i>
             </button>
           </div>
         </div>
@@ -561,7 +613,9 @@ export default function AdminPanel() {
           <div className="settings-section">
             <div className="section-header">
               <h3 className="section-title">
-                <span className="section-icon">🔧</span>
+                <span className="section-icon">
+                  <i className="fas fa-cog"></i>
+                </span>
                 基础设置
               </h3>
             </div>
@@ -596,7 +650,9 @@ export default function AdminPanel() {
           <div className="settings-section">
             <div className="section-header">
               <h3 className="section-title">
-                <span className="section-icon">🔒</span>
+                <span className="section-icon">
+                  <i className="fas fa-shield-alt"></i>
+                </span>
                 安全设置
               </h3>
             </div>
@@ -628,7 +684,9 @@ export default function AdminPanel() {
           <div className="settings-section">
             <div className="section-header">
               <h3 className="section-title">
-                <span className="section-icon">🎨</span>
+                <span className="section-icon">
+                  <i className="fas fa-palette"></i>
+                </span>
                 图片交互样式
               </h3>
             </div>
@@ -694,7 +752,9 @@ export default function AdminPanel() {
           <div className="settings-section">
             <div className="section-header">
               <h3 className="section-title">
-                <span className="section-icon">🤖</span>
+                <span className="section-icon">
+                  <i className="fab fa-telegram-plane"></i>
+                </span>
                 Telegram 设置
               </h3>
             </div>
@@ -732,25 +792,25 @@ export default function AdminPanel() {
   const menuItems = [
     {
       id: 'overview',
-      icon: '📊',
+      icon: 'fas fa-chart-bar',
       title: '概览',
       description: '系统状态'
     },
     {
       id: 'database',
-      icon: '🗄️',
+      icon: 'fas fa-database',
       title: '数据库',
       description: '文件管理'
     },
     {
       id: 'logs',
-      icon: '📋',
+      icon: 'fas fa-clipboard-list',
       title: '日志',
       description: '操作记录'
     },
     {
       id: 'settings',
-      icon: '⚙️',
+      icon: 'fas fa-cog',
       title: '设置',
       description: '系统配置'
     }
@@ -783,13 +843,23 @@ export default function AdminPanel() {
         </Head>
 
       <div className="admin-layout">
+        {/* 桌面端侧边栏控制按钮 */}
+        <button 
+          className="sidebar-collapse-toggle"
+          onClick={toggleSidebar}
+          aria-label="切换侧边栏"
+          title={isSidebarCollapsed ? '展开侧边栏' : '收起侧边栏'}
+        >
+          <i className={`fas ${isSidebarCollapsed ? 'fa-chevron-right' : 'fa-chevron-left'}`}></i>
+        </button>
+
         {/* 移动端菜单切换按钮 */}
         <button 
           className="sidebar-toggle"
           onClick={toggleMobileMenu}
           aria-label="切换菜单"
         >
-          <span className="sidebar-toggle-icon">☰</span>
+          <span className="sidebar-toggle-icon"><i className="fas fa-bars"></i></span>
         </button>
 
         {/* 移动端遮罩层 */}
@@ -799,10 +869,12 @@ export default function AdminPanel() {
         ></div>
 
         {/* 侧边栏导航 */}
-        <aside className={`admin-sidebar ${isMobileMenuOpen ? 'open' : ''}`}>
+        <aside className={`admin-sidebar ${isMobileMenuOpen ? 'open' : ''} ${isSidebarCollapsed ? 'collapsed' : ''}`}>
           <div className="sidebar-header">
             <div className="sidebar-brand">
-              <div className="sidebar-icon">🚀</div>
+              <div className="sidebar-icon">
+                <i className="fas fa-rocket"></i>
+              </div>
               <div className="sidebar-info">
                 <h2 className="sidebar-title">TgNetBucket</h2>
                 <span className="sidebar-subtitle">管理面板</span>
@@ -817,8 +889,9 @@ export default function AdminPanel() {
                   <button
                     className={`sidebar-nav-link ${activeTab === item.id ? 'active' : ''}`}
                     onClick={() => handleNavClick(item.id)}
+                    title={item.title}
                   >
-                    <span className="sidebar-nav-icon">{item.icon}</span>
+                    <span className="sidebar-nav-icon"><i className={item.icon}></i></span>
                     <div className="sidebar-nav-content">
                       <span className="sidebar-nav-title">{item.title}</span>
                       <span className="sidebar-nav-description">{item.description}</span>
@@ -830,15 +903,15 @@ export default function AdminPanel() {
           </nav>
 
           <div className="sidebar-footer">
-            <Link href="/" className="sidebar-back-link">
-              <span className="sidebar-back-icon">🏠</span>
+            <Link href="/" className="sidebar-back-link" title="返回首页">
+              <span className="sidebar-back-icon"><i className="fas fa-home"></i></span>
               <span className="sidebar-back-text">返回首页</span>
             </Link>
           </div>
         </aside>
 
         {/* 主内容区域 */}
-        <main className="admin-main">
+        <main className={`admin-main ${isSidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
           {/* 顶部操作栏 */}
           <header className="admin-header">
             <div className="admin-header-left">
@@ -864,9 +937,7 @@ export default function AdminPanel() {
                 disabled={loading}
                 title="刷新数据"
               >
-                <span className={loading ? '⏳' : '🔄'}>
-                  {loading ? '⏳' : '🔄'}
-                </span>
+                <i className={loading ? 'fas fa-spinner fa-spin' : 'fas fa-sync-alt'}></i>
               </button>
             </div>
           </header>

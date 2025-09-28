@@ -6,6 +6,7 @@ import FileUpload from '../components/features/FileUpload/FileUpload';
 import FileBatch from '../components/features/FileBatch/FileBatch';
 import FilePreview from '../components/features/FilePreview/FilePreview';
 import PageAuthGuard from '../components/PageAuthGuard';
+import AuthModal from '../components/AuthModal';
 
 // 导入自定义钩子
 import { useFileList } from '../hooks/useFileList';
@@ -16,6 +17,9 @@ import { useBatchOps } from '../hooks/useBatchOps';
 import { getFileIcon, formatFileSize } from '../utils/fileUtils';
 import { formatDate } from '../utils/formatUtils';
 import { getFileType } from '../utils/validationUtils';
+
+// 导入消息组件
+import { createSuccessMessage, createErrorMessage } from '../components/ui/Message';
 
 /**
  * TgNetBucket 主页面组件
@@ -67,6 +71,9 @@ export default function Home() {
   // 视图模式状态
   const [viewMode, setViewMode] = useState('grid');
   const [previewFile, setPreviewFile] = useState(null);
+  
+  // 登录状态管理
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   /**
    * 处理文件下载
@@ -98,6 +105,49 @@ export default function Home() {
   const handleBatchOperationComplete = () => {
     fetchFiles();
     clearSelection();
+  };
+
+  /**
+   * 显示登录弹窗
+   */
+  const handleShowLogin = () => {
+    setShowLoginModal(true);
+  };
+
+  /**
+   * 关闭登录弹窗
+   */
+  const handleCloseLogin = () => {
+    setShowLoginModal(false);
+  };
+
+  /**
+   * 登录成功处理
+   */
+  const handleLoginSuccess = () => {
+    // 注意：当设置了redirectTo时，页面会立即跳转，此函数可能不会执行完成
+    // 只在没有重定向时才关闭弹窗
+    setShowLoginModal(false);
+  };
+
+  /**
+   * 处理分享功能
+   * @param {string} fileId - 文件ID
+   */
+  const handleShare = async (fileId) => {
+    try {
+      const result = await generateShortLink(fileId);
+      if (result.success) {
+        // 复制链接到剪贴板
+        await navigator.clipboard.writeText(result.shortLink);
+        createSuccessMessage(`分享链接已生成并复制到剪贴板：${result.shortLink}`);
+      } else {
+        createErrorMessage(result.error || '生成分享链接失败');
+      }
+    } catch (error) {
+      console.error('分享失败:', error);
+      createErrorMessage('生成分享链接失败');
+    }
   };
 
   // 初始化加载文件列表
@@ -148,6 +198,15 @@ export default function Home() {
       <Header 
         onUpload={() => document.querySelector('input[type="file"]').click()}
         onRefresh={fetchFiles}
+        actions={[
+          {
+            key: 'login',
+            icon: 'fas fa-sign-in-alt',
+            text: '管理员登录',
+            title: '登录到管理面板',
+            onClick: handleShowLogin
+          }
+        ]}
       />
 
       <main className="main-content">
@@ -175,7 +234,7 @@ export default function Home() {
         {/* 文件列表区域 */}
         <section className="files-section">
           <div className="section-header">
-            <h2>📂 我的文件</h2>
+            <h2><i className="fas fa-folder"></i> 我的文件</h2>
             <div className="file-stats">
               共 {filteredFiles.length} 个文件
               {selectedFiles.length > 0 && (
@@ -244,7 +303,7 @@ export default function Home() {
                 className="sort-order-btn"
                 title={`当前: ${sortOrder === 'asc' ? '升序' : '降序'}`}
               >
-                {sortOrder === 'asc' ? '⬆️' : '⬇️'}
+                <i className={`fas ${sortOrder === 'asc' ? 'fa-sort-up' : 'fa-sort-down'}`}></i>
               </button>
             </div>
 
@@ -255,14 +314,14 @@ export default function Home() {
                 className={`view-btn ${viewMode === 'grid' ? 'active' : ''}`}
                 title="网格视图"
               >
-                ⊞
+                <i className="fas fa-th"></i>
               </button>
               <button
                 onClick={() => setViewMode('list')}
                 className={`view-btn ${viewMode === 'list' ? 'active' : ''}`}
                 title="列表视图"
               >
-                ☰
+                <i className="fas fa-list"></i>
               </button>
             </div>
           </div>
@@ -329,19 +388,19 @@ export default function Home() {
                     disabled={loading}
                     title="下载文件"
                   >
-                    <span className="btn-icon">⬇️</span>
+                    <span className="btn-icon"><i className="fas fa-download"></i></span>
                     <span className="btn-text">下载</span>
                   </button>
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      generateShortLink(file.fileId);
+                      handleShare(file.fileId);
                     }}
                     className="action-btn share-btn"
                     disabled={loading}
                     title="生成分享链接"
                   >
-                    <span className="btn-icon">🔗</span>
+                    <span className="btn-icon"><i className="fas fa-share-alt"></i></span>
                     <span className="btn-text">分享</span>
                   </button>
                   <button
@@ -353,7 +412,7 @@ export default function Home() {
                     disabled={loading}
                     title="删除文件"
                   >
-                    <span className="btn-icon">🗑️</span>
+                    <span className="btn-icon"><i className="fas fa-trash"></i></span>
                     <span className="btn-text">删除</span>
                   </button>
                 </div>
@@ -376,6 +435,16 @@ export default function Home() {
           onGenerateShortLink={() => generateShortLink(previewFile.fileId)}
         />
       )}
+
+      {/* 登录弹窗 */}
+      <AuthModal
+        isOpen={showLoginModal}
+        onClose={handleCloseLogin}
+        onSuccess={handleLoginSuccess}
+        title="管理员登录"
+        message="请输入管理员用户名和密码以访问管理面板"
+        redirectTo="/admin"
+      />
 
         <Footer />
       </div>

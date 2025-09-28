@@ -14,13 +14,15 @@ import { AUTH_CONFIG } from '../constants/config.js';
  * @param {Function} props.onSuccess - 认证成功回调
  * @param {string} props.title - 弹窗标题
  * @param {string} props.message - 提示消息
+ * @param {string} props.redirectTo - 登录成功后重定向的URL
  */
 const AuthModal = ({ 
   isOpen = false, 
   onClose, 
   onSuccess, 
   title = '管理员认证',
-  message = '请输入管理员用户名和密码以继续操作'
+  message = '请输入管理员用户名和密码以继续操作',
+  redirectTo = null
 }) => {
   const [formData, setFormData] = useState({
     username: '',
@@ -83,6 +85,12 @@ const AuthModal = ({
         // 保存认证令牌
         if (typeof window !== 'undefined') {
           localStorage.setItem(AUTH_CONFIG.SESSION.STORAGE_KEY, result.token);
+        }
+        
+        // 如果指定了重定向URL，则立即进行页面跳转
+        if (redirectTo && typeof window !== 'undefined') {
+          window.location.href = redirectTo;
+          return; // 立即返回，避免执行后续代码
         }
         
         // 调用成功回调，传递完整的认证数据
