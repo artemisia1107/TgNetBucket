@@ -20,13 +20,14 @@
 
 ```javascript
 // pages/_app.js
-import { GlobalProvider } from '@/components/context';
+import '../public/styles/globals.css';
+import { AppProvider } from '../components/context';
 
 function MyApp({ Component, pageProps }) {
   return (
-    <GlobalProvider>
+    <AppProvider>
       <Component {...pageProps} />
-    </GlobalProvider>
+    </AppProvider>
   );
 }
 
@@ -732,5 +733,80 @@ function VirtualizedList({ items }) {
   );
 }
 ```
+
+## 样式系统
+
+### 样式架构
+
+项目采用模块化CSS架构，所有样式文件位于 `public/styles/` 目录：
+
+```
+public/styles/
+├── base/           # 基础样式
+│   ├── variables.css   # CSS变量定义
+│   ├── reset.css       # 样式重置
+│   ├── layout.css      # 布局样式
+│   └── fonts.css       # 字体样式
+├── components/     # 组件样式
+│   ├── buttons.css     # 按钮样式
+│   ├── forms.css       # 表单样式
+│   ├── messages.css    # 消息样式
+│   ├── dialogs.css     # 对话框样式
+│   ├── header.css      # 头部样式
+│   ├── footer.css      # 底部样式
+│   └── admin-header.css # 管理头部样式
+├── pages/          # 页面样式
+│   ├── index.css       # 首页样式
+│   └── admin.css       # 管理页样式
+├── utils/          # 工具样式
+│   ├── utilities.css   # 工具类
+│   └── font-demo.css   # 字体演示
+└── globals.css     # 全局样式入口
+```
+
+### 样式使用方式
+
+#### 1. 全局样式导入
+
+在 `pages/_app.js` 中导入全局样式：
+
+```javascript
+import '../public/styles/globals.css';
+```
+
+#### 2. 组件样式类名
+
+组件使用预定义的CSS类名：
+
+```javascript
+function Button({ children, variant = 'primary' }) {
+  return (
+    <button className={`btn btn-${variant}`}>
+      {children}
+    </button>
+  );
+}
+```
+
+#### 3. CSS变量使用
+
+使用CSS变量保持样式一致性：
+
+```css
+.custom-component {
+  color: var(--color-text-primary);
+  background: var(--color-background);
+  padding: var(--spacing-4);
+  border-radius: var(--border-radius-md);
+}
+```
+
+### 样式最佳实践
+
+1. **使用语义化类名**: 如 `.file-card`, `.upload-zone`, `.admin-sidebar`
+2. **遵循BEM命名规范**: 如 `.file-card__header`, `.file-card--selected`
+3. **使用CSS变量**: 保持颜色、间距、字体等的一致性
+4. **模块化组织**: 按功能和组件分离样式文件
+5. **响应式设计**: 使用媒体查询适配不同屏幕尺寸
 
 这个指南涵盖了项目中所有组件的使用方法和最佳实践，帮助开发者更好地理解和使用组件系统。
