@@ -641,7 +641,7 @@ export default function AdminPanel() {
                       type="radio" 
                       name="imageInteraction" 
                       value="fade" 
-                      defaultChecked 
+                      checked={imageInteractionStyle === 'fade'}
                       onChange={(e) => handleInteractionChange(e.target.value)}
                     />
                     <span className="radio-text">
@@ -655,6 +655,7 @@ export default function AdminPanel() {
                       type="radio" 
                       name="imageInteraction" 
                       value="underline" 
+                      checked={imageInteractionStyle === 'underline'}
                       onChange={(e) => handleInteractionChange(e.target.value)}
                     />
                     <span className="radio-text">

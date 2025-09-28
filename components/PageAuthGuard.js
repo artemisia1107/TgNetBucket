@@ -96,17 +96,12 @@ const PageAuthGuard = ({
     }
   };
 
-  /**
-   * 手动触发认证
-   */
-  const triggerAuth = () => {
-    setShowAuthModal(true);
-  };
+
 
   // 页面加载时检查认证状态
   useEffect(() => {
     checkAuthentication();
-  }, [requireAuth]);
+  }, [requireAuth, checkAuthentication]);
 
   // 如果正在加载，显示加载状态
   if (isLoading) {
