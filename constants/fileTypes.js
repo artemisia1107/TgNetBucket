@@ -155,45 +155,45 @@ export const MIME_TYPES = {
 };
 
 /**
- * 文件图标映射
+ * 文件图标映射 - Font Awesome类名
  */
 export const FILE_ICONS = {
   // 分类图标
-  [FILE_CATEGORIES.IMAGE]: '🖼️',
-  [FILE_CATEGORIES.VIDEO]: '🎬',
-  [FILE_CATEGORIES.AUDIO]: '🎵',
-  [FILE_CATEGORIES.DOCUMENT]: '📄',
-  [FILE_CATEGORIES.ARCHIVE]: '🗜️',
-  [FILE_CATEGORIES.CODE]: '💻',
-  [FILE_CATEGORIES.FONT]: '🔤',
-  [FILE_CATEGORIES.OTHER]: '📁',
+  [FILE_CATEGORIES.IMAGE]: 'fas fa-image',
+  [FILE_CATEGORIES.VIDEO]: 'fas fa-video',
+  [FILE_CATEGORIES.AUDIO]: 'fas fa-music',
+  [FILE_CATEGORIES.DOCUMENT]: 'fas fa-file-alt',
+  [FILE_CATEGORIES.ARCHIVE]: 'fas fa-file-archive',
+  [FILE_CATEGORIES.CODE]: 'fas fa-code',
+  [FILE_CATEGORIES.FONT]: 'fas fa-font',
+  [FILE_CATEGORIES.OTHER]: 'fas fa-file',
   
   // 具体文件类型图标
-  'pdf': '📕',
-  'doc': '📘', 'docx': '📘',
-  'xls': '📗', 'xlsx': '📗',
-  'ppt': '📙', 'pptx': '📙',
-  'txt': '📝',
-  'md': '📝',
-  'json': '📋',
-  'xml': '📋',
-  'html': '🌐',
-  'css': '🎨',
-  'js': '📜',
-  'ts': '📜',
-  'py': '🐍',
-  'java': '☕',
-  'php': '🐘',
-  'rb': '💎',
-  'go': '🐹',
-  'rs': '🦀',
-  'swift': '🦉',
-  'zip': '🗜️',
-  'rar': '🗜️',
-  '7z': '🗜️',
-  'exe': '⚙️',
-  'dmg': '💿',
-  'iso': '💿'
+  'pdf': 'fas fa-file-pdf',
+  'doc': 'fas fa-file-word', 'docx': 'fas fa-file-word',
+  'xls': 'fas fa-file-excel', 'xlsx': 'fas fa-file-excel',
+  'ppt': 'fas fa-file-powerpoint', 'pptx': 'fas fa-file-powerpoint',
+  'txt': 'fas fa-file-alt',
+  'md': 'fab fa-markdown',
+  'json': 'fas fa-file-code',
+  'xml': 'fas fa-file-code',
+  'html': 'fab fa-html5',
+  'css': 'fab fa-css3-alt',
+  'js': 'fab fa-js-square',
+  'ts': 'fas fa-file-code',
+  'py': 'fab fa-python',
+  'java': 'fab fa-java',
+  'php': 'fab fa-php',
+  'rb': 'fas fa-gem',
+  'go': 'fas fa-file-code',
+  'rs': 'fas fa-file-code',
+  'swift': 'fab fa-swift',
+  'zip': 'fas fa-file-archive',
+  'rar': 'fas fa-file-archive',
+  '7z': 'fas fa-file-archive',
+  'exe': 'fas fa-cog',
+  'dmg': 'fas fa-compact-disc',
+  'iso': 'fas fa-compact-disc'
 };
 
 /**

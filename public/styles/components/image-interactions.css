@@ -1,0 +1,235 @@
+/**
+ * 图片交互样式
+ * 包含淡入淡出和下划线效果的互斥样式
+ */
+
+/* ========== 基础图片容器 ========== */
+
+.image-interactive {
+  position: relative;
+  display: inline-block;
+  overflow: hidden;
+  transition: all var(--transition-normal);
+}
+
+/* ========== 动画速度变量 ========== */
+
+:root[data-animation-speed="fast"] {
+  --image-transition-duration: 150ms;
+}
+
+:root[data-animation-speed="normal"] {
+  --image-transition-duration: 300ms;
+}
+
+:root[data-animation-speed="slow"] {
+  --image-transition-duration: 500ms;
+}
+
+:root {
+  --image-transition-duration: 300ms; /* 默认速度 */
+}
+
+/* ========== 淡入淡出效果 ========== */
+
+/* 当选择淡入淡出效果且启用交互时 */
+:root[data-image-interaction="fade"][data-interaction-enabled="true"] .image-interactive {
+  transition: opacity var(--image-transition-duration) ease-in-out,
+              transform var(--image-transition-duration) ease-in-out;
+}
+
+:root[data-image-interaction="fade"][data-interaction-enabled="true"] .image-interactive:hover {
+  opacity: 0.8;
+  transform: scale(1.02);
+}
+
+:root[data-image-interaction="fade"][data-interaction-enabled="true"] .image-interactive img {
+  transition: filter var(--image-transition-duration) ease-in-out;
+}
+
+:root[data-image-interaction="fade"][data-interaction-enabled="true"] .image-interactive:hover img {
+  filter: brightness(1.1) contrast(1.05);
+}
+
+/* 淡入淡出效果的叠加层 */
+:root[data-image-interaction="fade"][data-interaction-enabled="true"] .image-interactive::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(45deg, 
+    rgba(255, 255, 255, 0) 0%, 
+    rgba(255, 255, 255, 0.1) 50%, 
+    rgba(255, 255, 255, 0) 100%);
+  opacity: 0;
+  transition: opacity var(--image-transition-duration) ease-in-out;
+  pointer-events: none;
+  z-index: 1;
+}
+
+:root[data-image-interaction="fade"][data-interaction-enabled="true"] .image-interactive:hover::before {
+  opacity: 1;
+}
+
+/* ========== 下划线效果 ========== */
+
+/* 当选择下划线效果且启用交互时 */
+:root[data-image-interaction="underline"][data-interaction-enabled="true"] .image-interactive {
+  position: relative;
+  transition: transform var(--image-transition-duration) ease-in-out;
+}
+
+:root[data-image-interaction="underline"][data-interaction-enabled="true"] .image-interactive:hover {
+  transform: translateY(-2px);
+}
+
+/* 下划线效果的实现 */
+:root[data-image-interaction="underline"][data-interaction-enabled="true"] .image-interactive::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 50%;
+  width: 0;
+  height: 3px;
+  background: linear-gradient(90deg, 
+    var(--color-primary-400), 
+    var(--color-primary-600), 
+    var(--color-primary-400));
+  border-radius: 2px;
+  transition: all var(--image-transition-duration) ease-in-out;
+  transform: translateX(-50%);
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+}
+
+:root[data-image-interaction="underline"][data-interaction-enabled="true"] .image-interactive:hover::after {
+  width: 100%;
+}
+
+/* 下划线效果的图片样式 */
+:root[data-image-interaction="underline"][data-interaction-enabled="true"] .image-interactive img {
+  transition: filter var(--image-transition-duration) ease-in-out;
+}
+
+:root[data-image-interaction="underline"][data-interaction-enabled="true"] .image-interactive:hover img {
+  filter: brightness(1.05) saturate(1.1);
+}
+
+/* ========== 禁用交互效果 ========== */
+
+:root[data-interaction-enabled="false"] .image-interactive {
+  transition: none !important;
+}
+
+:root[data-interaction-enabled="false"] .image-interactive:hover {
+  opacity: 1 !important;
+  transform: none !important;
+}
+
+:root[data-interaction-enabled="false"] .image-interactive::before,
+:root[data-interaction-enabled="false"] .image-interactive::after {
+  display: none !important;
+}
+
+:root[data-interaction-enabled="false"] .image-interactive img {
+  transition: none !important;
+  filter: none !important;
+}
+
+/* ========== 响应式优化 ========== */
+
+@media (max-width: 768px) {
+  /* 移动端减少动画效果以提升性能 */
+  :root[data-interaction-enabled="true"] .image-interactive {
+    --image-transition-duration: 200ms;
+  }
+  
+  /* 移动端触摸优化 */
+  :root[data-image-interaction="fade"][data-interaction-enabled="true"] .image-interactive:active {
+    opacity: 0.7;
+    transform: scale(0.98);
+  }
+  
+  :root[data-image-interaction="underline"][data-interaction-enabled="true"] .image-interactive:active {
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* 尊重用户的减少动画偏好 */
+  :root .image-interactive,
+  :root .image-interactive::before,
+  :root .image-interactive::after,
+  :root .image-interactive img {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+/* ========== 辅助类 ========== */
+
+/* 强制启用交互效果的类 */
+.force-image-interaction {
+  transition: all var(--image-transition-duration) ease-in-out !important;
+}
+
+/* 强制禁用交互效果的类 */
+.no-image-interaction {
+  transition: none !important;
+}
+
+.no-image-interaction:hover {
+  opacity: 1 !important;
+  transform: none !important;
+}
+
+.no-image-interaction::before,
+.no-image-interaction::after {
+  display: none !important;
+}
+
+/* ========== 特殊场景样式 ========== */
+
+/* 图片预览模态框中的交互效果 */
+.modal .image-interactive {
+  border-radius: var(--border-radius-lg);
+  overflow: hidden;
+}
+
+/* 文件列表中的图片交互效果 */
+.file-item .image-interactive {
+  border-radius: var(--border-radius-md);
+}
+
+/* 缩略图的交互效果 */
+.thumbnail .image-interactive {
+  border-radius: var(--border-radius-sm);
+}
+
+/* ========== 加载状态 ========== */
+
+.image-interactive.loading {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.image-interactive.loading::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--color-border);
+  border-top: 2px solid var(--color-primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  transform: translate(-50%, -50%);
+  z-index: 2;
+}
+
+@keyframes spin {
+  0% { transform: translate(-50%, -50%) rotate(0deg); }
+  100% { transform: translate(-50%, -50%) rotate(360deg); }
+}

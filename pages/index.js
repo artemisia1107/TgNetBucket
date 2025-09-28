@@ -5,6 +5,7 @@ import Footer from '../components/layout/Footer';
 import FileUpload from '../components/features/FileUpload/FileUpload';
 import FileBatch from '../components/features/FileBatch/FileBatch';
 import FilePreview from '../components/features/FilePreview/FilePreview';
+import PageAuthGuard from '../components/PageAuthGuard';
 
 // 导入自定义钩子
 import { useFileList } from '../hooks/useFileList';
@@ -12,7 +13,8 @@ import { useFileUpload } from '../hooks/useFileUpload';
 import { useBatchOps } from '../hooks/useBatchOps';
 
 // 导入工具函数
-import { getFileIcon, formatFileSize, formatDate } from '../utils/fileUtils';
+import { getFileIcon, formatFileSize } from '../utils/fileUtils';
+import { formatDate } from '../utils/formatUtils';
 import { getFileType } from '../utils/validationUtils';
 
 /**
@@ -134,13 +136,14 @@ export default function Home() {
     });
 
   return (
-    <div className="app">
-      <Head>
-        <title>TgNetBucket - 现代化文件存储</title>
-        <meta name="description" content="基于Telegram的现代化文件存储服务" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
+    <PageAuthGuard>
+      <div className="app">
+        <Head>
+          <title>TgNetBucket - 现代化文件存储</title>
+          <meta name="description" content="基于Telegram的现代化文件存储服务" />
+          <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+          <link rel="icon" href="/favicon.ico" />
+        </Head>
 
       <Header 
         onUpload={() => document.querySelector('input[type="file"]').click()}
@@ -208,7 +211,7 @@ export default function Home() {
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="search-input"
               />
-              <span className="search-icon">🔍</span>
+              <i className="fas fa-search search-icon"></i>
             </div>
 
             {/* 筛选和排序 */}
@@ -273,7 +276,9 @@ export default function Home() {
           
           {!loading && filteredFiles.length === 0 && (
             <div className="empty-state">
-              <div className="empty-icon">📭</div>
+              <div className="empty-icon">
+                <i className="fas fa-folder-open"></i>
+              </div>
               <h3>还没有文件</h3>
               <p>上传您的第一个文件开始使用吧！</p>
             </div>
@@ -295,7 +300,7 @@ export default function Home() {
                 <div className="file-content" onClick={() => handlePreview(file)}>
                   <div className="file-header">
                     <div className="file-icon">
-                      {getFileIcon(file.fileName)}
+                      <i className={getFileIcon(file.fileName)}></i>
                     </div>
                     <div className="file-info">
                       <h4 className="file-name" title={file.fileName}>
@@ -372,7 +377,8 @@ export default function Home() {
         />
       )}
 
-      <Footer />
-    </div>
+        <Footer />
+      </div>
+    </PageAuthGuard>
   );
 }

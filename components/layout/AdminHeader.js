@@ -32,25 +32,25 @@ export default function AdminHeader({
   const menuItems = [
     {
       id: 'overview',
-      icon: '📊',
+      icon: 'fas fa-chart-bar',
       title: '概览',
       description: '系统状态'
     },
     {
       id: 'database',
-      icon: '🗄️',
+      icon: 'fas fa-database',
       title: '数据库',
       description: '文件管理'
     },
     {
       id: 'logs',
-      icon: '📋',
+      icon: 'fas fa-clipboard-list',
       title: '日志',
       description: '操作记录'
     },
     {
       id: 'settings',
-      icon: '⚙️',
+      icon: 'fas fa-cog',
       title: '设置',
       description: '系统配置'
     }
@@ -64,7 +64,7 @@ export default function AdminHeader({
     <aside className={`admin-sidebar ${isMobileMenuOpen ? 'open' : ''}`}>
       <div className="sidebar-header">
         <div className="sidebar-brand">
-          <div className="sidebar-icon">🚀</div>
+          <div className="sidebar-icon"><i className="fas fa-rocket"></i></div>
           <div className="sidebar-info">
             <h2 className="sidebar-title">TgNetBucket</h2>
             <span className="sidebar-subtitle">管理面板</span>
@@ -83,7 +83,7 @@ export default function AdminHeader({
                   closeMobileMenu?.();
                 }}
               >
-                <span className="sidebar-nav-icon">{item.icon}</span>
+                <span className="sidebar-nav-icon"><i className={item.icon}></i></span>
                 <div className="sidebar-nav-content">
                   <span className="sidebar-nav-title">{item.title}</span>
                   <span className="sidebar-nav-description">{item.description}</span>
@@ -96,7 +96,7 @@ export default function AdminHeader({
 
       <div className="sidebar-footer">
         <Link href="/" className="sidebar-back-link">
-          <span className="sidebar-back-icon">🏠</span>
+          <span className="sidebar-back-icon"><i className="fas fa-home"></i></span>
           <span className="sidebar-back-text">返回首页</span>
         </Link>
       </div>
@@ -129,8 +129,8 @@ export default function AdminHeader({
           disabled={loading}
           title="刷新数据"
         >
-          <span className={loading ? '⏳' : '🔄'}>
-            {loading ? '⏳' : '🔄'}
+          <span className={loading ? 'loading' : 'refresh'}>
+            <i className={loading ? 'fas fa-hourglass-half' : 'fas fa-sync'}></i>
           </span>
         </button>
       </div>
@@ -145,7 +145,7 @@ export default function AdminHeader({
         onClick={toggleMobileMenu}
         aria-label="切换菜单"
       >
-        <span className="sidebar-toggle-icon">☰</span>
+        <span className="sidebar-toggle-icon"><i className="fas fa-bars"></i></span>
       </button>
 
       {/* 移动端遮罩层 */}

@@ -3,13 +3,16 @@
  * 采用模块化架构，按功能组织样式
  */
 
+/* ========== 第三方库 ========== */
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
+
 /* ========== 基础样式 ========== */
 @import './base/variables.css';
 @import './base/reset.css';
 @import './base/layout.css';
 @import './base/fonts.css';
 
-/* ========== 组件样式 ========== */
+/* 组件样式 */
 @import './components/buttons.css';
 @import './components/forms.css';
 @import './components/messages.css';
@@ -17,10 +20,28 @@
 @import './components/header.css';
 @import './components/footer.css';
 @import './components/admin-header.css';
+@import './components/image-interactions.css';
 
 /* ========== 页面样式 ========== */
-@import './pages/index.css';
-@import './pages/admin.css';
+
+/* 首页模块 */
+@import './pages/index/layout.css';
+@import './pages/index/navigation.css';
+@import './pages/index/upload.css';
+@import './pages/index/search.css';
+@import './pages/index/files.css';
+@import './pages/index/modals.css';
+@import './pages/index/responsive.css';
+
+/* 管理页面模块 */
+@import './pages/admin/layout.css';
+@import './pages/admin/sidebar.css';
+@import './pages/admin/forms.css';
+@import './pages/admin/stats.css';
+@import './pages/admin/tables.css';
+@import './pages/admin/animations.css';
+
+
 
 /* ========== 工具类 ========== */
 @import './utils/utilities.css';

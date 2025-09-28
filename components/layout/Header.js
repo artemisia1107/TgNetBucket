@@ -36,7 +36,7 @@ export default function Header({
       return (
         <div className="breadcrumb">
           <span className="breadcrumb-item active">
-            <span className="breadcrumb-icon">🏠</span>
+            <span className="breadcrumb-icon"><i className="fas fa-home"></i></span>
             {currentPage === 'admin' ? '管理面板' : '文件管理'}
           </span>
         </div>
@@ -50,7 +50,7 @@ export default function Header({
             key={index} 
             className={`breadcrumb-item ${index === breadcrumbs.length - 1 ? 'active' : ''}`}
           >
-            {item.icon && <span className="breadcrumb-icon">{item.icon}</span>}
+            {item.icon && <span className="breadcrumb-icon"><i className={item.icon}></i></span>}
             {item.href ? (
               <a href={item.href}>{item.text}</a>
             ) : (
@@ -71,14 +71,14 @@ export default function Header({
     const defaultActions = currentPage === 'home' ? [
       {
         key: 'upload',
-        icon: '⬆️',
+        icon: 'fas fa-upload',
         text: '上传',
         title: '快速上传',
         onClick: onUpload || (() => document.querySelector('input[type="file"]')?.click())
       },
       {
         key: 'refresh',
-        icon: '🔄',
+        icon: 'fas fa-sync',
         text: '刷新',
         title: '刷新列表',
         onClick: onRefresh || (() => window.location.reload())
@@ -98,7 +98,7 @@ export default function Header({
               title={action.title}
               disabled={action.disabled}
             >
-              <span className="action-icon">{action.icon}</span>
+              <span className="action-icon"><i className={action.icon}></i></span>
               <span className="action-text">{action.text}</span>
             </button>
           ))}
@@ -108,7 +108,7 @@ export default function Header({
           <>
             <div className="nav-divider"></div>
             <Link href="/admin" className="admin-link">
-              <span className="admin-icon">⚙️</span>
+              <span className="admin-icon"><i className="fas fa-cog"></i></span>
               <span className="admin-text">管理面板</span>
             </Link>
           </>
@@ -118,7 +118,7 @@ export default function Header({
           <>
             <div className="nav-divider"></div>
             <Link href="/" className="home-link">
-              <span className="home-icon">🏠</span>
+              <span className="home-icon"><i className="fas fa-home"></i></span>
               <span className="home-text">返回首页</span>
             </Link>
           </>
@@ -131,7 +131,7 @@ export default function Header({
     <nav className="navbar">
       <div className="nav-container">
         <div className="nav-brand">
-          <h1>📦 {title}</h1>
+          <h1><i className="fas fa-box"></i> {title}</h1>
           <span className="nav-subtitle">{subtitle}</span>
         </div>
         

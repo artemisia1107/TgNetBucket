@@ -49,6 +49,11 @@ export default function AdminPanel() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authChecked, setAuthChecked] = useState(false);
+  
+  // 图片交互样式状态管理
+  const [imageInteractionStyle, setImageInteractionStyle] = useState('fade');
+  const [animationSpeed, setAnimationSpeed] = useState('normal');
+  const [interactionEnabled, setInteractionEnabled] = useState(true);
 
   // 获取系统统计信息
   /**
@@ -193,6 +198,53 @@ export default function AdminPanel() {
     }
   };
 
+  /**
+   * 处理图片交互样式变化
+   * @param {string} style - 选择的交互样式 ('fade' 或 'underline')
+   */
+  const handleInteractionChange = (style) => {
+    setImageInteractionStyle(style);
+    
+    // 应用样式到全局
+    const root = document.documentElement;
+    root.setAttribute('data-image-interaction', style);
+    
+    // 保存到本地存储
+    localStorage.setItem('imageInteractionStyle', style);
+    
+    createSuccessMessage(`图片交互样式已切换为: ${style === 'fade' ? '淡入淡出效果' : '下划线效果'}`);
+  };
+
+  /**
+   * 处理动画速度变化
+   * @param {string} speed - 动画速度 ('fast', 'normal', 'slow')
+   */
+  const handleAnimationSpeedChange = (speed) => {
+    setAnimationSpeed(speed);
+    
+    // 应用速度到全局
+    const root = document.documentElement;
+    root.setAttribute('data-animation-speed', speed);
+    
+    // 保存到本地存储
+    localStorage.setItem('animationSpeed', speed);
+  };
+
+  /**
+   * 处理交互效果开关
+   * @param {boolean} enabled - 是否启用交互效果
+   */
+  const handleInteractionToggle = (enabled) => {
+    setInteractionEnabled(enabled);
+    
+    // 应用到全局
+    const root = document.documentElement;
+    root.setAttribute('data-interaction-enabled', enabled.toString());
+    
+    // 保存到本地存储
+    localStorage.setItem('interactionEnabled', enabled.toString());
+  };
+
   // 页面加载时检查认证状态
   useEffect(() => {
     const authenticated = checkAuthentication();
@@ -202,6 +254,30 @@ export default function AdminPanel() {
       fetchActivityLogs();
     }
   }, [checkAuthentication, fetchSystemStats, fetchSystemStatus, fetchActivityLogs]);
+
+  // 恢复图片交互样式设置
+  useEffect(() => {
+    // 从本地存储恢复设置
+    const savedStyle = localStorage.getItem('imageInteractionStyle');
+    const savedSpeed = localStorage.getItem('animationSpeed');
+    const savedEnabled = localStorage.getItem('interactionEnabled');
+
+    if (savedStyle) {
+      setImageInteractionStyle(savedStyle);
+      document.documentElement.setAttribute('data-image-interaction', savedStyle);
+    }
+
+    if (savedSpeed) {
+      setAnimationSpeed(savedSpeed);
+      document.documentElement.setAttribute('data-animation-speed', savedSpeed);
+    }
+
+    if (savedEnabled !== null) {
+      const enabled = savedEnabled === 'true';
+      setInteractionEnabled(enabled);
+      document.documentElement.setAttribute('data-interaction-enabled', enabled.toString());
+    }
+  }, []);
 
   // 切换移动端菜单
   const toggleMobileMenu = () => {
@@ -545,6 +621,71 @@ export default function AdminPanel() {
                   defaultValue="30"
                   placeholder="输入过期天数"
                 />
+              </div>
+            </div>
+          </div>
+
+          <div className="settings-section">
+            <div className="section-header">
+              <h3 className="section-title">
+                <span className="section-icon">🎨</span>
+                图片交互样式
+              </h3>
+            </div>
+            <div className="form-grid">
+              <div className="form-group">
+                <label className="form-label">交互效果选择</label>
+                <div className="radio-group">
+                  <label className="radio-label">
+                    <input 
+                      type="radio" 
+                      name="imageInteraction" 
+                      value="fade" 
+                      defaultChecked 
+                      onChange={(e) => handleInteractionChange(e.target.value)}
+                    />
+                    <span className="radio-text">
+                      <i className="fas fa-eye"></i>
+                      淡入淡出效果
+                    </span>
+                    <span className="radio-description">鼠标悬停时图片淡入淡出</span>
+                  </label>
+                  <label className="radio-label">
+                    <input 
+                      type="radio" 
+                      name="imageInteraction" 
+                      value="underline" 
+                      onChange={(e) => handleInteractionChange(e.target.value)}
+                    />
+                    <span className="radio-text">
+                      <i className="fas fa-underline"></i>
+                      下划线效果
+                    </span>
+                    <span className="radio-description">鼠标悬停时显示下划线</span>
+                  </label>
+                </div>
+              </div>
+              <div className="form-group">
+                <label className="form-label">动画速度</label>
+                <select 
+                  className="form-select"
+                  value={animationSpeed}
+                  onChange={(e) => handleAnimationSpeedChange(e.target.value)}
+                >
+                  <option value="fast">快速 (150ms)</option>
+                  <option value="normal">正常 (300ms)</option>
+                  <option value="slow">慢速 (500ms)</option>
+                </select>
+              </div>
+              <div className="form-group checkbox-group">
+                <label className="checkbox-label">
+                  <input 
+                    type="checkbox" 
+                    checked={interactionEnabled}
+                    onChange={(e) => handleInteractionToggle(e.target.checked)}
+                  />
+                  <span>启用图片交互效果</span>
+                </label>
               </div>
             </div>
           </div>

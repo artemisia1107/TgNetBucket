@@ -1,0 +1,315 @@
+/* ========== 数据表格样式模块 ========== */
+
+/**
+ * 表格容器样式
+ * 毛玻璃效果和现代化设计
+ */
+.admin-table-container {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--border-radius-2xl);
+  overflow: hidden;
+  margin-bottom: var(--spacing-8);
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.08),
+    0 1px 2px rgba(0, 0, 0, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  position: relative;
+  transition: all var(--transition-smooth);
+  animation: scaleIn 0.5s ease-out 0.3s both;
+}
+
+/* PC端表格容器横向优化 */
+@media (min-width: 1200px) {
+  .admin-table-container {
+    margin-bottom: var(--spacing-6);
+    border-radius: var(--border-radius-xl);
+  }
+}
+
+/**
+ * 表格容器顶部装饰条
+ */
+.admin-table-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--color-gray-600), var(--color-gray-400), var(--color-gray-600));
+}
+
+/**
+ * 表格头部区域
+ * 包含标题和操作按钮
+ */
+.admin-table-header {
+  padding: var(--spacing-8) var(--spacing-8) var(--spacing-6);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-4);
+  background: linear-gradient(135deg, rgba(248, 250, 252, 0.8), rgba(241, 245, 249, 0.6));
+  backdrop-filter: blur(10px);
+  position: relative;
+}
+
+.admin-table-header::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.1), transparent);
+}
+
+/**
+ * 表格标题样式
+ * 渐变文字效果和下划线装饰
+ */
+.admin-table-title {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  margin: 0;
+  font-family: var(--font-family-display);
+  letter-spacing: var(--letter-spacing-tight);
+  background: linear-gradient(135deg, var(--color-text-primary), var(--color-gray-600));
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  position: relative;
+}
+
+.admin-table-title::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 40px;
+  height: 3px;
+  background: linear-gradient(90deg, var(--color-primary-500), var(--color-primary-300));
+  border-radius: 2px;
+}
+
+/**
+ * 表格操作按钮区域
+ */
+.admin-table-actions {
+  display: flex;
+  gap: var(--spacing-3);
+}
+
+/**
+ * 主表格样式
+ */
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--color-white);
+}
+
+/**
+ * 表格单元格基础样式
+ */
+.admin-table th,
+.admin-table td {
+  padding: var(--spacing-5) var(--spacing-8);
+  text-align: left;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  transition: all var(--transition-normal);
+}
+
+/**
+ * 表格行悬停效果
+ */
+.admin-table tbody tr {
+  transition: all var(--transition-normal);
+}
+
+.admin-table tbody tr:hover {
+  background: rgba(59, 130, 246, 0.04);
+  transform: scale(1.001);
+}
+
+.admin-table tbody tr:hover td {
+  border-bottom-color: rgba(59, 130, 246, 0.1);
+}
+
+/**
+ * 表格头部样式
+ * 渐变背景和装饰线
+ */
+.admin-table th {
+  background: linear-gradient(135deg, rgba(248, 250, 252, 0.9), rgba(241, 245, 249, 0.7));
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wide);
+  position: relative;
+  backdrop-filter: blur(5px);
+}
+
+.admin-table th::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--color-primary-200), var(--color-primary-100), var(--color-primary-200));
+}
+
+/**
+ * 表格数据单元格样式
+ */
+.admin-table td {
+  color: var(--color-text-primary);
+  vertical-align: middle;
+  font-size: var(--font-size-sm);
+  position: relative;
+}
+
+.admin-table td:first-child {
+  font-weight: var(--font-weight-medium);
+}
+
+/**
+ * 表格斑马纹效果
+ */
+.admin-table tbody tr:nth-child(even) {
+  background: rgba(248, 250, 252, 0.3);
+}
+
+.admin-table tbody tr:nth-child(even):hover {
+  background: rgba(59, 130, 246, 0.06);
+}
+
+/**
+ * 增强的行悬停效果
+ */
+.admin-table tbody tr {
+  transition: all var(--transition-normal);
+}
+
+.admin-table tbody tr:hover {
+  background: var(--color-gray-50);
+  transform: scale(1.01);
+  box-shadow: var(--shadow-sm);
+}
+
+/**
+ * 表格操作按钮组
+ */
+.table-actions {
+  display: flex;
+  gap: var(--spacing-2);
+}
+
+/**
+ * 单个表格操作按钮样式
+ * 支持悬停动画和危险操作样式
+ */
+.table-action {
+  width: var(--size-8);
+  height: var(--size-8);
+  border: none;
+  background: var(--color-gray-100);
+  cursor: pointer;
+  border-radius: var(--border-radius-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-muted);
+  transition: all var(--transition-normal);
+  border: 1px solid var(--color-border);
+}
+
+.table-action:hover {
+  background: var(--color-gray-200);
+  color: var(--color-text-primary);
+  transform: scale(1.1);
+  box-shadow: var(--shadow-md);
+}
+
+.table-action.danger:hover {
+  background: var(--color-red-100);
+  color: var(--color-red-700);
+  border-color: var(--color-red-300);
+}
+
+/**
+ * 移动端表格优化
+ */
+@media (max-width: 768px) {
+  .admin-table-container {
+    overflow-x: auto;
+    border-radius: var(--border-radius-xl);
+  }
+  
+  .admin-table {
+    min-width: 600px;
+  }
+  
+  .admin-table th,
+  .admin-table td {
+    padding: var(--spacing-4) var(--spacing-5);
+    font-size: var(--font-size-sm);
+  }
+  
+  .admin-table-header {
+    padding: var(--spacing-6);
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-4);
+  }
+  
+  .admin-table-title {
+    font-size: var(--font-size-xl);
+  }
+}
+
+/**
+ * 小屏手机表格优化
+ */
+@media (max-width: 480px) {
+  .admin-table {
+    font-size: var(--font-size-xs);
+  }
+  
+  .admin-table th,
+  .admin-table td {
+    padding: var(--spacing-3) var(--spacing-4);
+  }
+  
+  .admin-table-header {
+    padding: var(--spacing-4);
+  }
+  
+  .admin-table-title {
+    font-size: var(--font-size-lg);
+  }
+  
+  .table-action {
+    width: var(--size-10);
+    height: var(--size-10);
+  }
+}
+
+/**
+ * 触摸设备优化
+ */
+@media (hover: none) and (pointer: coarse) {
+  .table-action:hover {
+    transform: none;
+  }
+  
+  .table-action:active {
+    transform: scale(0.9);
+  }
+}

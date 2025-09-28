@@ -7,7 +7,56 @@ class TelegramStorage {
     this.chatId = options.chatId;
     
     // 允许注入客户端用于测试
-    this.telegramClient = options.telegramClient || new TelegramBot(this.botToken, { polling: false });
+    this.telegramClient = options.telegramClient || new TelegramBot(this.botToken, { 
+      polling: false,
+      request: {
+        agentOptions: {
+          timeout: 30000, // 30秒超时
+          keepAlive: true,
+          keepAliveMsecs: 30000
+        }
+      }
+    });
+    
+    // 重试配置
+    this.retryConfig = {
+      maxRetries: 3,
+      retryDelay: 2000, // 2秒
+      backoffMultiplier: 2
+    };
+  }
+
+  /**
+   * 重试机制辅助函数
+   * @param {Function} operation - 要执行的操作
+   * @param {string} operationName - 操作名称，用于日志
+   * @returns {Promise} 操作结果
+   */
+  async retryOperation(operation, operationName = 'operation') {
+    let lastError;
+    
+    for (let attempt = 1; attempt <= this.retryConfig.maxRetries; attempt++) {
+      try {
+        return await operation();
+      } catch (error) {
+        lastError = error;
+        console.warn(`${operationName} 第 ${attempt} 次尝试失败:`, error.message);
+        
+        // 如果是最后一次尝试，直接抛出错误
+        if (attempt === this.retryConfig.maxRetries) {
+          break;
+        }
+        
+        // 计算延迟时间（指数退避）
+        const delay = this.retryConfig.retryDelay * Math.pow(this.retryConfig.backoffMultiplier, attempt - 1);
+        console.log(`等待 ${delay}ms 后重试...`);
+        
+        // 等待后重试
+        await new Promise(resolve => setTimeout(resolve, delay));
+      }
+    }
+    
+    throw lastError;
   }
 
   /**
@@ -18,11 +67,13 @@ class TelegramStorage {
    */
   async uploadFile(fileBuffer, fileName) {
     try {
-      // 使用正确的文件选项格式来避免废弃警告
-      const response = await this.telegramClient.sendDocument(this.chatId, fileBuffer, {}, {
-        filename: fileName,
-        contentType: 'application/octet-stream'
-      });
+      // 使用重试机制上传文件
+      const response = await this.retryOperation(async () => {
+        return await this.telegramClient.sendDocument(this.chatId, fileBuffer, {}, {
+          filename: fileName,
+          contentType: 'application/octet-stream'
+        });
+      }, `上传文件 ${fileName}`);
       
       const fileInfo = {
         fileId: response.document?.file_id || '',
@@ -133,11 +184,13 @@ class TelegramStorage {
    */
   async syncFilesFromTelegram() {
     try {
-      // 使用getUpdates获取最近的消息（包含文档的消息）
-      const updates = await this.telegramClient.getUpdates({
-        limit: 100, // 获取最近100条更新
-        allowed_updates: ['message'] // 只获取消息更新
-      });
+      // 使用重试机制获取最近的消息（包含文档的消息）
+      const updates = await this.retryOperation(async () => {
+        return await this.telegramClient.getUpdates({
+          limit: 100, // 获取最近100条更新
+          allowed_updates: ['message'] // 只获取消息更新
+        });
+      }, '从Telegram同步文件');
       
       const files = [];
       const fileListKey = `files:${this.chatId}`;

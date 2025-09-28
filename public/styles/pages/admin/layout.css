@@ -1,0 +1,314 @@
+/**
+ * 管理页面布局样式
+ * 包含基础容器、布局和响应式设计
+ */
+
+/* 管理面板基础容器 */
+.admin-container {
+  min-height: 100vh;
+  background: var(--color-background);
+  font-family: var(--font-family-sans);
+  color: var(--color-text-primary);
+  line-height: var(--line-height-base);
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+/* 管理面板布局 */
+.admin-layout {
+  display: flex;
+  min-height: 100vh;
+  background: var(--color-background);
+  position: relative;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+}
+
+/* 移动端菜单切换按钮 */
+.sidebar-toggle {
+  position: fixed;
+  top: var(--spacing-4);
+  left: var(--spacing-4);
+  z-index: var(--z-sticky);
+  width: var(--size-10);
+  height: var(--size-10);
+  border: none;
+  background: var(--color-white);
+  cursor: pointer;
+  border-radius: var(--border-radius-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-secondary);
+  transition: all var(--transition-normal);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-md);
+}
+
+.sidebar-toggle:hover {
+  background: var(--color-gray-50);
+  color: var(--color-text-primary);
+  transform: scale(1.05);
+  box-shadow: var(--shadow-lg);
+}
+
+.sidebar-toggle-icon {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-medium);
+}
+
+/* 主要内容区域 */
+.admin-main {
+  flex: 1;
+  margin-left: 0;
+  transition: margin-left var(--transition-normal);
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: linear-gradient(135deg, var(--color-background) 0%, var(--color-gray-50) 100%);
+  position: relative;
+}
+
+.admin-main::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.03) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(255, 99, 132, 0.03) 0%, transparent 50%),
+    radial-gradient(circle at 40% 40%, rgba(54, 162, 235, 0.02) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.admin-main.sidebar-open {
+  margin-left: 240px;
+}
+
+/* PC端主内容区域默认为侧边栏留出空间 */
+@media (min-width: 769px) {
+  .admin-main {
+    margin-left: 240px;
+  }
+}
+
+/* 管理页面头部 */
+.admin-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-6) var(--spacing-8);
+  background: linear-gradient(135deg, 
+    rgba(255, 255, 255, 0.95) 0%, 
+    rgba(248, 250, 252, 0.9) 100%);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  margin-bottom: var(--spacing-6);
+  border-radius: var(--border-radius-2xl);
+  box-shadow: 
+    0 4px 16px rgba(0, 0, 0, 0.05),
+    0 1px 2px rgba(0, 0, 0, 0.03),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  position: relative;
+  z-index: 10;
+  gap: var(--spacing-4);
+  width: 100%;
+  max-width: none;
+}
+
+.admin-header::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: var(--spacing-8);
+  right: var(--spacing-8);
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.2), transparent);
+}
+
+.admin-header-left {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-4);
+}
+
+.page-title {
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  margin: 0;
+  font-family: var(--font-family-display);
+  letter-spacing: var(--letter-spacing-tight);
+}
+
+.admin-header-right {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+}
+
+.header-action {
+  width: var(--size-10);
+  height: var(--size-10);
+  border: none;
+  background: var(--color-gray-100);
+  cursor: pointer;
+  border-radius: var(--border-radius-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-secondary);
+  transition: all var(--transition-normal);
+  position: relative;
+  border: 1px solid var(--color-border);
+}
+
+.header-action:hover {
+  background: var(--color-gray-200);
+  color: var(--color-text-primary);
+  transform: scale(1.05);
+  box-shadow: var(--shadow-md);
+  will-change: transform, box-shadow, background-color;
+}
+
+.header-action.has-notification::after {
+  content: '';
+  position: absolute;
+  top: var(--spacing-2);
+  right: var(--spacing-2);
+  width: var(--size-2);
+  height: var(--size-2);
+  background: var(--color-red-500);
+  border-radius: var(--border-radius-full);
+  border: 2px solid var(--color-white);
+  animation: pulse 2s infinite;
+}
+
+/* 内容区域 */
+.admin-content {
+  flex: 1;
+  padding: var(--spacing-8);
+  overflow-y: auto;
+  background: transparent;
+  position: relative;
+  z-index: 1;
+  animation: fadeInUp 0.6s ease-out;
+  width: 100%;
+  max-width: none;
+}
+
+.content-body {
+  position: relative;
+  z-index: 1;
+  background: transparent;
+  width: 100%;
+  max-width: none;
+}
+
+/* 响应式设计 */
+
+/* 大屏幕设备优化 */
+@media (min-width: 1400px) {
+  .admin-sidebar {
+    width: 220px;
+  }
+  
+  .admin-main {
+    margin-left: 220px;
+  }
+  
+  .admin-main.sidebar-open {
+    margin-left: 220px;
+  }
+}
+
+/* 超大屏幕设备优化 */
+@media (min-width: 1920px) {
+  .admin-sidebar {
+    width: 200px;
+  }
+  
+  .admin-main {
+    margin-left: 200px;
+  }
+  
+  .admin-main.sidebar-open {
+    margin-left: 200px;
+  }
+}
+
+/* 响应式header内边距优化 */
+@media (min-width: 1600px) {
+  .admin-header {
+    padding: var(--spacing-6) var(--spacing-12);
+  }
+  
+  .admin-header::after {
+    left: var(--spacing-12);
+    right: var(--spacing-12);
+  }
+}
+
+@media (min-width: 1920px) {
+  .admin-header {
+    padding: var(--spacing-6) var(--spacing-16);
+  }
+  
+  .admin-header::after {
+    left: var(--spacing-16);
+    right: var(--spacing-16);
+  }
+}
+
+/* PC端内容区域横向优化 */
+@media (min-width: 1200px) {
+  .admin-content {
+    padding: var(--spacing-6) var(--spacing-8);
+  }
+}
+
+@media (min-width: 1600px) {
+  .admin-content {
+    padding: var(--spacing-8) var(--spacing-12);
+  }
+}
+
+/* PC端默认显示侧边栏 */
+@media (min-width: 769px) {
+  .sidebar-toggle {
+    display: none !important;
+  }
+}
+
+/* 大屏幕隐藏移动端元素 */
+@media (min-width: 1024px) {
+  .sidebar-toggle {
+    display: none;
+  }
+}
+
+/* 动画效果 */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

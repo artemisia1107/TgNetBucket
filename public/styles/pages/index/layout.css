@@ -1,0 +1,153 @@
+/* ========== 首页布局样式模块 ========== */
+
+/**
+ * 首页主容器
+ * 设置基础布局和背景
+ */
+.index-page {
+  min-height: 100vh;
+  background: var(--color-background);
+  font-family: var(--font-family-sans);
+  color: var(--color-text-primary);
+  line-height: var(--line-height-normal);
+}
+
+/**
+ * 主要内容区域
+ * 设置最大宽度和居中对齐
+ */
+.index-main {
+  padding: var(--spacing-12) 0;
+  background: var(--color-background);
+}
+
+.main-content {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 var(--spacing-6);
+}
+
+/**
+ * 英雄区域样式
+ * 页面顶部的介绍区域
+ */
+.hero-section {
+  text-align: center;
+  margin-bottom: var(--spacing-16);
+  padding: var(--spacing-12) 0;
+  background: linear-gradient(135deg, var(--color-surface) 0%, var(--color-background) 100%);
+  border-radius: var(--border-radius-3xl);
+  border: var(--border-width) solid var(--color-border);
+  box-shadow: var(--shadow-lg);
+}
+
+.hero-content {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 var(--spacing-6);
+}
+
+.hero-title {
+  font-size: var(--font-size-4xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  margin-bottom: var(--spacing-6);
+  line-height: var(--line-height-tight);
+  font-family: var(--font-family-display);
+  letter-spacing: -0.025em;
+}
+
+.hero-description {
+  font-size: var(--font-size-xl);
+  color: var(--color-text-secondary);
+  margin-bottom: var(--spacing-8);
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: var(--line-height-relaxed);
+  font-weight: var(--font-weight-normal);
+}
+
+/**
+ * 主要内容网格布局
+ */
+.index-content {
+  display: grid;
+  gap: var(--spacing-12);
+  margin-top: var(--spacing-8);
+}
+
+/**
+ * 通用区域样式
+ * 为各个功能区域提供统一的外观
+ */
+.section-container {
+  background: var(--color-surface);
+  border-radius: var(--border-radius-2xl);
+  padding: var(--spacing-10);
+  box-shadow: var(--shadow-xl);
+  border: var(--border-width) solid var(--color-border);
+  position: relative;
+  overflow: hidden;
+}
+
+.section-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
+  border-radius: var(--border-radius-2xl) var(--border-radius-2xl) 0 0;
+}
+
+/**
+ * 区域标题样式
+ */
+.section-title {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  margin: 0 0 var(--spacing-8);
+  text-align: center;
+  font-family: var(--font-family-display);
+  letter-spacing: -0.025em;
+}
+
+/**
+ * 动画效果
+ */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200px 0;
+  }
+  100% {
+    background-position: calc(200px + 100%) 0;
+  }
+}
+
+/**
+ * 减少动画效果（用户偏好设置）
+ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

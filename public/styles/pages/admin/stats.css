@@ -1,0 +1,379 @@
+/* ========== 统计卡片样式模块 ========== */
+
+/**
+ * 统计卡片网格布局
+ * 响应式设计，支持不同屏幕尺寸的自适应布局
+ */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: var(--spacing-5);
+  margin-bottom: var(--spacing-8);
+  max-width: 100%;
+}
+
+/* 统计卡片动画效果 - 依次从左侧滑入 */
+.stats-grid .stat-card:nth-child(1) {
+  animation: slideInFromLeft 0.6s ease-out 0.1s both;
+}
+
+.stats-grid .stat-card:nth-child(2) {
+  animation: slideInFromLeft 0.6s ease-out 0.2s both;
+}
+
+.stats-grid .stat-card:nth-child(3) {
+  animation: slideInFromLeft 0.6s ease-out 0.3s both;
+}
+
+.stats-grid .stat-card:nth-child(4) {
+  animation: slideInFromLeft 0.6s ease-out 0.4s both;
+}
+
+/* 平板设备优化 */
+@media (min-width: 769px) and (max-width: 1023px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-4);
+  }
+}
+
+/* 中等屏幕优化 */
+@media (min-width: 1024px) and (max-width: 1399px) {
+  .stats-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--spacing-5);
+  }
+}
+
+/* 大屏幕优化 - 横向平铺 */
+@media (min-width: 1400px) {
+  .stats-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--spacing-6);
+    max-width: none;
+    margin-bottom: var(--spacing-8);
+  }
+}
+
+/* 超宽屏幕优化 - 保持4列布局但充分利用空间 */
+@media (min-width: 1920px) {
+  .stats-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--spacing-8);
+    max-width: none;
+    margin-bottom: var(--spacing-8);
+  }
+}
+
+/* 超大屏幕优化 - 可选择增加列数 */
+@media (min-width: 2560px) {
+  .stats-grid {
+    grid-template-columns: repeat(5, 1fr);
+    gap: var(--spacing-8);
+    max-width: none;
+    margin-bottom: var(--spacing-8);
+  }
+}
+
+/**
+ * 统计卡片主体样式
+ * 毛玻璃效果，支持悬停动画和状态变化
+ */
+.stat-card {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--border-radius-2xl);
+  padding: var(--spacing-6);
+  position: relative;
+  overflow: hidden;
+  transition: all var(--transition-smooth);
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.08),
+    0 1px 2px rgba(0, 0, 0, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  cursor: pointer;
+  transform: translateY(0);
+  aspect-ratio: 1.4 / 1;
+}
+
+/* 平板设备横向布局优化 */
+@media (min-width: 769px) and (max-width: 1199px) {
+  .stat-card {
+    padding: var(--spacing-7);
+    min-height: 130px;
+  }
+  
+  .stat-header {
+    margin-bottom: var(--spacing-5);
+  }
+  
+  .stat-icon {
+    width: var(--size-11);
+    height: var(--size-11);
+    padding: var(--spacing-2);
+  }
+  
+  .stat-value {
+    font-size: var(--font-size-3xl);
+    margin: 0 0 var(--spacing-3);
+  }
+}
+
+/* PC端横向布局优化 */
+@media (min-width: 1200px) {
+  .stat-card {
+    padding: var(--spacing-6);
+    min-height: 120px;
+  }
+  
+  .stat-header {
+    margin-bottom: var(--spacing-4);
+  }
+  
+  .stat-icon {
+    width: var(--size-10);
+    height: var(--size-10);
+    padding: var(--spacing-2);
+  }
+  
+  .stat-value {
+    font-size: var(--font-size-3xl);
+    margin: 0 0 var(--spacing-2);
+  }
+}
+
+/**
+ * 统计卡片悬停效果
+ * 3D变换和阴影增强
+ */
+.stat-card:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 
+    0 20px 40px rgba(0, 0, 0, 0.12),
+    0 8px 16px rgba(0, 0, 0, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 1);
+  border-color: rgba(255, 255, 255, 0.4);
+  will-change: transform, box-shadow, border-color;
+}
+
+.stat-card:active {
+  transform: translateY(-4px) scale(1.01);
+  transition: all 0.1s ease;
+}
+
+/**
+ * 统计卡片顶部状态条
+ * 不同状态对应不同颜色
+ */
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--color-gray-600), var(--color-gray-800));
+}
+
+.stat-card.success::before {
+  background: linear-gradient(90deg, var(--color-green-500), var(--color-green-600));
+}
+
+.stat-card.warning::before {
+  background: linear-gradient(90deg, var(--color-yellow-500), var(--color-yellow-600));
+}
+
+.stat-card.error::before {
+  background: linear-gradient(90deg, var(--color-red-500), var(--color-red-600));
+}
+
+/**
+ * 统计卡片头部区域
+ * 包含标题和图标
+ */
+.stat-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--spacing-6);
+}
+
+/**
+ * 统计卡片主体内容区域
+ */
+.stat-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+}
+
+/**
+ * 统计卡片标题样式
+ */
+.stat-title {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-muted);
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wide);
+}
+
+/**
+ * 统计卡片图标样式
+ * 支持不同状态的颜色变化和光泽动画
+ */
+.stat-icon {
+  width: var(--size-12);
+  height: var(--size-12);
+  padding: var(--spacing-3);
+  border-radius: var(--border-radius-xl);
+  background: linear-gradient(135deg, var(--color-gray-100), var(--color-gray-50));
+  color: var(--color-gray-700);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--font-size-xl);
+  box-shadow: 
+    0 4px 12px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  transition: all var(--transition-smooth);
+  position: relative;
+  overflow: hidden;
+}
+
+/* 图标光泽动画效果 */
+.stat-icon::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  transition: left 0.6s ease;
+}
+
+.stat-card:hover .stat-icon::before {
+  left: 100%;
+}
+
+/* 成功状态图标样式 */
+.stat-card.success .stat-icon {
+  background: linear-gradient(135deg, var(--color-green-100), var(--color-green-50));
+  color: var(--color-green-700);
+  box-shadow: 
+    0 4px 12px rgba(34, 197, 94, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+/* 警告状态图标样式 */
+.stat-card.warning .stat-icon {
+  background: linear-gradient(135deg, var(--color-yellow-100), var(--color-yellow-50));
+  color: var(--color-yellow-700);
+  box-shadow: 
+    0 4px 12px rgba(245, 158, 11, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+/* 错误状态图标样式 */
+.stat-card.error .stat-icon {
+  background: linear-gradient(135deg, var(--color-red-100), var(--color-red-50));
+  color: var(--color-red-700);
+  box-shadow: 
+    0 4px 12px rgba(239, 68, 68, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+/**
+ * 统计数值样式
+ * 渐变文字效果和悬停缩放动画
+ */
+.stat-value {
+  font-size: var(--font-size-4xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  margin: var(--spacing-4) 0 var(--spacing-3);
+  line-height: var(--line-height-none);
+  font-family: var(--font-family-mono);
+  background: linear-gradient(135deg, var(--color-text-primary), var(--color-gray-600));
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all var(--transition-smooth);
+}
+
+.stat-card:hover .stat-value {
+  transform: scale(1.05);
+  text-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/**
+ * 统计变化指示器
+ * 显示数据变化趋势和百分比
+ */
+.stat-change {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  padding: var(--spacing-1) var(--spacing-3);
+  border-radius: var(--border-radius-full);
+  background: var(--color-gray-50);
+  width: fit-content;
+  max-width: 100%;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.stat-change-text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 180px;
+}
+
+/* 大屏幕下增加文字显示宽度 */
+@media (min-width: 1200px) {
+  .stat-change-text {
+    max-width: 250px;
+  }
+}
+
+/* 中等屏幕调整 */
+@media (min-width: 769px) and (max-width: 1199px) {
+  .stat-change-text {
+    max-width: 160px;
+  }
+}
+
+/* 正向变化样式 */
+.stat-change.positive {
+  color: var(--color-green-700);
+  background: var(--color-green-50);
+}
+
+/* 负向变化样式 */
+.stat-change.negative {
+  color: var(--color-red-700);
+  background: var(--color-red-50);
+}
+
+/* 中性变化样式 */
+.stat-change.neutral {
+  color: var(--color-text-muted);
+  background: var(--color-gray-50);
+}
+
+.stat-change-icon {
+  width: var(--size-4);
+  height: var(--size-4);
+}

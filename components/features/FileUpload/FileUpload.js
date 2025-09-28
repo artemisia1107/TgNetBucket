@@ -5,8 +5,6 @@
 
 import React, { useState, useRef } from 'react';
 import axios from 'axios';
-import AuthModal from '../../AuthModal';
-import { getAuthStatus, requiresAuth } from '../../../utils/authUtils';
 
 /**
  * 文件上传组件
@@ -32,9 +30,45 @@ const FileUpload = ({
   const [isDragging, setIsDragging] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
-  const [showAuthModal, setShowAuthModal] = useState(false);
-  const [pendingFiles, setPendingFiles] = useState(null);
+  const [uploadError, setUploadError] = useState(null);
   const fileInputRef = useRef(null);
+
+  /**
+   * 格式化错误信息，提供用户友好的提示
+   * @param {Error} error - 错误对象
+   * @returns {string} 格式化后的错误信息
+   */
+  const formatErrorMessage = (error) => {
+    const message = error.message || error.toString();
+    
+    // 网络连接问题
+    if (message.includes('ETIMEDOUT') || message.includes('connect ETIMEDOUT')) {
+      return '网络连接超时，请检查网络连接后重试。可能是 Telegram 服务暂时不可用。';
+    }
+    
+    // Telegram API 相关错误
+    if (message.includes('EFATAL') || message.includes('Telegram')) {
+      return 'Telegram 服务连接失败，请稍后重试。如果问题持续存在，请联系管理员。';
+    }
+    
+    // 文件大小限制
+    if (message.includes('File too large') || message.includes('文件过大')) {
+      return '文件大小超出限制，请选择较小的文件。';
+    }
+    
+    // 文件类型限制
+    if (message.includes('File type not allowed') || message.includes('文件类型')) {
+      return '不支持的文件类型，请选择其他格式的文件。';
+    }
+    
+    // 服务器错误
+    if (message.includes('500') || message.includes('Internal Server Error')) {
+      return '服务器内部错误，请稍后重试。';
+    }
+    
+    // 默认错误信息
+    return `上传失败：${message}`;
+  };
 
   /**
    * 验证文件
@@ -87,6 +121,9 @@ const FileUpload = ({
       });
     } catch (error) {
       console.error('上传失败:', error);
+      const formattedError = formatErrorMessage(error);
+      setUploadError(formattedError);
+      
       if (onUploadError) {
         onUploadError(error, file);
       }
@@ -94,27 +131,7 @@ const FileUpload = ({
     }
   };
 
-  /**
-   * 检查认证状态并处理上传
-   * @param {FileList} fileList - 文件列表
-   */
-  const checkAuthAndUpload = (fileList) => {
-    if (!fileList || fileList.length === 0) return;
 
-    // 获取当前认证状态
-    const authStatus = getAuthStatus();
-    
-    // 检查是否需要认证以及当前认证状态
-    if (requiresAuth() && authStatus !== 'authenticated') {
-      // 保存待上传的文件，显示认证弹窗
-      setPendingFiles(fileList);
-      setShowAuthModal(true);
-      return;
-    }
-
-    // 已认证，直接上传
-    handleUpload(fileList);
-  };
 
   /**
    * 处理文件上传
@@ -125,6 +142,7 @@ const FileUpload = ({
 
     setIsUploading(true);
     setUploadProgress(0);
+    setUploadError(null); // 清除之前的错误
 
     try {
       const files = Array.from(fileList);
@@ -138,6 +156,8 @@ const FileUpload = ({
       }
     } catch (error) {
       console.error('批量上传失败:', error);
+      const formattedError = formatErrorMessage(error);
+      setUploadError(formattedError);
     } finally {
       setIsUploading(false);
       setUploadProgress(0);
@@ -149,30 +169,13 @@ const FileUpload = ({
     }
   };
 
-  /**
-   * 处理认证成功
-   */
-  const handleAuthSuccess = () => {
-    setShowAuthModal(false);
-    if (pendingFiles) {
-      handleUpload(pendingFiles);
-      setPendingFiles(null);
-    }
-  };
 
-  /**
-   * 处理认证弹窗关闭
-   */
-  const handleAuthClose = () => {
-    setShowAuthModal(false);
-    setPendingFiles(null);
-  };
 
   /**
    * 处理文件选择
    */
   const handleFileSelect = (event) => {
-    checkAuthAndUpload(event.target.files);
+    handleUpload(event.target.files);
   };
 
   /**
@@ -193,7 +196,7 @@ const FileUpload = ({
     setIsDragging(false);
     
     const fileList = e.dataTransfer.files;
-    checkAuthAndUpload(fileList);
+    handleUpload(fileList);
   };
 
   /**
@@ -206,8 +209,7 @@ const FileUpload = ({
   };
 
   return (
-    <>
-      <div className={`upload-section ${className}`}>
+    <div className={`upload-section ${className}`}>
         <div className="upload-container">
           <div 
             className={`upload-zone ${isDragging ? 'dragging' : ''} ${isUploading ? 'uploading' : ''}`}
@@ -265,19 +267,32 @@ const FileUpload = ({
                 </div>
               </div>
             )}
+            
+            {/* 错误提示 */}
+            {uploadError && (
+              <div className="upload-error">
+                <div className="error-icon">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="15" y1="9" x2="9" y2="15"/>
+                    <line x1="9" y1="9" x2="15" y2="15"/>
+                  </svg>
+                </div>
+                <div className="error-content">
+                  <p className="error-message">{uploadError}</p>
+                  <button 
+                    className="error-retry-button"
+                    onClick={() => setUploadError(null)}
+                    type="button"
+                  >
+                    重试
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
-      </div>
-
-      {/* 认证弹窗 */}
-      <AuthModal
-        isOpen={showAuthModal}
-        onClose={handleAuthClose}
-        onSuccess={handleAuthSuccess}
-        title="上传文件需要认证"
-        message="请输入管理员用户名和密码以继续上传文件"
-      />
-    </>
+    </div>
   );
 };
 

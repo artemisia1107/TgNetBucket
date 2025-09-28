@@ -27,22 +27,22 @@ export default function Footer({
     {
       text: "使用条款",
       href: "#",
-      icon: "📋"
+      icon: "fas fa-clipboard"
     },
     {
       text: "隐私政策", 
       href: "#",
-      icon: "🔒"
+      icon: "fas fa-lock"
     },
     {
       text: "帮助中心",
       href: "#",
-      icon: "❓"
+      icon: "fas fa-question-circle"
     },
     {
       text: "联系我们",
       href: "#",
-      icon: "📧"
+      icon: "fas fa-envelope"
     }
   ];
 
@@ -65,7 +65,7 @@ export default function Footer({
             target={link.external ? "_blank" : "_self"}
             rel={link.external ? "noopener noreferrer" : ""}
           >
-            {link.icon && <span className="link-icon">{link.icon}</span>}
+            {link.icon && <span className="link-icon"><i className={link.icon}></i></span>}
             <span className="link-text">{link.text}</span>
           </a>
         ))}
@@ -111,7 +111,7 @@ export default function Footer({
         
         <div className="footer-brand">
           <div className="brand-logo">
-            <span className="brand-icon">📦</span>
+            <span className="brand-icon"><i className="fas fa-box"></i></span>
             <span className="brand-name">TgNetBucket</span>
           </div>
           <div className="brand-tagline">

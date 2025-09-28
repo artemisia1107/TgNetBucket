@@ -16,7 +16,7 @@ function createFileCard(file) {
   const card = document.createElement('div');
   card.className = 'file-card';
   card.innerHTML = `
-    <div class="file-icon">${newGetFileIcon(file.name)}</div>
+    <div class="file-icon"><i class="${newGetFileIcon(file.name)}"></i></div>
     <div class="file-info">
       <div class="file-name" title="${file.name}">${file.name}</div>
       <div class="file-meta">
@@ -26,16 +26,16 @@ function createFileCard(file) {
     </div>
     <div class="file-actions">
       <button class="btn-icon" onclick="previewFile('${file.id}')" title="预览">
-        👁️
+        <i class="fas fa-eye"></i>
       </button>
       <button class="btn-icon" onclick="downloadFile('${file.id}')" title="下载">
-        📥
+        <i class="fas fa-download"></i>
       </button>
       <button class="btn-icon" onclick="copyFileLink('${file.id}')" title="复制链接">
-        🔗
+        <i class="fas fa-link"></i>
       </button>
       <button class="btn-icon btn-danger" onclick="deleteFile('${file.id}')" title="删除">
-        🗑️
+        <i class="fas fa-trash"></i>
       </button>
     </div>
   `;

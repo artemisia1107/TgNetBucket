@@ -85,9 +85,13 @@ const AuthModal = ({
           localStorage.setItem(AUTH_CONFIG.SESSION.STORAGE_KEY, result.token);
         }
         
-        // 调用成功回调
+        // 调用成功回调，传递完整的认证数据
         if (onSuccess) {
-          onSuccess(result.token);
+          onSuccess({
+            username: formData.username,
+            password: formData.password,
+            token: result.token
+          });
         }
         
         // 关闭弹窗
@@ -190,7 +194,7 @@ const AuthModal = ({
                   disabled={loading}
                   aria-label={showPassword ? '隐藏密码' : '显示密码'}
                 >
-                  {showPassword ? '👁️' : '👁️‍🗨️'}
+                  <i className={showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'}></i>
                 </button>
               </div>
             </div>

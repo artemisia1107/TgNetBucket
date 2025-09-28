@@ -3,11 +3,13 @@ import { getMimeType, createContentDisposition } from '../../src/mime_types.js';
 import { redisClient } from '../../src/redis_client';
 import axios from 'axios';
 
-// 创建TelegramStorage实例
+// 创建存储实例
 const telegramStorage = new TelegramStorage({
   botToken: process.env.TELEGRAM_BOT_TOKEN,
   chatId: process.env.TELEGRAM_CHAT_ID
 });
+
+
 
 /**
  * 文件下载API

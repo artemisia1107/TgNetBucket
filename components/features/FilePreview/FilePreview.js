@@ -196,7 +196,7 @@ const FilePreview = ({
     if (error) {
       return (
         <div className="preview-error">
-          <div className="error-icon">⚠️</div>
+          <div className="error-icon"><i className="fas fa-exclamation-triangle"></i></div>
           <p>{error}</p>
           <button onClick={handleDownload} className="download-btn">
             下载文件
@@ -209,14 +209,16 @@ const FilePreview = ({
       case 'image':
         return (
           <div className="preview-image">
-            <Image 
-              src={previewContent} 
-              alt={file.name}
-              width={800}
-              height={600}
-              style={{ objectFit: 'contain', maxWidth: '100%', height: 'auto' }}
-              onError={() => setError('图片加载失败')}
-            />
+            <div className="image-interactive">
+              <Image 
+                src={previewContent} 
+                alt={file.name}
+                width={800}
+                height={600}
+                style={{ objectFit: 'contain', maxWidth: '100%', height: 'auto' }}
+                onError={() => setError('图片加载失败')}
+              />
+            </div>
           </div>
         );
 
@@ -275,7 +277,7 @@ const FilePreview = ({
       default:
         return (
           <div className="preview-unsupported">
-            <div className="unsupported-icon">📄</div>
+            <div className="unsupported-icon"><i className="fas fa-file"></i></div>
             <h3>不支持预览此文件类型</h3>
             <p>文件: {file.name}</p>
             <p>大小: {formatFileSize(file.size)}</p>

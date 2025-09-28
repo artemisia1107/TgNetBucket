@@ -1,0 +1,480 @@
+/**
+ * 首页响应式设计样式
+ * 包含大屏幕、平板、手机等不同设备的适配优化
+ */
+
+/* ========== 大屏幕优化 ========== */
+
+@media (min-width: 1400px) {
+  .nav-container,
+  .main-content {
+    max-width: 1600px;
+  }
+  
+  .hero-title {
+    font-size: var(--font-size-5xl);
+  }
+  
+  .hero-description {
+    font-size: var(--font-size-2xl);
+  }
+  
+  .index-content {
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-16);
+  }
+  
+  .upload-section,
+  .files-section {
+    grid-column: span 1;
+  }
+  
+  .search-section {
+    grid-column: span 2;
+  }
+}
+
+/* ========== 平板设备优化 ========== */
+
+@media (max-width: 1024px) {
+  .nav-container {
+    padding: 0 var(--spacing-4);
+    gap: var(--spacing-4);
+  }
+  
+  .nav-brand h1 {
+    font-size: var(--font-size-lg);
+  }
+  
+  .nav-subtitle {
+    display: none;
+  }
+  
+  .breadcrumb {
+    display: none;
+  }
+  
+  .quick-actions {
+    gap: var(--spacing-1);
+  }
+  
+  .quick-action-btn {
+    padding: var(--spacing-2);
+    font-size: var(--font-size-xs);
+  }
+  
+  .quick-action-btn span {
+    display: none;
+  }
+  
+  .admin-link {
+    padding: var(--spacing-2) var(--spacing-3);
+    font-size: var(--font-size-xs);
+  }
+  
+  .main-content {
+    padding: 0 var(--spacing-4);
+  }
+  
+  .hero-section {
+    padding: var(--spacing-8) 0;
+    margin-bottom: var(--spacing-12);
+  }
+  
+  .hero-title {
+    font-size: var(--font-size-3xl);
+  }
+  
+  .hero-description {
+    font-size: var(--font-size-lg);
+  }
+  
+  .upload-section,
+  .search-section,
+  .files-section {
+    padding: var(--spacing-6);
+  }
+  
+  .index-content {
+    gap: var(--spacing-8);
+  }
+}
+
+/* ========== 手机设备优化 ========== */
+
+@media (max-width: 768px) {
+  .navbar {
+    padding: var(--spacing-3) 0;
+  }
+  
+  .nav-container {
+    padding: 0 var(--spacing-3);
+    gap: var(--spacing-3);
+    flex-wrap: wrap;
+  }
+  
+  .nav-brand {
+    order: 1;
+    flex: 1;
+  }
+  
+  .nav-actions {
+    order: 2;
+    gap: var(--spacing-2);
+  }
+  
+  .quick-actions {
+    display: none;
+  }
+  
+  .nav-divider {
+    display: none;
+  }
+  
+  .admin-link {
+    padding: var(--spacing-2) var(--spacing-3);
+    font-size: var(--font-size-sm);
+  }
+  
+  .index-main {
+    padding: var(--spacing-8) 0;
+  }
+  
+  .main-content {
+    padding: 0 var(--spacing-3);
+  }
+  
+  .hero-section {
+    padding: var(--spacing-6) 0;
+    margin-bottom: var(--spacing-8);
+    border-radius: var(--border-radius-2xl);
+  }
+  
+  .hero-content {
+    padding: 0 var(--spacing-4);
+  }
+  
+  .hero-title {
+    font-size: var(--font-size-2xl);
+    margin-bottom: var(--spacing-4);
+  }
+  
+  .hero-description {
+    font-size: var(--font-size-base);
+    margin-bottom: var(--spacing-6);
+  }
+  
+  .upload-section,
+  .search-section,
+  .files-section {
+    padding: var(--spacing-4);
+    border-radius: var(--border-radius-xl);
+  }
+  
+  .upload-area {
+    padding: var(--spacing-8) var(--spacing-4);
+  }
+  
+  .upload-icon {
+    width: var(--size-12);
+    height: var(--size-12);
+  }
+  
+  .upload-title {
+    font-size: var(--font-size-xl);
+  }
+  
+  .upload-text {
+    font-size: var(--font-size-lg);
+  }
+  
+  .search-form {
+    flex-direction: column;
+    gap: var(--spacing-3);
+  }
+  
+  .search-button {
+    width: 100%;
+  }
+  
+  .files-title {
+    font-size: var(--font-size-xl);
+  }
+  
+  .file-management-toolbar {
+    padding: var(--spacing-4);
+  }
+  
+  .index-content {
+    gap: var(--spacing-6);
+  }
+}
+
+/* ========== 小屏手机优化 ========== */
+
+@media (max-width: 480px) {
+  .nav-container {
+    padding: 0 var(--spacing-2);
+  }
+  
+  .main-content {
+    padding: 0 var(--spacing-2);
+  }
+  
+  .hero-content {
+    padding: 0 var(--spacing-3);
+  }
+  
+  .upload-section,
+  .search-section,
+  .files-section {
+    padding: var(--spacing-3);
+  }
+  
+  .upload-area {
+    padding: var(--spacing-6) var(--spacing-3);
+  }
+  
+  .hero-title {
+    font-size: var(--font-size-xl);
+  }
+  
+  .upload-title,
+  .files-title {
+    font-size: var(--font-size-lg);
+  }
+  
+  .index-main {
+    padding: var(--spacing-4) 0;
+  }
+  
+  .index-content {
+    gap: var(--spacing-6);
+  }
+  
+  .upload-title,
+  .files-title {
+    font-size: var(--font-size-lg);
+  }
+  
+  .upload-icon {
+    width: 3rem;
+    height: 3rem;
+  }
+  
+  .upload-text {
+    font-size: var(--font-size-base);
+  }
+  
+  /* 增强触摸交互 */
+  .action-btn,
+  .nav-link,
+  .quick-action,
+  .filter-select,
+  .sort-select {
+    min-height: 44px; /* iOS推荐的最小触摸目标 */
+    padding: var(--spacing-3) var(--spacing-4);
+  }
+  
+  /* 导航栏移动端优化 */
+  .breadcrumb {
+    font-size: var(--font-size-sm);
+    flex-wrap: wrap;
+  }
+  
+  .quick-actions {
+    gap: var(--spacing-1);
+  }
+  
+  .quick-action {
+    padding: var(--spacing-2);
+    min-width: 40px;
+  }
+  
+  /* 搜索框移动端优化 */
+  .search-box {
+    font-size: 16px; /* 防止iOS缩放 */
+    padding: var(--spacing-3);
+  }
+}
+
+/* ========== 触摸设备优化 ========== */
+
+@media (hover: none) and (pointer: coarse) {
+  .upload-area:hover {
+    border-color: var(--color-border);
+    background: var(--color-background);
+  }
+  
+  .upload-area:active {
+    border-color: var(--color-primary);
+    background: var(--color-primary-light);
+  }
+  
+  /* 移除悬停效果，使用激活状态 */
+  .nav-link:hover,
+  .quick-action-btn:hover,
+  .admin-link:hover {
+    background: var(--color-background);
+    color: var(--color-text-primary);
+  }
+  
+  .nav-link:active,
+  .quick-action-btn:active,
+  .admin-link:active {
+    background: var(--color-surface);
+    color: var(--color-primary);
+  }
+  
+  /* 搜索按钮触摸优化 */
+  .search-button:hover {
+    background: var(--color-primary);
+    transform: none;
+  }
+  
+  .search-button:active {
+    background: var(--color-primary-dark);
+    transform: scale(0.98);
+  }
+}
+
+/* ========== 横屏模式优化 ========== */
+
+@media (max-width: 768px) and (orientation: landscape) {
+  .hero-section {
+    padding: var(--spacing-4) 0;
+    margin-bottom: var(--spacing-6);
+  }
+  
+  .hero-title {
+    font-size: var(--font-size-xl);
+    margin-bottom: var(--spacing-2);
+  }
+  
+  .hero-description {
+    font-size: var(--font-size-sm);
+    margin-bottom: var(--spacing-4);
+  }
+  
+  .upload-area {
+    padding: var(--spacing-6) var(--spacing-4);
+  }
+  
+  .upload-icon {
+    width: var(--size-8);
+    height: var(--size-8);
+  }
+  
+  .upload-title {
+    font-size: var(--font-size-base);
+  }
+  
+  .upload-text {
+    font-size: var(--font-size-sm);
+  }
+}
+
+/* ========== 高分辨率屏幕优化 ========== */
+
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  /* 确保在高分辨率屏幕上图标和边框清晰 */
+  .upload-icon,
+  .nav-brand-icon,
+  .quick-action-icon {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  /* 优化细线边框在高分辨率屏幕上的显示 */
+  .upload-area,
+  .search-section,
+  .files-section {
+    border-width: 0.5px;
+  }
+}
+
+/* ========== 打印样式优化 ========== */
+
+@media print {
+  .navbar,
+  .upload-section,
+  .search-section,
+  .file-actions,
+  .file-management-toolbar {
+    display: none;
+  }
+  
+  .hero-section {
+    background: none;
+    color: black;
+    padding: var(--spacing-4) 0;
+  }
+  
+  .files-section {
+    background: none;
+    border: none;
+    box-shadow: none;
+  }
+  
+  .file-item {
+    border: 1px solid #ccc;
+    background: white;
+    break-inside: avoid;
+    margin-bottom: var(--spacing-2);
+  }
+  
+  .file-name {
+    color: black;
+  }
+  
+  .file-meta {
+    color: #666;
+  }
+}
+
+/* ========== 减少动画偏好设置 ========== */
+
+@media (prefers-reduced-motion: reduce) {
+  .upload-area,
+  .search-button,
+  .nav-link,
+  .quick-action-btn,
+  .admin-link,
+  .hero-section,
+  .upload-section,
+  .search-section,
+  .files-section {
+    transition: none;
+    animation: none;
+  }
+  
+  .index-content > * {
+    animation: none;
+  }
+}
+
+/* ========== 高对比度模式支持 ========== */
+
+@media (prefers-contrast: high) {
+  .upload-area {
+    border-width: 2px;
+    border-color: currentColor;
+  }
+  
+  .search-button,
+  .admin-link {
+    border-width: 2px;
+  }
+  
+  .hero-section {
+    background: none;
+    border: 2px solid currentColor;
+  }
+  
+  .upload-section,
+  .search-section,
+  .files-section {
+    border-width: 2px;
+    background: none;
+  }
+}

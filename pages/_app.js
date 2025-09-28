@@ -1,4 +1,5 @@
 import '../public/styles/globals.css';
+import '@fortawesome/fontawesome-free/css/all.min.css';
 import { AppProvider } from '../components/context';
 
 /**
