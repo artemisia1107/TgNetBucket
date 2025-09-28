@@ -171,6 +171,23 @@ export default async function handler(req, res) {
       }
     }
 
+    // 如果是开发环境且没有真实数据，提供示例数据
+    if (process.env.NODE_ENV === 'development' && stats.totalFiles === 0) {
+      Object.assign(stats, {
+        totalFiles: 15,
+        totalSize: 52428800, // 50MB
+        fileTypes: {
+          '图片': 8,
+          '视频': 3,
+          '文档': 2,
+          '音频': 1,
+          '其他': 1
+        },
+        shortLinks: 12,
+        lastUpdated: new Date().toISOString()
+      });
+    }
+
     console.log('系统统计:', stats);
 
     res.status(200).json({

@@ -124,6 +124,17 @@ export default async function handler(req, res) {
       }
     }
 
+    // 在开发环境中提供更友好的状态信息
+    if (process.env.NODE_ENV === 'development') {
+      if (!status.redis.connected) {
+        status.redis.environment = 'development';
+        status.redis.note = '开发环境：使用内存存储';
+      }
+      if (!status.telegram.configured) {
+        status.telegram.note = '开发环境：请配置真实的Bot Token和Chat ID';
+      }
+    }
+
     console.log('系统状态检查完成:', {
       redis: status.redis.connected,
       telegram: status.telegram.configured,
