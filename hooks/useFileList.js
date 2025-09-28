@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import axios from 'axios';
 
 /**
@@ -21,7 +21,7 @@ export const useFileList = () => {
   /**
    * 获取文件列表
    */
-  const fetchFiles = async () => {
+  const fetchFiles = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -33,7 +33,7 @@ export const useFileList = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   /**
    * 根据文件名获取文件类型

@@ -14,6 +14,10 @@ export function useLocalStorage(key, defaultValue = null) {
   // 从localStorage读取初始值
   const [value, setValue] = useState(() => {
     try {
+      // 检查是否在浏览器环境中
+      if (typeof window === 'undefined') {
+        return defaultValue;
+      }
       const item = window.localStorage.getItem(key);
       return item ? JSON.parse(item) : defaultValue;
     } catch (error) {
@@ -32,6 +36,11 @@ export function useLocalStorage(key, defaultValue = null) {
       const valueToStore = newValue instanceof Function ? newValue(value) : newValue;
       setValue(valueToStore);
       
+      // 检查是否在浏览器环境中
+      if (typeof window === 'undefined') {
+        return;
+      }
+      
       if (valueToStore === null || valueToStore === undefined) {
         window.localStorage.removeItem(key);
       } else {
@@ -48,7 +57,10 @@ export function useLocalStorage(key, defaultValue = null) {
   const removeValue = useCallback(() => {
     try {
       setValue(defaultValue);
-      window.localStorage.removeItem(key);
+      // 检查是否在浏览器环境中
+      if (typeof window !== 'undefined') {
+        window.localStorage.removeItem(key);
+      }
     } catch (error) {
       console.warn(`删除localStorage失败 (${key}):`, error);
     }
@@ -67,6 +79,10 @@ export function useSessionStorage(key, defaultValue = null) {
   // 从sessionStorage读取初始值
   const [value, setValue] = useState(() => {
     try {
+      // 检查是否在浏览器环境中
+      if (typeof window === 'undefined') {
+        return defaultValue;
+      }
       const item = window.sessionStorage.getItem(key);
       return item ? JSON.parse(item) : defaultValue;
     } catch (error) {
@@ -84,6 +100,11 @@ export function useSessionStorage(key, defaultValue = null) {
       // 支持函数式更新
       const valueToStore = newValue instanceof Function ? newValue(value) : newValue;
       setValue(valueToStore);
+      
+      // 检查是否在浏览器环境中
+      if (typeof window === 'undefined') {
+        return;
+      }
       
       if (valueToStore === null || valueToStore === undefined) {
         window.sessionStorage.removeItem(key);
@@ -124,6 +145,10 @@ export function useStorage() {
    */
   const getItem = useCallback((key, type = 'local', defaultValue = null) => {
     try {
+      // 检查是否在浏览器环境中
+      if (typeof window === 'undefined') {
+        return defaultValue;
+      }
       const storage = type === 'session' ? window.sessionStorage : window.localStorage;
       const item = storage.getItem(key);
       return item ? JSON.parse(item) : defaultValue;
@@ -141,6 +166,10 @@ export function useStorage() {
    */
   const setItem = useCallback((key, value, type = 'local') => {
     try {
+      // 检查是否在浏览器环境中
+      if (typeof window === 'undefined') {
+        return;
+      }
       const storage = type === 'session' ? window.sessionStorage : window.localStorage;
       if (value === null || value === undefined) {
         storage.removeItem(key);
@@ -159,6 +188,10 @@ export function useStorage() {
    */
   const removeItem = useCallback((key, type = 'local') => {
     try {
+      // 检查是否在浏览器环境中
+      if (typeof window === 'undefined') {
+        return;
+      }
       const storage = type === 'session' ? window.sessionStorage : window.localStorage;
       storage.removeItem(key);
     } catch (error) {
@@ -172,6 +205,10 @@ export function useStorage() {
    */
   const clear = useCallback((type = 'local') => {
     try {
+      // 检查是否在浏览器环境中
+      if (typeof window === 'undefined') {
+        return;
+      }
       const storage = type === 'session' ? window.sessionStorage : window.localStorage;
       storage.clear();
     } catch (error) {

@@ -128,6 +128,11 @@ export function AppProvider({ children }) {
       hasUpdated = true;
     }
     
+    // 如果有更新，记录日志用于调试
+    if (hasUpdated) {
+      console.log('AppContext: 从localStorage恢复设置完成');
+    }
+    
     // 设置DOM属性
     if (state.theme) {
       document.documentElement.setAttribute('data-theme', state.theme);
@@ -135,7 +140,7 @@ export function AppProvider({ children }) {
     if (state.language) {
       document.documentElement.setAttribute('lang', state.language);
     }
-  }, []); // 只在组件挂载时执行一次
+  }, [state.language, state.theme, storedLanguage, storedSettings, storedTheme]); // 添加所有使用的依赖项
 
   // 主题切换时更新 localStorage 和 DOM（但避免初始化时的更新）
   useEffect(() => {
@@ -160,79 +165,79 @@ export function AppProvider({ children }) {
     }
   }, [state.settings, setStoredSettings]);
 
-  // Action creators
+  // Action creators - 使用useCallback优化性能
   const actions = {
     /**
      * 设置主题
      * @param {string} theme - 主题名称 ('light' | 'dark')
      */
-    setTheme: (theme) => {
+    setTheme: useCallback((theme) => {
       dispatch({ type: ActionTypes.SET_THEME, payload: theme });
-    },
+    }, []),
 
     /**
      * 切换主题
      */
-    toggleTheme: () => {
+    toggleTheme: useCallback(() => {
       const newTheme = state.theme === 'light' ? 'dark' : 'light';
       dispatch({ type: ActionTypes.SET_THEME, payload: newTheme });
-    },
+    }, [state.theme]),
 
     /**
      * 设置语言
      * @param {string} language - 语言代码
      */
-    setLanguage: (language) => {
+    setLanguage: useCallback((language) => {
       dispatch({ type: ActionTypes.SET_LANGUAGE, payload: language });
-    },
+    }, []),
 
     /**
      * 设置加载状态
      * @param {boolean} isLoading - 是否正在加载
      */
-    setLoading: (isLoading) => {
+    setLoading: useCallback((isLoading) => {
       dispatch({ type: ActionTypes.SET_LOADING, payload: isLoading });
-    },
+    }, []),
 
     /**
      * 设置错误信息
      * @param {string|Error} error - 错误信息
      */
-    setError: (error) => {
+    setError: useCallback((error) => {
       const errorMessage = error instanceof Error ? error.message : error;
       dispatch({ type: ActionTypes.SET_ERROR, payload: errorMessage });
-    },
+    }, []),
 
     /**
      * 清除错误信息
      */
-    clearError: () => {
+    clearError: useCallback(() => {
       dispatch({ type: ActionTypes.CLEAR_ERROR });
-    },
+    }, []),
 
     /**
      * 设置用户信息
      * @param {Object} user - 用户信息
      */
-    setUser: (user) => {
+    setUser: useCallback((user) => {
       dispatch({ type: ActionTypes.SET_USER, payload: user });
-    },
+    }, []),
 
     /**
      * 更新设置
      * @param {Object} settings - 要更新的设置
      */
-    updateSettings: (settings) => {
+    updateSettings: useCallback((settings) => {
       dispatch({ type: ActionTypes.UPDATE_SETTINGS, payload: settings });
-    },
+    }, []),
 
     /**
      * 重置状态
      * @param {Object} newState - 新的状态（可选）
      */
-    resetState: (newState = {}) => {
+    resetState: useCallback((newState = {}) => {
       dispatch({ type: ActionTypes.RESET_STATE, payload: newState });
-    }
+    }, [])
   };
 
   const contextValue = {

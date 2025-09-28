@@ -319,7 +319,7 @@ export const isFileTypeAllowed = (fileName, allowedTypes = []) => {
     }
     // 检查MIME类型
     if (type.includes('/')) {
-      return mimeType === type || mimeType.startsWith(type.split('/')[0] + '/');
+      return mimeType === type || mimeType.startsWith(`${type.split('/')[0]}/`);
     }
     // 检查分类
     return category === type || ext === type;

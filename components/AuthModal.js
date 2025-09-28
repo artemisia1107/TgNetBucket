@@ -81,7 +81,9 @@ const AuthModal = ({
 
       if (result.success) {
         // 保存认证令牌
-        localStorage.setItem(AUTH_CONFIG.SESSION.STORAGE_KEY, result.token);
+        if (typeof window !== 'undefined') {
+          localStorage.setItem(AUTH_CONFIG.SESSION.STORAGE_KEY, result.token);
+        }
         
         // 调用成功回调
         if (onSuccess) {

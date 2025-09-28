@@ -101,8 +101,11 @@ const FileUpload = ({
   const checkAuthAndUpload = (fileList) => {
     if (!fileList || fileList.length === 0) return;
 
-    // 检查是否需要认证
-    if (requiresAuth()) {
+    // 获取当前认证状态
+    const authStatus = getAuthStatus();
+    
+    // 检查是否需要认证以及当前认证状态
+    if (requiresAuth() && authStatus !== 'authenticated') {
       // 保存待上传的文件，显示认证弹窗
       setPendingFiles(fileList);
       setShowAuthModal(true);

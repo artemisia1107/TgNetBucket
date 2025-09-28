@@ -158,14 +158,17 @@ export default function AdminPanel() {
     const authStatus = getAuthStatus();
     const authenticated = authStatus === AUTH_STATUS.AUTHENTICATED;
     
-    setIsAuthenticated(authenticated);
+    // 使用requiresAuth函数进行额外的认证检查
+    const authRequired = requiresAuth();
+    
+    setIsAuthenticated(authenticated && authRequired);
     setAuthChecked(true);
     
-    if (!authenticated) {
+    if (!authenticated || !authRequired) {
       setShowAuthModal(true);
     }
     
-    return authenticated;
+    return authenticated && authRequired;
   }, []);
 
   /**
@@ -198,7 +201,7 @@ export default function AdminPanel() {
       fetchSystemStatus();
       fetchActivityLogs();
     }
-  }, [checkAuthentication]);
+  }, [checkAuthentication, fetchSystemStats, fetchSystemStatus, fetchActivityLogs]);
 
   // 切换移动端菜单
   const toggleMobileMenu = () => {

@@ -101,7 +101,7 @@ export default function Home() {
   // 初始化加载文件列表
   useEffect(() => {
     fetchFiles();
-  }, []);
+  }, [fetchFiles]);
 
   // 过滤和排序文件
   const filteredFiles = files

@@ -210,7 +210,7 @@ function formatPercentage(value, options = {}) {
   }
   
   const percentage = isDecimal ? value * 100 : value;
-  return formatNumber(percentage, { decimals }) + '%';
+  return `${formatNumber(percentage, { decimals })}%`;
 }
 
 /**
@@ -269,7 +269,7 @@ function formatBytes(bytes, decimals = 2) {
  * @returns {string} 格式化后的速度字符串
  */
 function formatSpeed(bytesPerSecond) {
-  return formatBytes(bytesPerSecond) + '/s';
+  return `${formatBytes(bytesPerSecond)}/s`;
 }
 
 /**

@@ -383,6 +383,10 @@ const StorageUtils = {
    */
   set(key, value, expiry = null) {
     try {
+      // 检查是否在浏览器环境中
+      if (typeof window === 'undefined') {
+        return;
+      }
       const item = {
         value,
         expiry: expiry ? Date.now() + expiry : null
@@ -400,6 +404,10 @@ const StorageUtils = {
    */
   get(key) {
     try {
+      // 检查是否在浏览器环境中
+      if (typeof window === 'undefined') {
+        return null;
+      }
       const itemStr = localStorage.getItem(key);
       if (!itemStr) return null;
       
@@ -424,6 +432,10 @@ const StorageUtils = {
    */
   remove(key) {
     try {
+      // 检查是否在浏览器环境中
+      if (typeof window === 'undefined') {
+        return;
+      }
       localStorage.removeItem(key);
     } catch (error) {
       console.error('删除存储失败:', error);
@@ -435,6 +447,10 @@ const StorageUtils = {
    */
   clear() {
     try {
+      // 检查是否在浏览器环境中
+      if (typeof window === 'undefined') {
+        return;
+      }
       localStorage.clear();
     } catch (error) {
       console.error('清空存储失败:', error);

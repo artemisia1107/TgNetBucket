@@ -3,7 +3,8 @@
  * 提供多种文件类型的预览功能
  */
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import Image from 'next/image';
 import axios from 'axios';
 
 /**
@@ -80,7 +81,7 @@ const FilePreview = ({
   /**
    * 加载预览内容
    */
-  const loadPreviewContent = async () => {
+  const loadPreviewContent = useCallback(async () => {
     if (!file || !isOpen) return;
 
     setIsLoading(true);
@@ -126,7 +127,7 @@ const FilePreview = ({
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [file, isOpen, onError]);
 
   /**
    * 处理下载
@@ -142,22 +143,22 @@ const FilePreview = ({
   /**
    * 处理关闭
    */
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     setPreviewContent(null);
     setError(null);
     if (onClose) {
       onClose();
     }
-  };
+  }, [onClose]);
 
   /**
    * 处理键盘事件
    */
-  const handleKeyDown = (e) => {
+  const handleKeyDown = useCallback((e) => {
     if (e.key === 'Escape') {
       handleClose();
     }
-  };
+  }, [handleClose]);
 
   /**
    * 处理模态框点击
@@ -176,7 +177,7 @@ const FilePreview = ({
     const k = 1024;
     const sizes = ['B', 'KB', 'MB', 'GB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    return `${parseFloat((bytes / Math.pow(k, i)).toFixed(2))} ${sizes[i]}`;
   };
 
   /**
@@ -208,9 +209,12 @@ const FilePreview = ({
       case 'image':
         return (
           <div className="preview-image">
-            <img 
+            <Image 
               src={previewContent} 
               alt={file.name}
+              width={800}
+              height={600}
+              style={{ objectFit: 'contain', maxWidth: '100%', height: 'auto' }}
               onError={() => setError('图片加载失败')}
             />
           </div>
@@ -288,7 +292,7 @@ const FilePreview = ({
     if (isOpen && file) {
       loadPreviewContent();
     }
-  }, [file, isOpen]);
+  }, [file, isOpen, loadPreviewContent]);
 
   // 监听键盘事件
   useEffect(() => {
@@ -298,7 +302,7 @@ const FilePreview = ({
         document.removeEventListener('keydown', handleKeyDown);
       };
     }
-  }, [isOpen]);
+  }, [isOpen, handleKeyDown]);
 
   if (!isOpen || !file) {
     return null;
