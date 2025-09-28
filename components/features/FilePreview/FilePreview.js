@@ -1,539 +1,361 @@
 /**
- * 文件预览功能模块
- * 提供文件预览、缩略图生成等功能
+ * 文件预览React组件
+ * 提供多种文件类型的预览功能
  */
 
-// import { getFileIcon, formatFileSize } from '../../../utils/fileUtils.js';
-import { generateId } from '../../../utils/commonUtils.js';
-import { FILE_CONFIG } from '../../../constants/config.js';
+import React, { useState, useEffect, useRef } from 'react';
+import axios from 'axios';
 
 /**
- * 文件预览管理器类
+ * 文件预览组件
+ * @param {Object} props - 组件属性
+ * @param {Object} props.file - 文件对象
+ * @param {boolean} props.isOpen - 是否打开预览
+ * @param {Function} props.onClose - 关闭回调
+ * @param {Function} props.onError - 错误回调
+ * @param {Function} props.onDownload - 下载回调
+ * @param {string} props.className - 额外的CSS类名
+ * @returns {JSX.Element} 文件预览组件
  */
-class FilePreviewManager {
-  constructor(options = {}) {
-    this.options = {
-      maxPreviewSize: 10 * 1024 * 1024, // 10MB
-      supportedImageTypes: ['image/jpeg', 'image/png', 'image/gif', 'image/webp'],
-      supportedVideoTypes: ['video/mp4', 'video/webm'],
-      thumbnailSize: { width: 150, height: 150 },
-      onPreviewGenerated: null,
-      onError: null,
-      ...options
-    };
-    
-    this.previewCache = new Map();
-  }
-
-  /**
-   * 生成文件预览
-   * @param {File} file - 文件对象
-   * @returns {Promise<Object>} 预览对象
-   */
-  async generateFilePreview(file) {
-    const previewId = generateId('preview');
-    const fileType = this.getFileType(file.name);
-    
-    const preview = {
-      id: previewId,
-      file,
-      name: file.name,
-      size: file.size,
-      type: fileType,
-      mimeType: file.type,
-      lastModified: file.lastModified,
-      preview: null,
-      thumbnail: null,
-      status: 'pending',
-      error: null
-    };
-
-    try {
-      // 检查缓存
-      const cacheKey = this.getCacheKey(file);
-      if (this.previewCache.has(cacheKey)) {
-        const cachedPreview = this.previewCache.get(cacheKey);
-        preview.preview = cachedPreview.preview;
-        preview.thumbnail = cachedPreview.thumbnail;
-        preview.status = 'completed';
-        return preview;
-      }
-
-      // 根据文件类型生成预览
-      if (this.isImageFile(file)) {
-        await this.generateImagePreview(preview);
-      } else if (this.isVideoFile(file)) {
-        await this.generateVideoPreview(preview);
-      } else if (this.isAudioFile(file)) {
-        await this.generateAudioPreview(preview);
-      } else if (this.isTextFile(file)) {
-        await this.generateTextPreview(preview);
-      } else {
-        // 其他文件类型使用图标
-        preview.preview = this.getFileIconUrl(fileType);
-        preview.status = 'completed';
-      }
-
-      // 缓存预览结果
-      if (preview.preview) {
-        this.previewCache.set(cacheKey, {
-          preview: preview.preview,
-          thumbnail: preview.thumbnail
-        });
-      }
-
-      if (this.options.onPreviewGenerated) {
-        this.options.onPreviewGenerated(preview);
-      }
-
-    } catch (error) {
-      preview.status = 'error';
-      preview.error = error.message;
-      
-      if (this.options.onError) {
-        this.options.onError(preview, error);
-      }
-    }
-
-    return preview;
-  }
-
-  /**
-   * 生成图片预览
-   * @param {Object} preview - 预览对象
-   */
-  async generateImagePreview(preview) {
-    const { file } = preview;
-    
-    if (file.size > this.options.maxPreviewSize) {
-      preview.preview = this.getFileIconUrl('image');
-      preview.status = 'completed';
-      return;
-    }
-
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      
-      reader.onload = async (e) => {
-        try {
-          const dataUrl = e.target.result;
-          preview.preview = dataUrl;
-          
-          // 生成缩略图
-          preview.thumbnail = await this.generateThumbnail(dataUrl, 'image');
-          preview.status = 'completed';
-          resolve();
-        } catch (error) {
-          reject(error);
-        }
-      };
-      
-      reader.onerror = () => {
-        reject(new Error('读取图片文件失败'));
-      };
-      
-      reader.readAsDataURL(file);
-    });
-  }
-
-  /**
-   * 生成视频预览
-   * @param {Object} preview - 预览对象
-   */
-  async generateVideoPreview(preview) {
-    const { file } = preview;
-    
-    if (file.size > this.options.maxPreviewSize) {
-      preview.preview = this.getFileIconUrl('video');
-      preview.status = 'completed';
-      return;
-    }
-
-    return new Promise((resolve, reject) => {
-      const video = document.createElement('video');
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
-      
-      video.onloadedmetadata = () => {
-        // 设置画布尺寸
-        canvas.width = this.options.thumbnailSize.width;
-        canvas.height = this.options.thumbnailSize.height;
-        
-        // 计算视频在画布中的位置和尺寸
-        const videoAspect = video.videoWidth / video.videoHeight;
-        const canvasAspect = canvas.width / canvas.height;
-        
-        let drawWidth, drawHeight, drawX, drawY;
-        
-        if (videoAspect > canvasAspect) {
-          drawWidth = canvas.width;
-          drawHeight = canvas.width / videoAspect;
-          drawX = 0;
-          drawY = (canvas.height - drawHeight) / 2;
-        } else {
-          drawWidth = canvas.height * videoAspect;
-          drawHeight = canvas.height;
-          drawX = (canvas.width - drawWidth) / 2;
-          drawY = 0;
-        }
-        
-        // 使用变量避免ESLint警告
-        console.log('Drawing video at:', drawX, drawY, drawWidth, drawHeight);
-        
-        // 跳转到视频中间位置
-        video.currentTime = video.duration / 2;
-      };
-      
-      video.onseeked = () => {
-        try {
-          // 绘制视频帧到画布
-          ctx.drawImage(video, drawX, drawY, drawWidth, drawHeight);
-          
-          // 获取缩略图
-          const thumbnailDataUrl = canvas.toDataURL('image/jpeg', 0.8);
-          preview.preview = thumbnailDataUrl;
-          preview.thumbnail = thumbnailDataUrl;
-          preview.status = 'completed';
-          
-          // 清理资源
-          URL.revokeObjectURL(video.src);
-          resolve();
-        } catch (error) {
-          reject(error);
-        }
-      };
-      
-      video.onerror = () => {
-        reject(new Error('读取视频文件失败'));
-      };
-      
-      // 创建视频URL
-      const videoUrl = URL.createObjectURL(file);
-      video.src = videoUrl;
-      video.load();
-    });
-  }
-
-  /**
-   * 生成音频预览
-   * @param {Object} preview - 预览对象
-   */
-  async generateAudioPreview(preview) {
-    // 音频文件使用音频图标
-    preview.preview = this.getFileIconUrl('audio');
-    preview.status = 'completed';
-    
-    // 可以在这里添加音频波形图生成逻辑
-    return Promise.resolve();
-  }
-
-  /**
-   * 生成文本预览
-   * @param {Object} preview - 预览对象
-   */
-  async generateTextPreview(preview) {
-    const { file } = preview;
-    
-    if (file.size > 1024 * 1024) { // 1MB限制
-      preview.preview = this.getFileIconUrl('document');
-      preview.status = 'completed';
-      return;
-    }
-
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      
-      reader.onload = (e) => {
-        try {
-          const text = e.target.result;
-          const truncatedText = text.substring(0, 500); // 只显示前500个字符
-          
-          // 创建文本预览
-          preview.preview = this.createTextPreviewImage(truncatedText);
-          preview.status = 'completed';
-          resolve();
-        } catch (error) {
-          reject(error);
-        }
-      };
-      
-      reader.onerror = () => {
-        reject(new Error('读取文本文件失败'));
-      };
-      
-      reader.readAsText(file, 'UTF-8');
-    });
-  }
-
-  /**
-   * 创建文本预览图片
-   * @param {string} text - 文本内容
-   * @returns {string} 预览图片的Data URL
-   */
-  createTextPreviewImage(text) {
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
-    
-    canvas.width = this.options.thumbnailSize.width;
-    canvas.height = this.options.thumbnailSize.height;
-    
-    // 设置背景
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    
-    // 设置文本样式
-    ctx.fillStyle = '#333333';
-    ctx.font = '12px Arial, sans-serif';
-    ctx.textAlign = 'left';
-    ctx.textBaseline = 'top';
-    
-    // 绘制文本
-    const lines = this.wrapText(ctx, text, canvas.width - 20);
-    const lineHeight = 16;
-    
-    for (let i = 0; i < Math.min(lines.length, 8); i++) {
-      ctx.fillText(lines[i], 10, 10 + i * lineHeight);
-    }
-    
-    // 如果文本被截断，添加省略号
-    if (lines.length > 8) {
-      ctx.fillText('...', 10, 10 + 8 * lineHeight);
-    }
-    
-    return canvas.toDataURL('image/png');
-  }
-
-  /**
-   * 文本换行处理
-   * @param {CanvasRenderingContext2D} ctx - 画布上下文
-   * @param {string} text - 文本内容
-   * @param {number} maxWidth - 最大宽度
-   * @returns {Array} 行数组
-   */
-  wrapText(ctx, text, maxWidth) {
-    const words = text.split(' ');
-    const lines = [];
-    let currentLine = '';
-    
-    for (const word of words) {
-      const testLine = currentLine + (currentLine ? ' ' : '') + word;
-      const metrics = ctx.measureText(testLine);
-      
-      if (metrics.width > maxWidth && currentLine) {
-        lines.push(currentLine);
-        currentLine = word;
-      } else {
-        currentLine = testLine;
-      }
-    }
-    
-    if (currentLine) {
-      lines.push(currentLine);
-    }
-    
-    return lines;
-  }
-
-  /**
-   * 生成缩略图
-   * @param {string} dataUrl - 原始图片的Data URL
-   * @param {string} type - 文件类型
-   * @returns {Promise<string>} 缩略图的Data URL
-   */
-  async generateThumbnail(dataUrl, _type) {
-    // 显式使用_type参数以避免ESLint警告
-    void _type;
-    return new Promise((resolve, reject) => {
-      const img = new Image();
-      
-      img.onload = () => {
-        try {
-          const canvas = document.createElement('canvas');
-          const ctx = canvas.getContext('2d');
-          
-          canvas.width = this.options.thumbnailSize.width;
-          canvas.height = this.options.thumbnailSize.height;
-          
-          // 计算缩放比例和位置
-          const imgAspect = img.width / img.height;
-          const canvasAspect = canvas.width / canvas.height;
-          
-          let drawWidth, drawHeight, drawX, drawY;
-          
-          if (imgAspect > canvasAspect) {
-            drawWidth = canvas.width;
-            drawHeight = canvas.width / imgAspect;
-            drawX = 0;
-            drawY = (canvas.height - drawHeight) / 2;
-          } else {
-            drawWidth = canvas.height * imgAspect;
-            drawHeight = canvas.height;
-            drawX = (canvas.width - drawWidth) / 2;
-            drawY = 0;
-          }
-          
-          // 绘制图片
-          ctx.drawImage(img, drawX, drawY, drawWidth, drawHeight);
-          
-          const thumbnailDataUrl = canvas.toDataURL('image/jpeg', 0.8);
-          resolve(thumbnailDataUrl);
-        } catch (error) {
-          reject(error);
-        }
-      };
-      
-      img.onerror = () => {
-        reject(new Error('生成缩略图失败'));
-      };
-      
-      img.src = dataUrl;
-    });
-  }
-
-  /**
-   * 检查是否为图片文件
-   * @param {File} file - 文件对象
-   * @returns {boolean} 是否为图片文件
-   */
-  isImageFile(file) {
-    return this.options.supportedImageTypes.includes(file.type);
-  }
-
-  /**
-   * 检查是否为视频文件
-   * @param {File} file - 文件对象
-   * @returns {boolean} 是否为视频文件
-   */
-  isVideoFile(file) {
-    return this.options.supportedVideoTypes.includes(file.type);
-  }
-
-  /**
-   * 检查是否为音频文件
-   * @param {File} file - 文件对象
-   * @returns {boolean} 是否为音频文件
-   */
-  isAudioFile(file) {
-    return file.type.startsWith('audio/');
-  }
-
-  /**
-   * 检查是否为文本文件
-   * @param {File} file - 文件对象
-   * @returns {boolean} 是否为文本文件
-   */
-  isTextFile(file) {
-    return file.type.startsWith('text/') || 
-           ['application/json', 'application/xml'].includes(file.type);
-  }
+const FilePreview = ({
+  file,
+  isOpen = false,
+  onClose,
+  onError,
+  onDownload,
+  className = ''
+}) => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [previewContent, setPreviewContent] = useState(null);
+  const [previewType, setPreviewType] = useState('');
+  const [error, setError] = useState(null);
+  const modalRef = useRef(null);
 
   /**
    * 获取文件类型
    * @param {string} fileName - 文件名
+   * @param {string} mimeType - MIME类型
    * @returns {string} 文件类型
    */
-  getFileType(fileName) {
+  const getFileType = (fileName, mimeType) => {
     const ext = fileName.split('.').pop().toLowerCase();
     
-    if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'].includes(ext)) {
+    // 图片类型
+    if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp'].includes(ext) || 
+        mimeType?.startsWith('image/')) {
       return 'image';
-    } else if (['mp4', 'avi', 'mov', 'wmv', 'flv', 'webm'].includes(ext)) {
-      return 'video';
-    } else if (['mp3', 'wav', 'ogg', 'm4a'].includes(ext)) {
-      return 'audio';
-    } else if (['pdf', 'doc', 'docx', 'txt'].includes(ext)) {
-      return 'document';
-    } else if (['zip', 'rar', '7z'].includes(ext)) {
-      return 'archive';
-    } else {
-      return 'other';
     }
-  }
-
-  /**
-   * 获取文件图标URL
-   * @param {string} fileType - 文件类型
-   * @returns {string} 图标URL或emoji
-   */
-  getFileIconUrl(fileType) {
-    const iconMap = FILE_CONFIG.ICON_MAP;
-    return iconMap[fileType] || iconMap.default;
-  }
-
-  /**
-   * 获取缓存键
-   * @param {File} file - 文件对象
-   * @returns {string} 缓存键
-   */
-  getCacheKey(file) {
-    return `${file.name}_${file.size}_${file.lastModified}`;
-  }
-
-  /**
-   * 清空预览缓存
-   */
-  clearCache() {
-    this.previewCache.clear();
-  }
-
-  /**
-   * 获取缓存大小
-   * @returns {number} 缓存项数量
-   */
-  getCacheSize() {
-    return this.previewCache.size;
-  }
-
-  /**
-   * 批量生成预览
-   * @param {FileList|Array} files - 文件列表
-   * @returns {Promise<Array>} 预览对象数组
-   */
-  async generateBatchPreviews(files) {
-    const fileArray = Array.from(files);
-    const previewPromises = fileArray.map(file => this.generateFilePreview(file));
     
-    try {
-      const previews = await Promise.all(previewPromises);
-      return previews;
-    } catch (error) {
-      console.error('批量生成预览失败:', error);
-      throw error;
+    // 视频类型
+    if (['mp4', 'avi', 'mov', 'wmv', 'flv', 'webm', 'mkv'].includes(ext) || 
+        mimeType?.startsWith('video/')) {
+      return 'video';
     }
+    
+    // 音频类型
+    if (['mp3', 'wav', 'ogg', 'm4a', 'flac', 'aac'].includes(ext) || 
+        mimeType?.startsWith('audio/')) {
+      return 'audio';
+    }
+    
+    // 文本类型
+    if (['txt', 'md', 'json', 'xml', 'csv', 'log', 'js', 'css', 'html', 'py', 'java', 'cpp', 'c'].includes(ext) || 
+        mimeType?.startsWith('text/')) {
+      return 'text';
+    }
+    
+    // PDF类型
+    if (ext === 'pdf' || mimeType === 'application/pdf') {
+      return 'pdf';
+    }
+    
+    // 代码类型
+    if (['js', 'jsx', 'ts', 'tsx', 'py', 'java', 'cpp', 'c', 'php', 'rb', 'go', 'rs'].includes(ext)) {
+      return 'code';
+    }
+    
+    return 'unsupported';
+  };
+
+  /**
+   * 加载预览内容
+   */
+  const loadPreviewContent = async () => {
+    if (!file || !isOpen) return;
+
+    setIsLoading(true);
+    setError(null);
+    setPreviewContent(null);
+
+    try {
+      const fileType = getFileType(file.name, file.mimeType);
+      setPreviewType(fileType);
+
+      switch (fileType) {
+        case 'image':
+          setPreviewContent(`/api/files/${file.id}/download`);
+          break;
+
+        case 'video':
+        case 'audio':
+          setPreviewContent(`/api/files/${file.id}/download`);
+          break;
+
+        case 'text':
+        case 'code':
+          const textResponse = await axios.get(`/api/files/${file.id}/content`, {
+            responseType: 'text'
+          });
+          setPreviewContent(textResponse.data);
+          break;
+
+        case 'pdf':
+          setPreviewContent(`/api/files/${file.id}/download`);
+          break;
+
+        default:
+          setPreviewType('unsupported');
+          break;
+      }
+    } catch (error) {
+      console.error('加载预览内容失败:', error);
+      setError('预览加载失败');
+      if (onError) {
+        onError(error);
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  /**
+   * 处理下载
+   */
+  const handleDownload = () => {
+    if (onDownload) {
+      onDownload(file);
+    } else {
+      window.open(`/api/files/${file.id}/download`, '_blank');
+    }
+  };
+
+  /**
+   * 处理关闭
+   */
+  const handleClose = () => {
+    setPreviewContent(null);
+    setError(null);
+    if (onClose) {
+      onClose();
+    }
+  };
+
+  /**
+   * 处理键盘事件
+   */
+  const handleKeyDown = (e) => {
+    if (e.key === 'Escape') {
+      handleClose();
+    }
+  };
+
+  /**
+   * 处理模态框点击
+   */
+  const handleModalClick = (e) => {
+    if (e.target === modalRef.current) {
+      handleClose();
+    }
+  };
+
+  /**
+   * 格式化文件大小
+   */
+  const formatFileSize = (bytes) => {
+    if (bytes === 0) return '0 B';
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  };
+
+  /**
+   * 渲染预览内容
+   */
+  const renderPreviewContent = () => {
+    if (isLoading) {
+      return (
+        <div className="preview-loading">
+          <div className="loading-spinner"></div>
+          <p>加载中...</p>
+        </div>
+      );
+    }
+
+    if (error) {
+      return (
+        <div className="preview-error">
+          <div className="error-icon">⚠️</div>
+          <p>{error}</p>
+          <button onClick={handleDownload} className="download-btn">
+            下载文件
+          </button>
+        </div>
+      );
+    }
+
+    switch (previewType) {
+      case 'image':
+        return (
+          <div className="preview-image">
+            <img 
+              src={previewContent} 
+              alt={file.name}
+              onError={() => setError('图片加载失败')}
+            />
+          </div>
+        );
+
+      case 'video':
+        return (
+          <div className="preview-video">
+            <video 
+              controls 
+              src={previewContent}
+              onError={() => setError('视频加载失败')}
+            >
+              您的浏览器不支持视频播放
+            </video>
+          </div>
+        );
+
+      case 'audio':
+        return (
+          <div className="preview-audio">
+            <audio 
+              controls 
+              src={previewContent}
+              onError={() => setError('音频加载失败')}
+            >
+              您的浏览器不支持音频播放
+            </audio>
+            <div className="audio-info">
+              <h3>{file.name}</h3>
+              <p>大小: {formatFileSize(file.size)}</p>
+            </div>
+          </div>
+        );
+
+      case 'text':
+      case 'code':
+        return (
+          <div className="preview-text">
+            <pre className={`code-content ${previewType === 'code' ? 'code-highlight' : ''}`}>
+              {previewContent}
+            </pre>
+          </div>
+        );
+
+      case 'pdf':
+        return (
+          <div className="preview-pdf">
+            <iframe 
+              src={previewContent}
+              title={file.name}
+              onError={() => setError('PDF加载失败')}
+            />
+          </div>
+        );
+
+      case 'unsupported':
+      default:
+        return (
+          <div className="preview-unsupported">
+            <div className="unsupported-icon">📄</div>
+            <h3>不支持预览此文件类型</h3>
+            <p>文件: {file.name}</p>
+            <p>大小: {formatFileSize(file.size)}</p>
+            <button onClick={handleDownload} className="download-btn">
+              下载文件
+            </button>
+          </div>
+        );
+    }
+  };
+
+  // 监听文件变化，重新加载预览
+  useEffect(() => {
+    if (isOpen && file) {
+      loadPreviewContent();
+    }
+  }, [file, isOpen]);
+
+  // 监听键盘事件
+  useEffect(() => {
+    if (isOpen) {
+      document.addEventListener('keydown', handleKeyDown);
+      return () => {
+        document.removeEventListener('keydown', handleKeyDown);
+      };
+    }
+  }, [isOpen]);
+
+  if (!isOpen || !file) {
+    return null;
   }
-}
 
-/**
- * 创建文件预览管理器实例
- * @param {Object} options - 配置选项
- * @returns {FilePreviewManager} 预览管理器实例
- */
-function createFilePreview(options = {}) {
-  return new FilePreviewManager(options);
-}
+  return (
+    <div 
+      className={`file-preview-modal ${className}`}
+      ref={modalRef}
+      onClick={handleModalClick}
+    >
+      <div className="preview-container">
+        {/* 预览头部 */}
+        <div className="preview-header">
+          <div className="file-info">
+            <h2 className="file-name">{file.name}</h2>
+            <div className="file-meta">
+              <span className="file-size">{formatFileSize(file.size)}</span>
+              {file.mimeType && (
+                <span className="file-type">{file.mimeType}</span>
+              )}
+            </div>
+          </div>
+          
+          <div className="preview-actions">
+            <button 
+              onClick={handleDownload}
+              className="action-btn download-btn"
+              title="下载"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="7,10 12,15 17,10"/>
+                <line x1="12" y1="15" x2="12" y2="3"/>
+              </svg>
+            </button>
+            
+            <button 
+              onClick={handleClose}
+              className="action-btn close-btn"
+              title="关闭"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <line x1="18" y1="6" x2="6" y2="18"/>
+                <line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+            </button>
+          </div>
+        </div>
 
-/**
- * 快速生成单个文件预览
- * @param {File} file - 文件对象
- * @param {Object} options - 配置选项
- * @returns {Promise<Object>} 预览对象
- */
-async function generateFilePreview(file, options = {}) {
-  const previewManager = createFilePreview(options);
-  return await previewManager.generateFilePreview(file);
-}
+        {/* 预览内容 */}
+        <div className="preview-content">
+          {renderPreviewContent()}
+        </div>
+      </div>
+    </div>
+  );
+};
 
-// 导出
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = {
-    FilePreviewManager,
-    createFilePreview,
-    generateFilePreview
-  };
-} else if (typeof window !== 'undefined') {
-  window.FilePreview = {
-    FilePreviewManager,
-    createFilePreview,
-    generateFilePreview
-  };
-}
+export default FilePreview;

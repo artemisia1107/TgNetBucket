@@ -1,0 +1,270 @@
+import { useState, useCallback, useMemo } from 'react';
+import axios from 'axios';
+import { createSuccessMessage, createErrorMessage } from '../components/ui/Message';
+import { createConfirmDialog } from '../components/ui/Modal';
+import { formatFileSize } from '../utils/fileUtils';
+
+/**
+ * 批量操作管理钩子
+ * 提供文件批量选择、删除、下载等功能
+ * @param {Array} files - 文件列表
+ * @param {Function} onFilesChange - 文件列表变化回调
+ * @returns {Object} 批量操作相关的状态和方法
+ */
+export const useBatchOps = (files = [], onFilesChange) => {
+  // 选中的文件ID列表
+  const [selectedFiles, setSelectedFiles] = useState([]);
+  const [isProcessing, setIsProcessing] = useState(false);
+
+  /**
+   * 选中的文件详细信息
+   */
+  const selectedFileDetails = useMemo(() => {
+    return files.filter(file => selectedFiles.includes(file.messageId || file.id));
+  }, [files, selectedFiles]);
+
+  /**
+   * 选中文件的总大小
+   */
+  const selectedTotalSize = useMemo(() => {
+    return selectedFileDetails.reduce((total, file) => total + (file.fileSize || 0), 0);
+  }, [selectedFileDetails]);
+
+  /**
+   * 选择/取消选择文件
+   * @param {string} fileId - 文件ID
+   */
+  const toggleFileSelection = useCallback((fileId) => {
+    setSelectedFiles(prev => {
+      if (prev.includes(fileId)) {
+        return prev.filter(id => id !== fileId);
+      } else {
+        return [...prev, fileId];
+      }
+    });
+  }, []);
+
+  /**
+   * 全选/取消全选
+   */
+  const toggleSelectAll = useCallback(() => {
+    if (selectedFiles.length === files.length) {
+      setSelectedFiles([]);
+    } else {
+      setSelectedFiles(files.map(file => file.messageId || file.id));
+    }
+  }, [files, selectedFiles.length]);
+
+  /**
+   * 清空选择
+   */
+  const clearSelection = useCallback(() => {
+    setSelectedFiles([]);
+  }, []);
+
+  /**
+   * 批量删除文件
+   */
+  const batchDelete = useCallback(async () => {
+    if (selectedFiles.length === 0) {
+      createErrorMessage('请先选择要删除的文件');
+      return;
+    }
+
+    const confirmed = await createConfirmDialog(
+      `确定要删除选中的 ${selectedFiles.length} 个文件吗？此操作不可撤销。`
+    );
+
+    if (!confirmed) return;
+
+    setIsProcessing(true);
+    let successCount = 0;
+    let errorCount = 0;
+
+    try {
+      // 并发删除文件，但限制并发数
+      const batchSize = 5;
+      for (let i = 0; i < selectedFiles.length; i += batchSize) {
+        const batch = selectedFiles.slice(i, i + batchSize);
+        const promises = batch.map(async (fileId) => {
+          try {
+            await axios.delete(`/api/files?messageId=${fileId}`);
+            successCount++;
+          } catch (error) {
+            console.error(`删除文件 ${fileId} 失败:`, error);
+            errorCount++;
+          }
+        });
+
+        await Promise.all(promises);
+      }
+
+      // 显示结果消息
+      if (successCount > 0) {
+        createSuccessMessage(`成功删除 ${successCount} 个文件`);
+      }
+      if (errorCount > 0) {
+        createErrorMessage(`${errorCount} 个文件删除失败`);
+      }
+
+      // 清空选择并刷新文件列表
+      setSelectedFiles([]);
+      if (onFilesChange) {
+        onFilesChange();
+      }
+
+    } catch (error) {
+      console.error('批量删除失败:', error);
+      createErrorMessage('批量删除操作失败');
+    } finally {
+      setIsProcessing(false);
+    }
+  }, [selectedFiles, onFilesChange]);
+
+  /**
+   * 批量下载文件
+   */
+  const batchDownload = useCallback(async () => {
+    if (selectedFiles.length === 0) {
+      createErrorMessage('请先选择要下载的文件');
+      return;
+    }
+
+    setIsProcessing(true);
+
+    try {
+      // 如果只有一个文件，直接下载
+      if (selectedFiles.length === 1) {
+        const file = selectedFileDetails[0];
+        window.open(
+          `/api/download?fileId=${file.fileId}&fileName=${encodeURIComponent(file.fileName)}`,
+          '_blank'
+        );
+      } else {
+        // 多个文件，创建压缩包下载
+        const response = await axios.post('/api/batch-download', {
+          fileIds: selectedFiles
+        }, {
+          responseType: 'blob'
+        });
+
+        // 创建下载链接
+        const blob = new Blob([response.data], { type: 'application/zip' });
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `batch_download_${new Date().getTime()}.zip`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+
+        createSuccessMessage(`开始下载 ${selectedFiles.length} 个文件的压缩包`);
+      }
+    } catch (error) {
+      console.error('批量下载失败:', error);
+      createErrorMessage('批量下载失败');
+    } finally {
+      setIsProcessing(false);
+    }
+  }, [selectedFiles, selectedFileDetails]);
+
+  /**
+   * 批量生成短链接
+   */
+  const batchGenerateShortLinks = useCallback(async () => {
+    if (selectedFiles.length === 0) {
+      createErrorMessage('请先选择要生成短链接的文件');
+      return;
+    }
+
+    setIsProcessing(true);
+    let successCount = 0;
+    let errorCount = 0;
+    const shortLinks = [];
+
+    try {
+      for (const fileId of selectedFiles) {
+        try {
+          const response = await axios.post('/api/shortlink', { fileId });
+          if (response.data.success) {
+            shortLinks.push({
+              fileId,
+              fileName: selectedFileDetails.find(f => (f.messageId || f.id) === fileId)?.fileName,
+              shortLink: response.data.shortLink
+            });
+            successCount++;
+          } else {
+            errorCount++;
+          }
+        } catch (error) {
+          console.error(`生成短链接失败 ${fileId}:`, error);
+          errorCount++;
+        }
+      }
+
+      if (successCount > 0) {
+        createSuccessMessage(`成功生成 ${successCount} 个短链接`);
+        
+        // 将短链接复制到剪贴板
+        const linkText = shortLinks.map(item => 
+          `${item.fileName}: ${item.shortLink}`
+        ).join('\n');
+        
+        try {
+          await navigator.clipboard.writeText(linkText);
+          createSuccessMessage('短链接已复制到剪贴板');
+        } catch (clipboardError) {
+          console.warn('复制到剪贴板失败:', clipboardError);
+        }
+      }
+
+      if (errorCount > 0) {
+        createErrorMessage(`${errorCount} 个文件的短链接生成失败`);
+      }
+
+    } catch (error) {
+      console.error('批量生成短链接失败:', error);
+      createErrorMessage('批量生成短链接失败');
+    } finally {
+      setIsProcessing(false);
+    }
+  }, [selectedFiles, selectedFileDetails]);
+
+  /**
+   * 检查是否有文件被选中
+   */
+  const hasSelection = selectedFiles.length > 0;
+
+  /**
+   * 检查是否全选
+   */
+  const isAllSelected = files.length > 0 && selectedFiles.length === files.length;
+
+  /**
+   * 检查是否部分选中
+   */
+  const isPartiallySelected = selectedFiles.length > 0 && selectedFiles.length < files.length;
+
+  return {
+    // 状态
+    selectedFiles,
+    selectedFileDetails,
+    selectedTotalSize,
+    selectedTotalSizeFormatted: formatFileSize(selectedTotalSize),
+    isProcessing,
+    hasSelection,
+    isAllSelected,
+    isPartiallySelected,
+    
+    // 方法
+    toggleFileSelection,
+    toggleSelectAll,
+    clearSelection,
+    batchDelete,
+    batchDownload,
+    batchGenerateShortLinks
+  };
+};
+
+export default useBatchOps;

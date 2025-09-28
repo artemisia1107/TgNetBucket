@@ -105,5 +105,8 @@ function createFileCard(file) {
 //   };
 // }
 
-// 导出函数
-export { createFileCard };
+// 导入React组件
+import FileCard from './ui/FileCard';
+
+// 导出函数和组件
+export { createFileCard, FileCard };

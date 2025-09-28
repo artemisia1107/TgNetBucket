@@ -6,7 +6,7 @@ import { useState, useEffect } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 // import AdminHeader from '../components/AdminHeader';
-import Footer from '../components/Footer';
+import Footer from '../components/layout/Footer';
 import axios from 'axios';
 import { 
   createSuccessMessage, 
