@@ -6,12 +6,14 @@ TgNetBucket是一个使用Telegram作为存储后端的文件存储服务，通�
 
 - 🚀 **Telegram存储**: 使用Telegram Bot API作为文件存储后端
 - 📁 **完整管理**: 支持文件上传、下载、列表查看和删除
+- 🔐 **安全认证**: 完整的管理员认证系统，保护敏感操作
 - 💾 **持久化存储**: 集成Upstash Redis，确保数据持久性
 - 🎨 **现代化UI**: 渐变背景、毛玻璃效果、响应式设计
 - 🖋️ **优雅字体**: LXGW文楷字体集成，完美中英文混排
 - ☁️ **一键部署**: 支持Vercel平台快速部署
 - 🔄 **智能降级**: 确保服务稳定性，Redis不可用时自动切换
 - 🌍 **全球访问**: 低延迟的全球访问体验
+- 📊 **管理面板**: 系统监控、活动日志、统计数据可视化
 
 ## 🖼️ 界面预览
 
@@ -75,6 +77,10 @@ TELEGRAM_CHAT_ID=your_chat_id
 # Upstash Redis配置（可选，推荐）
 UPSTASH_REDIS_REST_URL=your_redis_url
 UPSTASH_REDIS_REST_TOKEN=your_redis_token
+
+# 管理员认证配置（可选）
+ADMIN_USERNAME=admin
+ADMIN_PASSWORD=your_secure_password
 ```
 
 ### 部署到Vercel
@@ -183,6 +189,26 @@ TgNetBucket/
 - **[REFACTOR_PLAN.md](./MD/REFACTOR_PLAN.md)** - 重构计划
 
 ## 📈 当前版本
+
+### v1.1.0 - 认证系统集成 (2025-9-28)
+
+**🔐 安全认证**
+- 完整的管理员认证系统
+- 管理页面访问保护
+- 文件上传认证检查
+- 安全的会话管理
+
+**🐛 性能优化**
+- 修复React组件无限循环问题
+- 优化useEffect依赖管理
+- 改进状态管理性能
+- 解决客户端模块导入问题
+
+**📊 管理功能**
+- 系统状态监控
+- 活动日志记录
+- 数据统计可视化
+- 管理面板界面优化
 
 ### v1.0.0 - 组件化重构完成 (2025-9-28)
 

@@ -3,7 +3,7 @@
  * 提供应用级别的状态管理，包括主题、语言、用户设置等
  */
 
-import React, { createContext, useContext, useReducer, useEffect } from 'react';
+import React, { createContext, useContext, useReducer, useEffect, useCallback } from 'react';
 import { useLocalStorage } from '../../hooks';
 
 // 创建 Context
@@ -110,34 +110,54 @@ export function AppProvider({ children }) {
   const [storedTheme, setStoredTheme] = useLocalStorage('app-theme', initialState.theme);
   const [storedLanguage, setStoredLanguage] = useLocalStorage('app-language', initialState.language);
 
-  // 初始化时从 localStorage 恢复设置
+  // 初始化时从 localStorage 恢复设置（只在组件挂载时执行一次）
   useEffect(() => {
-    if (storedSettings) {
+    // 只在初始化时恢复设置，避免循环更新
+    let hasUpdated = false;
+    
+    if (storedSettings && JSON.stringify(storedSettings) !== JSON.stringify(initialState.settings)) {
       dispatch({ type: ActionTypes.UPDATE_SETTINGS, payload: storedSettings });
+      hasUpdated = true;
     }
-    if (storedTheme) {
+    if (storedTheme && storedTheme !== initialState.theme) {
       dispatch({ type: ActionTypes.SET_THEME, payload: storedTheme });
+      hasUpdated = true;
     }
-    if (storedLanguage) {
+    if (storedLanguage && storedLanguage !== initialState.language) {
       dispatch({ type: ActionTypes.SET_LANGUAGE, payload: storedLanguage });
+      hasUpdated = true;
     }
-  }, [storedSettings, storedTheme, storedLanguage]);
+    
+    // 设置DOM属性
+    if (state.theme) {
+      document.documentElement.setAttribute('data-theme', state.theme);
+    }
+    if (state.language) {
+      document.documentElement.setAttribute('lang', state.language);
+    }
+  }, []); // 只在组件挂载时执行一次
 
-  // 主题切换时更新 localStorage 和 DOM
+  // 主题切换时更新 localStorage 和 DOM（但避免初始化时的更新）
   useEffect(() => {
-    setStoredTheme(state.theme);
-    document.documentElement.setAttribute('data-theme', state.theme);
+    if (state.theme !== initialState.theme) {
+      setStoredTheme(state.theme);
+      document.documentElement.setAttribute('data-theme', state.theme);
+    }
   }, [state.theme, setStoredTheme]);
 
-  // 语言切换时更新 localStorage
+  // 语言切换时更新 localStorage（但避免初始化时的更新）
   useEffect(() => {
-    setStoredLanguage(state.language);
-    document.documentElement.setAttribute('lang', state.language);
+    if (state.language !== initialState.language) {
+      setStoredLanguage(state.language);
+      document.documentElement.setAttribute('lang', state.language);
+    }
   }, [state.language, setStoredLanguage]);
 
-  // 设置更新时保存到 localStorage
+  // 设置更新时保存到 localStorage（但避免初始化时的更新）
   useEffect(() => {
-    setStoredSettings(state.settings);
+    if (JSON.stringify(state.settings) !== JSON.stringify(initialState.settings)) {
+      setStoredSettings(state.settings);
+    }
   }, [state.settings, setStoredSettings]);
 
   // Action creators

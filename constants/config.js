@@ -252,10 +252,10 @@ const UPLOAD_CONFIG = {
 };
 
 /**
- * 验证规则
+ * 验证规则配置
  */
 const VALIDATION_RULES = {
-  // 文件名规则
+  // 文件名验证
   FILENAME: {
     MIN_LENGTH: 1,
     MAX_LENGTH: 255,
@@ -263,13 +263,13 @@ const VALIDATION_RULES = {
     RESERVED_NAMES: ['CON', 'PRN', 'AUX', 'NUL', 'COM1', 'COM2', 'COM3', 'COM4', 'COM5', 'COM6', 'COM7', 'COM8', 'COM9', 'LPT1', 'LPT2', 'LPT3', 'LPT4', 'LPT5', 'LPT6', 'LPT7', 'LPT8', 'LPT9']
   },
   
-  // URL规则
+  // URL验证
   URL: {
     PATTERN: /^https?:\/\/.+/,
     MAX_LENGTH: 2048
   },
   
-  // 密码规则
+  // 密码验证
   PASSWORD: {
     MIN_LENGTH: 6,
     MAX_LENGTH: 128,
@@ -277,6 +277,39 @@ const VALIDATION_RULES = {
     REQUIRE_LOWERCASE: false,
     REQUIRE_NUMBERS: false,
     REQUIRE_SYMBOLS: false
+  }
+};
+
+/**
+ * 认证配置
+ */
+const AUTH_CONFIG = {
+  // 认证方式
+  METHODS: {
+    LOCAL: 'local',
+    REDIS: 'redis'
+  },
+  
+  // 会话配置
+  SESSION: {
+    DURATION: 24 * 60 * 60 * 1000, // 24小时
+    COOKIE_NAME: 'tg_net_bucket_auth',
+    STORAGE_KEY: 'auth_session'
+  },
+  
+  // 认证状态
+  STATUS: {
+    AUTHENTICATED: 'authenticated',
+    UNAUTHENTICATED: 'unauthenticated',
+    EXPIRED: 'expired'
+  },
+  
+  // 错误消息
+  ERRORS: {
+    INVALID_CREDENTIALS: '用户名或密码错误',
+    SESSION_EXPIRED: '会话已过期，请重新登录',
+    ACCESS_DENIED: '访问被拒绝，需要管理员权限',
+    AUTH_REQUIRED: '需要认证后才能执行此操作'
   }
 };
 
@@ -339,6 +372,7 @@ if (typeof module !== 'undefined' && module.exports) {
     STORAGE_CONFIG,
     UPLOAD_CONFIG,
     VALIDATION_RULES,
+    AUTH_CONFIG,
     EVENTS,
     REGEX,
     DEFAULT_SETTINGS
@@ -352,6 +386,7 @@ if (typeof module !== 'undefined' && module.exports) {
     STORAGE_CONFIG,
     UPLOAD_CONFIG,
     VALIDATION_RULES,
+    AUTH_CONFIG,
     EVENTS,
     REGEX,
     DEFAULT_SETTINGS

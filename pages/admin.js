@@ -2,7 +2,7 @@
  * 管理面板页面组件
  * 提供系统状态监控、数据库管理和活动日志查看功能
  */
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 // import AdminHeader from '../components/AdminHeader';
@@ -14,6 +14,15 @@ import {
   // createWarningMessage 
 } from '../components/ui/Message';
 import { createConfirmDialog } from '../components/ui/Modal';
+import AuthModal from '../components/AuthModal';
+import { getAuthStatus, requiresAuth } from '../utils/authUtils';
+
+// 认证状态常量
+const AUTH_STATUS = {
+  AUTHENTICATED: 'authenticated',
+  UNAUTHENTICATED: 'unauthenticated',
+  EXPIRED: 'expired'
+};
 
 // 临时定义formatFileSize函数，避免导入错误
 const formatFileSize = (bytes) => {
@@ -35,13 +44,18 @@ export default function AdminPanel() {
   const [activityLogs, setActivityLogs] = useState(null);
   const [loading, setLoading] = useState(false);
   // const [message, setMessage] = useState('');
+  
+  // 认证状态管理
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [authChecked, setAuthChecked] = useState(false);
 
   // 获取系统统计信息
   /**
    * 获取系统统计信息
    * @returns {Promise<void>}
    */
-  const fetchSystemStats = async () => {
+  const fetchSystemStats = useCallback(async () => {
     try {
       const response = await axios.get('/api/admin/stats');
       setSystemStats(response.data.success ? response.data.data : response.data);
@@ -49,14 +63,14 @@ export default function AdminPanel() {
       console.error('获取系统统计失败:', error);
       createErrorMessage('获取系统统计失败');
     }
-  };
+  }, []);
 
   // 获取系统状态
   /**
    * 获取系统状态信息
    * @returns {Promise<void>}
    */
-  const fetchSystemStatus = async () => {
+  const fetchSystemStatus = useCallback(async () => {
     try {
       const response = await axios.get('/api/admin/status');
       setSystemStatus(response.data.success ? response.data.data : response.data);
@@ -64,10 +78,10 @@ export default function AdminPanel() {
       console.error('获取系统状态失败:', error);
       createErrorMessage('获取系统状态失败');
     }
-  };
+  }, []);
 
   // 获取活动日志
-  const fetchActivityLogs = async () => {
+  const fetchActivityLogs = useCallback(async () => {
     try {
       const response = await axios.get('/api/admin/activity-logs?limit=50');
       setActivityLogs(response.data.success ? response.data.data : response.data);
@@ -75,7 +89,7 @@ export default function AdminPanel() {
       console.error('获取活动日志失败:', error);
       createErrorMessage('获取活动日志失败');
     }
-  };
+  }, []);
 
   // 清理短链接数据
   /**
@@ -137,12 +151,54 @@ export default function AdminPanel() {
   // 移动端菜单状态
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  // 页面加载时获取数据
-  useEffect(() => {
+  /**
+   * 检查认证状态
+   */
+  const checkAuthentication = useCallback(() => {
+    const authStatus = getAuthStatus();
+    const authenticated = authStatus === AUTH_STATUS.AUTHENTICATED;
+    
+    setIsAuthenticated(authenticated);
+    setAuthChecked(true);
+    
+    if (!authenticated) {
+      setShowAuthModal(true);
+    }
+    
+    return authenticated;
+  }, []);
+
+  /**
+   * 处理认证成功
+   */
+  const handleAuthSuccess = () => {
+    setIsAuthenticated(true);
+    setShowAuthModal(false);
+    // 认证成功后加载数据
     fetchSystemStats();
     fetchSystemStatus();
     fetchActivityLogs();
-  }, []);
+  };
+
+  /**
+   * 处理认证弹窗关闭
+   */
+  const handleAuthClose = () => {
+    // 如果用户关闭认证弹窗但未认证，重定向到首页
+    if (!isAuthenticated) {
+      window.location.href = '/';
+    }
+  };
+
+  // 页面加载时检查认证状态
+  useEffect(() => {
+    const authenticated = checkAuthentication();
+    if (authenticated) {
+      fetchSystemStats();
+      fetchSystemStatus();
+      fetchActivityLogs();
+    }
+  }, [checkAuthentication]);
 
   // 切换移动端菜单
   const toggleMobileMenu = () => {
@@ -555,13 +611,31 @@ export default function AdminPanel() {
     }
   ];
 
+  // 如果认证检查未完成，显示加载状态
+  if (!authChecked) {
+    return (
+      <div className="admin-container">
+        <Head>
+          <title>TgNetBucket - 管理面板</title>
+          <meta name="description" content="TgNetBucket 后端管理面板" />
+          <meta name="viewport" content="width=device-width, initial-scale=1" />
+        </Head>
+        <div className="admin-loading">
+          <div className="loading-spinner"></div>
+          <p>正在验证权限...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="admin-container">
-      <Head>
-        <title>TgNetBucket - 管理面板</title>
-        <meta name="description" content="TgNetBucket 后端管理面板" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-      </Head>
+    <>
+      <div className="admin-container">
+        <Head>
+          <title>TgNetBucket - 管理面板</title>
+          <meta name="description" content="TgNetBucket 后端管理面板" />
+          <meta name="viewport" content="width=device-width, initial-scale=1" />
+        </Head>
 
       <div className="admin-layout">
         {/* 移动端菜单切换按钮 */}
@@ -666,5 +740,13 @@ export default function AdminPanel() {
       
       <Footer />
     </div>
+    
+    {/* 认证弹窗 */}
+    <AuthModal 
+      isOpen={showAuthModal}
+      onSuccess={handleAuthSuccess}
+      onClose={handleAuthClose}
+    />
+  </>
   );
 }
