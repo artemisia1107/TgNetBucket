@@ -52,7 +52,9 @@ const AuthModal = ({
       [name]: value
     }));
     // 清除错误信息
-    if (error) setError('');
+    if (error) {
+      setError('');
+    }
   };
 
   /**
@@ -131,7 +133,9 @@ const AuthModal = ({
   };
 
   // 如果弹窗未打开，不渲染
-  if (!isOpen) return null;
+  if (!isOpen) {
+    return null;
+  }
 
   return (
     <div 
@@ -202,7 +206,7 @@ const AuthModal = ({
                   disabled={loading}
                   aria-label={showPassword ? '隐藏密码' : '显示密码'}
                 >
-                  <i className={showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'}></i>
+                  <i className={showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'} />
                 </button>
               </div>
             </div>
@@ -236,6 +240,7 @@ const AuthModal = ({
         </div>
       </div>
 
+      {/* eslint-disable-next-line react/no-unknown-property */}
       <style jsx>{`
         .auth-modal-overlay {
           position: fixed;

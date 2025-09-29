@@ -78,23 +78,31 @@ function createConfirmDialog(message, onConfirm, onCancel, options = {}) {
   // 绑定事件
   cancelBtn.addEventListener('click', () => {
     closeDialog();
-    if (onCancel) onCancel();
+    if (onCancel) {
+      onCancel();
+    }
   });
   
   confirmBtn.addEventListener('click', () => {
     closeDialog();
-    if (onConfirm) onConfirm();
+    if (onConfirm) {
+      onConfirm();
+    }
   });
 
   closeBtn.addEventListener('click', () => {
     closeDialog();
-    if (onCancel) onCancel();
+    if (onCancel) {
+      onCancel();
+    }
   });
   
   overlay.addEventListener('click', (e) => {
     if (e.target === overlay) {
       closeDialog();
-      if (onCancel) onCancel();
+      if (onCancel) {
+        onCancel();
+      }
     }
   });
   
@@ -102,11 +110,15 @@ function createConfirmDialog(message, onConfirm, onCancel, options = {}) {
   const handleKeydown = (e) => {
     if (e.key === 'Escape') {
       closeDialog();
-      if (onCancel) onCancel();
+      if (onCancel) {
+        onCancel();
+      }
       document.removeEventListener('keydown', handleKeydown);
     } else if (e.key === 'Enter') {
       closeDialog();
-      if (onConfirm) onConfirm();
+      if (onConfirm) {
+        onConfirm();
+      }
       document.removeEventListener('keydown', handleKeydown);
     }
   };
@@ -179,7 +191,9 @@ function createModal(content, options = {}) {
         overlay.parentNode.removeChild(overlay);
       }
     }, 300);
-    if (onClose) onClose();
+    if (onClose) {
+      onClose();
+    }
   };
   
   // 绑定关闭事件
@@ -236,7 +250,7 @@ function createModal(content, options = {}) {
 function createLoadingModal(text = '加载中...') {
   const content = `
     <div class="loading-content">
-      <div class="loading-spinner"></div>
+      <div className="loading-spinner" />
       <p class="loading-text">${text}</p>
     </div>
   `;

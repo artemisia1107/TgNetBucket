@@ -113,6 +113,7 @@ const DeleteQueueStatus = () => {
    * 清空队列
    */
   const handleClearQueue = () => {
+    // eslint-disable-next-line no-alert
     if (deleteQueue && confirm('确定要清空删除队列吗？这将取消所有待删除的文件。')) {
       deleteQueue.clearQueue();
       updateQueueStatus(deleteQueue);
@@ -186,12 +187,12 @@ const DeleteQueueStatus = () => {
         onClick={toggleVisibility}
         title="点击查看删除队列状态"
       >
-        <i className="fas fa-trash-alt"></i>
+        <i className="fas fa-trash-alt" />
         {queueStatus.total > 0 && (
           <span className="queue-count">{queueStatus.total}</span>
         )}
         {queueStatus.isProcessing && (
-          <i className="fas fa-spinner fa-spin processing-icon"></i>
+          <i className="fas fa-spinner fa-spin processing-icon" />
         )}
       </div>
 
@@ -200,35 +201,35 @@ const DeleteQueueStatus = () => {
         <div className="queue-details">
           <div className="queue-header">
             <h4>
-              <i className="fas fa-list"></i> 删除队列状态
+              <i className="fas fa-list" /> 删除队列状态
             </h4>
             <button 
               className="btn-close"
               onClick={() => setIsVisible(false)}
               title="关闭"
             >
-              <i className="fas fa-times"></i>
+              <i className="fas fa-times" />
             </button>
           </div>
 
           <div className="queue-stats">
             <div className="stat-item">
-              <i className="fas fa-clock text-warning"></i>
+              <i className="fas fa-clock text-warning" />
               <span>待处理: {queueStatus.pending}</span>
             </div>
             <div className="stat-item">
-              <i className="fas fa-spinner fa-spin text-info"></i>
+              <i className="fas fa-spinner fa-spin text-info" />
               <span>处理中: {queueStatus.processing}</span>
             </div>
             <div className="stat-item">
-              <i className="fas fa-times-circle text-danger"></i>
+              <i className="fas fa-times-circle text-danger" />
               <span>失败: {queueStatus.failed}</span>
             </div>
           </div>
 
           <div className="network-status">
             <div className="network-info">
-              <i className={getNetworkStatusIcon()}></i>
+              <i className={getNetworkStatusIcon()} />
               <span>{getNetworkStatusText()}</span>
               {networkStatus.responseTime && (
                 <small className="response-time">
@@ -238,7 +239,7 @@ const DeleteQueueStatus = () => {
             </div>
             {!networkStatus.isOnline && (
               <div className="network-warning">
-                <i className="fas fa-exclamation-triangle text-warning"></i>
+                <i className="fas fa-exclamation-triangle text-warning" />
                 <span>网络断开时删除操作将排队等待</span>
               </div>
             )}
@@ -251,7 +252,7 @@ const DeleteQueueStatus = () => {
                 onClick={handleRetryFailed}
                 title="重试所有失败的任务"
               >
-                <i className="fas fa-redo"></i> 重试失败任务
+                <i className="fas fa-redo" /> 重试失败任务
               </button>
             </div>
           )}
@@ -263,21 +264,21 @@ const DeleteQueueStatus = () => {
                 onClick={handleClearQueue}
                 title="清空删除队列"
               >
-                <i className="fas fa-trash"></i> 清空队列
+                <i className="fas fa-trash" /> 清空队列
               </button>
             </div>
           )}
 
           {!queueStatus.isOnline && queueStatus.total > 0 && (
             <div className="offline-notice">
-              <i className="fas fa-info-circle"></i>
+              <i className="fas fa-info-circle" />
               <span>网络离线，队列将在网络恢复后自动处理</span>
             </div>
           )}
         </div>
       )}
 
-      <style jsx>{`
+      <style dangerouslySetInnerHTML={{__html: `
         .delete-queue-status {
           position: fixed;
           bottom: 20px;
@@ -447,7 +448,7 @@ const DeleteQueueStatus = () => {
         .text-danger { color: #dc3545 !important; }
         .text-warning { color: #ffc107 !important; }
         .text-info { color: #17a2b8 !important; }
-      `}</style>
+      `}} />
     </div>
   );
 };

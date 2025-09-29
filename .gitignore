@@ -34,3 +34,9 @@ next-env.d.ts
 
 # Backups
 /backups
+
+# Logs
+vercel-log.txt
+
+# AI
+.trae

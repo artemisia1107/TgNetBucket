@@ -115,7 +115,9 @@ const FileBatch = ({
    * 格式化文件大小
    */
   const formatFileSize = (bytes) => {
-    if (bytes === 0) return '0 B';
+    if (bytes === 0) {
+      return '0 B';
+    }
     const k = 1024;
     const sizes = ['B', 'KB', 'MB', 'GB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
@@ -137,12 +139,14 @@ const FileBatch = ({
               type="checkbox"
               checked={isAllSelected}
               ref={input => {
-                if (input) input.indeterminate = isPartialSelected;
+                if (input) {
+                  input.indeterminate = isPartialSelected;
+                }
               }}
               onChange={handleSelectAll}
               disabled={disabled || isProcessing}
             />
-            <span className="checkmark"></span>
+            <span className="checkmark" />
             <span className="selection-text">
               {selectedCount > 0 
                 ? `已选择 ${selectedCount} / ${totalCount} 个文件`
@@ -179,7 +183,7 @@ const FileBatch = ({
             >
               {isProcessing && operationType === 'download' ? (
                 <>
-                  <span className="loading-spinner"></span>
+                  <span className="loading-spinner" />
                   下载中...
                 </>
               ) : (
@@ -202,7 +206,7 @@ const FileBatch = ({
             >
               {isProcessing && operationType === 'shortlink' ? (
                 <>
-                  <span className="loading-spinner"></span>
+                  <span className="loading-spinner" />
                   生成中...
                 </>
               ) : (
@@ -224,7 +228,7 @@ const FileBatch = ({
             >
               {isProcessing && operationType === 'delete' ? (
                 <>
-                  <span className="loading-spinner"></span>
+                  <span className="loading-spinner" />
                   删除中...
                 </>
               ) : (
@@ -239,6 +243,7 @@ const FileBatch = ({
                 </>
               )}
             </button>
+            <div className="batch-actions-divider" />
           </div>
         )}
       </div>

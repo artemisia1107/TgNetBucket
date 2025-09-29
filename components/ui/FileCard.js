@@ -65,7 +65,7 @@ const FileCard = ({
   return (
     <div className={`file-card ${className}`}>
       <div className="file-icon">
-        <i className={getFileIcon(file.name)}></i>
+        <i className={getFileIcon(file.name)} />
       </div>
       
       <div className="file-info">
@@ -89,7 +89,7 @@ const FileCard = ({
           title="预览"
           type="button"
         >
-          <i className="fas fa-eye"></i>
+          <i className="fas fa-eye" />
         </button>
         <button 
           className="btn-icon" 
@@ -97,7 +97,7 @@ const FileCard = ({
           title="下载"
           type="button"
         >
-          <i className="fas fa-download"></i>
+          <i className="fas fa-download" />
         </button>
         <button 
           className="btn-icon" 
@@ -105,7 +105,7 @@ const FileCard = ({
           title="复制链接"
           type="button"
         >
-          <i className="fas fa-link"></i>
+          <i className="fas fa-link" />
         </button>
         <button 
           className="btn-icon btn-danger" 
@@ -113,7 +113,7 @@ const FileCard = ({
           title="删除"
           type="button"
         >
-          <i className="fas fa-trash"></i>
+          <i className="fas fa-trash" />
         </button>
       </div>
     </div>

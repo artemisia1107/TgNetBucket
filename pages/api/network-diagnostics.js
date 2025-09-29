@@ -57,14 +57,23 @@ export default async function handler(req, res) {
     };
 
     // 评估各项连接状态
-    if (diagnostics.dnsResolution) overallHealth.score++;
-    else overallHealth.issues.push('DNS 解析失败');
+    if (diagnostics.dnsResolution) {
+      overallHealth.score++;
+    } else {
+      overallHealth.issues.push('DNS 解析失败');
+    }
 
-    if (diagnostics.internetConnection) overallHealth.score++;
-    else overallHealth.issues.push('基本网络连接失败');
+    if (diagnostics.internetConnection) {
+      overallHealth.score++;
+    } else {
+      overallHealth.issues.push('基本网络连接失败');
+    }
 
-    if (diagnostics.telegramApiReachable) overallHealth.score++;
-    else overallHealth.issues.push('Telegram API 不可达');
+    if (diagnostics.telegramApiReachable) {
+      overallHealth.score++;
+    } else {
+      overallHealth.issues.push('Telegram API 不可达');
+    }
 
     // 确定总体状态
     if (overallHealth.score === overallHealth.maxScore) {

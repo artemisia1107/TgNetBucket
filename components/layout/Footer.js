@@ -53,7 +53,9 @@ export default function Footer({
    * @returns {JSX.Element} 链接组件
    */
   const renderLinks = () => {
-    if (allLinks.length === 0) return null;
+    if (allLinks.length === 0) {
+      return null;
+    }
 
     return (
       <div className="footer-links">
@@ -65,7 +67,7 @@ export default function Footer({
             target={link.external ? "_blank" : "_self"}
             rel={link.external ? "noopener noreferrer" : ""}
           >
-            {link.icon && <span className="link-icon"><i className={link.icon}></i></span>}
+            {link.icon && <span className="link-icon"><i className={link.icon} /></span>}
             <span className="link-text">{link.text}</span>
           </a>
         ))}
@@ -78,7 +80,9 @@ export default function Footer({
    * @returns {JSX.Element} 技术支持组件
    */
   const renderPoweredBy = () => {
-    if (!showPoweredBy) return null;
+    if (!showPoweredBy) {
+      return null;
+    }
 
     return (
       <div className="footer-powered">
@@ -111,7 +115,7 @@ export default function Footer({
         
         <div className="footer-brand">
           <div className="brand-logo">
-            <span className="brand-icon"><i className="fas fa-box"></i></span>
+            <span className="brand-icon"><i className="fas fa-box" /></span>
             <span className="brand-name">TgNetBucket</span>
           </div>
           <div className="brand-tagline">

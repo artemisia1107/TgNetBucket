@@ -176,8 +176,8 @@ function updateCircularProgress(container, progress, text = '') {
   const textEl = container.querySelector('.circular-progress-text');
   
   if (fill && svg) {
-    const size = parseInt(svg.getAttribute('width'));
-    const strokeWidth = parseInt(fill.getAttribute('stroke-width'));
+    const size = parseInt(svg.getAttribute('width'), 10);
+    const strokeWidth = parseInt(fill.getAttribute('stroke-width'), 10);
     const radius = (size - strokeWidth) / 2;
     const circumference = radius * 2 * Math.PI;
     const offset = circumference - (progress / 100) * circumference;

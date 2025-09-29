@@ -13,10 +13,10 @@ export default async function handler(req, res) {
   } else if (method === 'POST') {
     // 记录活动日志
     return await logActivity(req, res);
-  } else {
-    res.setHeader('Allow', ['GET', 'POST']);
-    return res.status(405).end(`Method ${method} Not Allowed`);
   }
+  
+  res.setHeader('Allow', ['GET', 'POST']);
+  return res.status(405).end(`Method ${method} Not Allowed`);
 }
 
 /**
@@ -41,8 +41,12 @@ async function getActivityLogs(req, res) {
           const log = JSON.parse(entry);
           
           // 过滤条件
-          if (action && log.action !== action) continue;
-          if (ip && log.ip !== ip) continue;
+          if (action && log.action !== action) {
+            continue;
+          }
+          if (ip && log.ip !== ip) {
+            continue;
+          }
           
           logs.push(log);
         } catch (error) {
@@ -51,7 +55,7 @@ async function getActivityLogs(req, res) {
       }
     } else {
       // 内存环境
-      const memoryStore = redisClient.memoryStore;
+      const { memoryStore } = redisClient;
       const logData = memoryStore.get(logKey);
       const allLogs = logData ? logData.value || [] : [];
       
@@ -59,8 +63,12 @@ async function getActivityLogs(req, res) {
       if (Array.isArray(allLogs)) {
         // 过滤和分页
         const filteredLogs = allLogs.filter(log => {
-          if (action && log.action !== action) return false;
-          if (ip && log.ip !== ip) return false;
+          if (action && log.action !== action) {
+            return false;
+          }
+          if (ip && log.ip !== ip) {
+            return false;
+          }
           return true;
         });
         
@@ -77,8 +85,8 @@ async function getActivityLogs(req, res) {
         logs,
         stats,
         pagination: {
-          limit: parseInt(limit),
-          offset: parseInt(offset),
+          limit: parseInt(limit, 10),
+          offset: parseInt(offset, 10),
           total: logs.length
         }
       }
@@ -135,7 +143,7 @@ async function logActivity(req, res) {
       
     } else {
       // 内存环境
-      const memoryStore = redisClient.memoryStore;
+      const { memoryStore } = redisClient;
       const logData = memoryStore.get(logKey);
       let logs = logData ? logData.value || [] : [];
       
@@ -190,21 +198,21 @@ async function getActivityStats() {
       // 转换数值
       const result = {};
       for (const [key, value] of Object.entries(stats)) {
-        result[key] = parseInt(value) || 0;
+        result[key] = parseInt(value, 10) || 0;
       }
       return result;
-    } else {
-      const memoryStore = redisClient.memoryStore;
-      const statsData = memoryStore.get(statsKey);
-      const stats = statsData ? statsData.value : null;
-      
-      // 检查stats是否为有效对象
-      if (!stats || typeof stats !== 'object') {
-        return {};
-      }
-      
-      return stats;
     }
+    
+    const { memoryStore } = redisClient;
+    const statsData = memoryStore.get(statsKey);
+    const stats = statsData ? statsData.value : null;
+    
+    // 检查stats是否为有效对象
+    if (!stats || typeof stats !== 'object') {
+      return {};
+    }
+    
+    return stats;
   } catch (error) {
     console.error('获取活动统计失败:', error);
     return {};
@@ -223,12 +231,12 @@ async function updateActivityStats(action) {
       await redis.hincrby(statsKey, action, 1);
       await redis.hincrby(statsKey, 'total', 1);
     } else {
-      const memoryStore = redisClient.memoryStore;
+      const { memoryStore } = redisClient;
       const statsData = memoryStore.get(statsKey);
       const stats = statsData ? statsData.value || {} : {};
       
       stats[action] = (stats[action] || 0) + 1;
-      stats['total'] = (stats['total'] || 0) + 1;
+      stats.total = (stats.total || 0) + 1;
       
       // 保存回内存存储
       memoryStore.set(statsKey, { value: stats, timestamp: Date.now() });

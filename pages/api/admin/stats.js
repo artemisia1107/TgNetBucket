@@ -69,14 +69,15 @@ export default async function handler(req, res) {
       }
     } else {
       // 从内存存储获取数据
-      const memoryStore = redisClient.memoryStore;
+      const { memoryStore } = redisClient;
       if (memoryStore) {
         const chatId = process.env.TELEGRAM_CHAT_ID;
         const filesJson = memoryStore.get(`files:${chatId}`);
         if (filesJson) {
           try {
             const parsedData = typeof filesJson === 'string' ? JSON.parse(filesJson) : filesJson;
-            filesData = Array.isArray(parsedData) ? parsedData : parsedData.files || [];
+            const { files } = parsedData;
+            filesData = Array.isArray(parsedData) ? parsedData : files || [];
           } catch (error) {
             console.error('解析内存存储文件数据失败:', error);
           }
@@ -139,7 +140,7 @@ export default async function handler(req, res) {
           try {
             const result = await redis.scan(0, { match: 'short:*', count: 1000 });
             if (Array.isArray(result) && result.length >= 2) {
-              const oldShortLinks = result[1];
+              const [, oldShortLinks] = result;
               if (Array.isArray(oldShortLinks)) {
                 stats.shortLinks += oldShortLinks.length;
               }
@@ -161,7 +162,7 @@ export default async function handler(req, res) {
       }
     } else {
       // 统计内存存储中的旧短链接
-      const memoryStore = redisClient.memoryStore;
+      const { memoryStore } = redisClient;
       if (memoryStore) {
         for (const [key] of memoryStore) {
           if (key.startsWith('short:')) {

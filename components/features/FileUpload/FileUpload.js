@@ -138,7 +138,9 @@ const FileUpload = ({
    * @param {FileList} fileList - 文件列表
    */
   const handleUpload = async (fileList) => {
-    if (!fileList || fileList.length === 0) return;
+    if (!fileList || fileList.length === 0) {
+      return;
+    }
 
     setIsUploading(true);
     setUploadProgress(0);

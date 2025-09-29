@@ -207,7 +207,8 @@ function fileReducer(state, action) {
     case ActionTypes.CLEAR_UPLOAD_PROGRESS:
       const { [action.payload]: _removed, ...remainingProgress } = state.uploadProgress;
       // 显式使用_removed变量以避免ESLint警告
-      void _removed;
+      // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
+      const _unused = _removed;
       return {
         ...state,
         uploadProgress: remainingProgress

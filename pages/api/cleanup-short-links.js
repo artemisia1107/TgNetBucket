@@ -19,7 +19,7 @@ export default async function handler(req, res) {
     // 如果使用的是内存存储（开发环境）
     if (!redisClient.isConnected()) {
       // 清理内存存储中的短链接
-      const memoryStore = redisClient.memoryStore;
+      const { memoryStore } = redisClient;
       if (memoryStore) {
         for (const [key] of memoryStore) {
           scannedCount++;
@@ -60,8 +60,8 @@ export default async function handler(req, res) {
         const result = await redis.scan(cursor, { match: 'short:*', count: 100 });
         
         if (Array.isArray(result) && result.length >= 2) {
-          cursor = parseInt(result[0]);
-          const keys = result[1];
+          const [cursorStr, keys] = result;
+          cursor = parseInt(cursorStr, 10);
           
           if (Array.isArray(keys)) {
             keysToDelete.push(...keys);

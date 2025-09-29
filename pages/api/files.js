@@ -80,7 +80,7 @@ export default async function handler(req, res) {
             });
           }
 
-          const file = fileArray[0]; // 获取第一个文件
+          const [file] = fileArray; // 获取第一个文件
           if (!file || !file.filepath) {
             console.error('文件对象无效或缺少文件路径');
             return res.status(400).json({ 

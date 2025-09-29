@@ -64,7 +64,7 @@ export default function AdminHeader({
     <aside className={`admin-sidebar ${isMobileMenuOpen ? 'open' : ''}`}>
       <div className="sidebar-header">
         <div className="sidebar-brand">
-          <div className="sidebar-icon"><i className="fas fa-rocket"></i></div>
+          <div className="sidebar-icon"><i className="fas fa-rocket" /></div>
           <div className="sidebar-info">
             <h2 className="sidebar-title">TgNetBucket</h2>
             <span className="sidebar-subtitle">管理面板</span>
@@ -83,7 +83,7 @@ export default function AdminHeader({
                   closeMobileMenu?.();
                 }}
               >
-                <span className="sidebar-nav-icon"><i className={item.icon}></i></span>
+                <span className="sidebar-nav-icon"><i className={item.icon} /></span>
                 <div className="sidebar-nav-content">
                   <span className="sidebar-nav-title">{item.title}</span>
                   <span className="sidebar-nav-description">{item.description}</span>
@@ -96,7 +96,7 @@ export default function AdminHeader({
 
       <div className="sidebar-footer">
         <Link href="/" className="sidebar-back-link">
-          <span className="sidebar-back-icon"><i className="fas fa-home"></i></span>
+          <span className="sidebar-back-icon"><i className="fas fa-home" /></span>
           <span className="sidebar-back-text">返回首页</span>
         </Link>
       </div>
@@ -130,10 +130,11 @@ export default function AdminHeader({
           title="刷新数据"
         >
           <span className={loading ? 'loading' : 'refresh'}>
-            <i className={loading ? 'fas fa-hourglass-half' : 'fas fa-sync'}></i>
+            <i className={loading ? 'fas fa-hourglass-half' : 'fas fa-sync'} />
           </span>
         </button>
       </div>
+      <div className="admin-divider" />
     </header>
   );
 
@@ -145,14 +146,14 @@ export default function AdminHeader({
         onClick={toggleMobileMenu}
         aria-label="切换菜单"
       >
-        <span className="sidebar-toggle-icon"><i className="fas fa-bars"></i></span>
+        <span className="sidebar-toggle-icon"><i className="fas fa-bars" /></span>
       </button>
 
       {/* 移动端遮罩层 */}
       <div 
         className={`sidebar-overlay ${isMobileMenuOpen ? 'active' : ''}`}
         onClick={closeMobileMenu}
-      ></div>
+      />
 
       {/* 侧边栏导航 */}
       {renderSidebar()}

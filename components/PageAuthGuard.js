@@ -82,14 +82,12 @@ const PageAuthGuard = ({
       if (redirectTo) {
         // 重定向到指定页面
         window.location.href = redirectTo;
-      } else {
+      } else if (onAuthFailure) {
         // 调用失败回调
-        if (onAuthFailure) {
-          onAuthFailure();
-        } else {
-          // 默认重定向到首页
-          window.location.href = '/';
-        }
+        onAuthFailure();
+      } else {
+        // 默认重定向到首页
+        window.location.href = '/';
       }
     } else {
       setShowAuthModal(false);
@@ -107,10 +105,10 @@ const PageAuthGuard = ({
   if (isLoading) {
     return (
       <div className="page-auth-loading">
-        <div className="loading-spinner"></div>
+        <div className="loading-spinner" />
         <p>正在验证身份...</p>
         
-        <style jsx>{`
+        <style dangerouslySetInnerHTML={{__html: `
           .page-auth-loading {
             display: flex;
             flex-direction: column;
@@ -141,7 +139,7 @@ const PageAuthGuard = ({
             color: #666;
             font-size: 14px;
           }
-        `}</style>
+        `}} />
       </div>
     );
   }

@@ -56,11 +56,11 @@ class RedisClient {
           await this.redis.set(key, serializedValue);
         }
         return true;
-      } else {
-        // 使用内存存储作为后备
-        this.memoryStore.set(key, { value, timestamp: Date.now(), ttl });
-        return true;
       }
+      
+      // 使用内存存储作为后备
+      this.memoryStore.set(key, { value, timestamp: Date.now(), ttl });
+      return true;
     } catch (error) {
       console.error('Redis设置失败:', error);
       return false;
@@ -76,12 +76,14 @@ class RedisClient {
     try {
       if (this.redis) {
         const value = await this.redis.get(key);
-        if (!value) return null;
+        if (!value) {
+          return null;
+        }
         
         // 安全的 JSON 解析
         try {
-          // 如果值已经是对象，直接返回
-          if (typeof value === 'object') {
+          // 如果值已经是对象且不为null，直接返回
+          if (typeof value === 'object' && value !== null) {
             return value;
           }
           // 如果是字符串，尝试解析
@@ -95,7 +97,9 @@ class RedisClient {
       } else {
         // 使用内存存储作为后备
         const item = this.memoryStore.get(key);
-        if (!item) return null;
+        if (!item) {
+          return null;
+        }
         
         // 检查是否过期
         if (item.ttl && (Date.now() - item.timestamp) > item.ttl * 1000) {
@@ -121,10 +125,10 @@ class RedisClient {
       if (this.redis) {
         await this.redis.del(key);
         return true;
-      } else {
-        // 使用内存存储作为后备
-        return this.memoryStore.delete(key);
       }
+      
+      // 使用内存存储作为后备
+      return this.memoryStore.delete(key);
     } catch (error) {
       console.error('Redis删除失败:', error);
       return false;
@@ -142,13 +146,13 @@ class RedisClient {
       if (this.redis) {
         await this.redis.lpush(key, JSON.stringify(value));
         return true;
-      } else {
-        // 使用内存存储作为后备
-        const list = this.memoryStore.get(key)?.value || [];
-        list.unshift(value);
-        this.memoryStore.set(key, { value: list, timestamp: Date.now() });
-        return true;
       }
+      
+      // 使用内存存储作为后备
+      const list = this.memoryStore.get(key)?.value || [];
+      list.unshift(value);
+      this.memoryStore.set(key, { value: list, timestamp: Date.now() });
+      return true;
     } catch (error) {
       console.error('Redis列表添加失败:', error);
       return false;
@@ -181,12 +185,14 @@ class RedisClient {
             return item;
           }
         });
-      } else {
-        // 使用内存存储作为后备
-        const list = this.memoryStore.get(key)?.value || [];
-        if (end === -1) end = list.length - 1;
-        return list.slice(start, end + 1);
       }
+      
+      // 使用内存存储作为后备
+      const list = this.memoryStore.get(key)?.value || [];
+      if (end === -1) {
+        end = list.length - 1;
+      }
+      return list.slice(start, end + 1);
     } catch (error) {
       console.error('Redis列表获取失败:', error);
       return [];
@@ -204,16 +210,16 @@ class RedisClient {
       if (this.redis) {
         await this.redis.lrem(key, 0, JSON.stringify(value));
         return true;
-      } else {
-        // 使用内存存储作为后备
-        const list = this.memoryStore.get(key)?.value || [];
-        const index = list.findIndex(item => JSON.stringify(item) === JSON.stringify(value));
-        if (index !== -1) {
-          list.splice(index, 1);
-          this.memoryStore.set(key, { value: list, timestamp: Date.now() });
-        }
-        return true;
       }
+      
+      // 使用内存存储作为后备
+      const list = this.memoryStore.get(key)?.value || [];
+      const index = list.findIndex(item => JSON.stringify(item) === JSON.stringify(value));
+      if (index !== -1) {
+        list.splice(index, 1);
+        this.memoryStore.set(key, { value: list, timestamp: Date.now() });
+      }
+      return true;
     } catch (error) {
       console.error('Redis列表移除失败:', error);
       return false;

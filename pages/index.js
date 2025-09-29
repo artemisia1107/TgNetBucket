@@ -157,8 +157,12 @@ export default function Home() {
       const result = await generateShortLink(fileId);
       if (result.success) {
         // 复制链接到剪贴板
-        await navigator.clipboard.writeText(result.shortLink);
-        createSuccessMessage(`分享链接已生成并复制到剪贴板：${result.shortLink}`);
+        try {
+          await navigator.clipboard.writeText(result.shortLink);
+          createSuccessMessage(`分享链接已生成并复制到剪贴板：${result.shortLink}`);
+        } catch {
+          createSuccessMessage(`分享链接已生成：${result.shortLink}`);
+        }
       } else {
         createErrorMessage(result.error || '生成分享链接失败');
       }
@@ -222,7 +226,7 @@ export default function Home() {
         {/* 文件列表区域 */}
         <section className="files-section">
           <div className="section-header">
-            <h2><i className="fas fa-folder"></i> 我的文件</h2>
+            <h2><i className="fas fa-folder" /> 我的文件</h2>
             <div className="file-stats">
               共 {filteredFiles.length} 个文件
               {selectedFiles.length > 0 && (
@@ -261,7 +265,7 @@ export default function Home() {
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="search-input"
               />
-              <i className="fas fa-search search-icon"></i>
+              <i className="fas fa-search search-icon" />
             </div>
 
             {/* 筛选和排序 */}
@@ -294,14 +298,14 @@ export default function Home() {
                 className="sort-order-btn"
                 title={`当前: ${sortOrder === 'asc' ? '升序' : '降序'}`}
               >
-                <i className={`fas ${sortOrder === 'asc' ? 'fa-sort-up' : 'fa-sort-down'}`}></i>
+                <i className={`fas ${sortOrder === 'asc' ? 'fa-sort-up' : 'fa-sort-down'}`} />
               </button>
             </div>
           </div>
 
           {loading && (
             <div className="loading-container">
-              <div className="loading-spinner"></div>
+              <div className="loading-spinner" />
               <p>加载中...</p>
             </div>
           )}
@@ -309,7 +313,7 @@ export default function Home() {
           {!loading && filteredFiles.length === 0 && (
             <div className="empty-state">
               <div className="empty-icon">
-                <i className="fas fa-folder-open"></i>
+                <i className="fas fa-folder-open" />
               </div>
               <h3>还没有文件</h3>
               <p>上传您的第一个文件开始使用吧！</p>
@@ -332,7 +336,7 @@ export default function Home() {
                 <div className="file-content" onClick={() => handlePreview(file)}>
                   <div className="file-header">
                     <div className="file-icon">
-                      <i className={getFileIcon(file.fileName)}></i>
+                      <i className={getFileIcon(file.fileName)} />
                     </div>
                     <div className="file-info">
                       <h4 className="file-name" title={file.fileName}>
@@ -361,7 +365,7 @@ export default function Home() {
                     disabled={loading}
                     title="下载文件"
                   >
-                    <span className="btn-icon"><i className="fas fa-download"></i></span>
+                    <span className="btn-icon"><i className="fas fa-download" /></span>
                     <span className="btn-text">下载</span>
                   </button>
                   <button
@@ -373,7 +377,7 @@ export default function Home() {
                     disabled={loading}
                     title="生成分享链接"
                   >
-                    <span className="btn-icon"><i className="fas fa-share-alt"></i></span>
+                    <span className="btn-icon"><i className="fas fa-share-alt" /></span>
                     <span className="btn-text">分享</span>
                   </button>
                   <button
@@ -385,7 +389,7 @@ export default function Home() {
                     disabled={loading}
                     title="删除文件"
                   >
-                    <span className="btn-icon"><i className="fas fa-trash"></i></span>
+                    <span className="btn-icon"><i className="fas fa-trash" /></span>
                     <span className="btn-text">删除</span>
                   </button>
                 </div>

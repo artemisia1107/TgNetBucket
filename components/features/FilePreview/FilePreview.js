@@ -82,7 +82,9 @@ const FilePreview = ({
    * 加载预览内容
    */
   const loadPreviewContent = useCallback(async () => {
-    if (!file || !isOpen) return;
+    if (!file || !isOpen) {
+      return;
+    }
 
     setIsLoading(true);
     setError(null);
@@ -173,7 +175,9 @@ const FilePreview = ({
    * 格式化文件大小
    */
   const formatFileSize = (bytes) => {
-    if (bytes === 0) return '0 B';
+    if (bytes === 0) {
+      return '0 B';
+    }
     const k = 1024;
     const sizes = ['B', 'KB', 'MB', 'GB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
@@ -187,7 +191,8 @@ const FilePreview = ({
     if (isLoading) {
       return (
         <div className="preview-loading">
-          <div className="loading-spinner"></div>
+          <div className="loading-container" />
+          <div className="loading-spinner" />
           <p>加载中...</p>
         </div>
       );
@@ -196,7 +201,7 @@ const FilePreview = ({
     if (error) {
       return (
         <div className="preview-error">
-          <div className="error-icon"><i className="fas fa-exclamation-triangle"></i></div>
+          <div className="error-icon"><i className="fas fa-exclamation-triangle" /></div>
           <p>{error}</p>
           <button onClick={handleDownload} className="download-btn">
             下载文件
@@ -277,7 +282,7 @@ const FilePreview = ({
       default:
         return (
           <div className="preview-unsupported">
-            <div className="unsupported-icon"><i className="fas fa-file"></i></div>
+            <div className="unsupported-icon"><i className="fas fa-file" /></div>
             <h3>不支持预览此文件类型</h3>
             <p>文件: {file.name}</p>
             <p>大小: {formatFileSize(file.size)}</p>

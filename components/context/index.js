@@ -35,9 +35,9 @@ export { default as NotificationContext } from './NotificationContext.js';
  * 提供完整的应用状态管理
  */
 import React from 'react';
-import { AppProvider } from './AppContext.js';
-import { FileProvider } from './FileContext.js';
-import { NotificationProvider } from './NotificationContext.js';
+import { AppProvider, useApp } from './AppContext.js';
+import { FileProvider, useFileContext } from './FileContext.js';
+import { NotificationProvider, useNotification } from './NotificationContext.js';
 
 /**
  * 全局状态提供者组件
