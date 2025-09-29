@@ -131,10 +131,17 @@ export const useFileList = () => {
   const generateShortLink = async (fileId) => {
     try {
       const response = await axios.post('/api/short-link', { fileId });
-      return { success: true, shortLink: response.data.shortUrl };
+      return { 
+        success: true, 
+        shortLink: response.data.shortUrl,
+        shortUrl: response.data.shortUrl,
+        shortId: response.data.shortId,
+        expiresIn: response.data.expiresIn,
+        isExisting: response.data.isExisting
+      };
     } catch (error) {
       console.error('生成短链接失败:', error);
-      return { success: false, error: '生成短链接失败' };
+      return { success: false, error: error.response?.data?.error || '生成短链接失败' };
     }
   };
 
