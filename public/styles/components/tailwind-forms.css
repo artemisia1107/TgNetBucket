@@ -1,0 +1,229 @@
+/**
+ * Tailwind CSS 表单组件
+ * 使用 @layer components 定义可复用的表单样式
+ */
+
+@layer components {
+  /* ========== 基础表单样式 ========== */
+  .form-group {
+    @apply mb-4;
+  }
+
+  .form-label {
+    @apply block mb-2 text-sm font-medium text-gray-900 leading-normal;
+  }
+
+  .form-label.required::after {
+    @apply text-error;
+    content: ' *';
+  }
+
+  .form-help {
+    @apply mt-1 text-xs text-gray-500 leading-normal;
+  }
+
+  .form-error {
+    @apply mt-1 text-xs text-error leading-normal;
+  }
+
+  /* ========== 输入框样式 ========== */
+  .form-input {
+    @apply block w-full px-3 py-2 text-sm font-normal leading-normal;
+    @apply text-gray-900 bg-white border border-gray-200 rounded-md;
+    @apply transition-colors duration-fast appearance-none;
+    @apply placeholder:text-gray-400 placeholder:opacity-100;
+    @apply focus:outline-none focus:border-gray-400 focus:ring-3 focus:ring-black/10;
+    @apply disabled:bg-gray-50 disabled:text-gray-500 disabled:cursor-not-allowed disabled:opacity-60;
+  }
+
+  .form-input.error {
+    @apply border-error focus:border-error focus:ring-error/10;
+  }
+
+  .form-input.success {
+    @apply border-success focus:border-success focus:ring-success/10;
+  }
+
+  /* ========== 输入框尺寸 ========== */
+  .form-input-sm {
+    @apply px-2.5 py-1.5 text-xs;
+  }
+
+  .form-input-lg {
+    @apply px-4 py-3 text-base;
+  }
+
+  /* ========== 文本域样式 ========== */
+  .form-textarea {
+    @apply form-input resize-y min-h-[80px];
+  }
+
+  .form-textarea-sm {
+    @apply form-input-sm resize-y min-h-[60px];
+  }
+
+  .form-textarea-lg {
+    @apply form-input-lg resize-y min-h-[120px];
+  }
+
+  /* ========== 选择框样式 ========== */
+  .form-select {
+    @apply form-input pr-8 bg-no-repeat bg-right bg-[length:16px_16px];
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 0.5rem center;
+  }
+
+  .form-select-sm {
+    @apply form-input-sm pr-6 bg-[length:14px_14px];
+    background-position: right 0.375rem center;
+  }
+
+  .form-select-lg {
+    @apply form-input-lg pr-10 bg-[length:18px_18px];
+    background-position: right 0.75rem center;
+  }
+
+  /* ========== 复选框和单选框样式 ========== */
+  .form-checkbox,
+  .form-radio {
+    @apply w-4 h-4 text-primary bg-white border border-gray-300 rounded;
+    @apply focus:ring-2 focus:ring-primary/20 focus:ring-offset-0;
+    @apply checked:bg-primary checked:border-primary;
+    @apply disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .form-radio {
+    @apply rounded-full;
+  }
+
+  .form-checkbox-sm,
+  .form-radio-sm {
+    @apply w-3 h-3;
+  }
+
+  .form-checkbox-lg,
+  .form-radio-lg {
+    @apply w-5 h-5;
+  }
+
+  /* ========== 开关样式 ========== */
+  .form-switch {
+    @apply relative inline-flex h-6 w-11 items-center rounded-full;
+    @apply bg-gray-200 transition-colors duration-200;
+    @apply focus:outline-none focus:ring-2 focus:ring-primary/20 focus:ring-offset-2;
+    @apply checked:bg-primary;
+  }
+
+  .form-switch::before {
+    @apply absolute left-1 top-1 h-4 w-4 rounded-full bg-white;
+    @apply transition-transform duration-200;
+    content: '';
+  }
+
+  .form-switch:checked::before {
+    @apply translate-x-5;
+  }
+
+  /* ========== 文件上传样式 ========== */
+  .form-file {
+    @apply block w-full text-sm text-gray-500;
+    @apply file:mr-4 file:py-2 file:px-4;
+    @apply file:rounded-md file:border-0;
+    @apply file:text-sm file:font-medium;
+    @apply file:bg-gray-50 file:text-gray-700;
+    @apply hover:file:bg-gray-100;
+    @apply file:cursor-pointer cursor-pointer;
+  }
+
+  /* ========== 输入组样式 ========== */
+  .input-group {
+    @apply relative flex items-stretch w-full;
+  }
+
+  .input-group .form-input {
+    @apply relative flex-1 min-w-0;
+  }
+
+  .input-group .form-input:not(:first-child) {
+    @apply rounded-l-none border-l-0;
+  }
+
+  .input-group .form-input:not(:last-child) {
+    @apply rounded-r-none;
+  }
+
+  .input-group-prepend,
+  .input-group-append {
+    @apply flex items-center px-3 text-sm text-gray-500;
+    @apply bg-gray-50 border border-gray-200;
+  }
+
+  .input-group-prepend {
+    @apply rounded-l-md border-r-0;
+  }
+
+  .input-group-append {
+    @apply rounded-r-md border-l-0;
+  }
+
+  /* ========== 表单验证状态 ========== */
+  .form-group.has-error .form-label {
+    @apply text-error;
+  }
+
+  .form-group.has-error .form-input,
+  .form-group.has-error .form-select,
+  .form-group.has-error .form-textarea {
+    @apply border-error focus:border-error focus:ring-error/10;
+  }
+
+  .form-group.has-success .form-label {
+    @apply text-success;
+  }
+
+  .form-group.has-success .form-input,
+  .form-group.has-success .form-select,
+  .form-group.has-success .form-textarea {
+    @apply border-success focus:border-success focus:ring-success/10;
+  }
+
+  /* ========== 表单布局 ========== */
+  .form-inline {
+    @apply flex flex-wrap items-center gap-4;
+  }
+
+  .form-inline .form-group {
+    @apply mb-0 flex-1 min-w-0;
+  }
+
+  .form-horizontal .form-group {
+    @apply grid grid-cols-1 gap-2 md:grid-cols-3 md:items-center;
+  }
+
+  .form-horizontal .form-label {
+    @apply mb-0 md:text-right;
+  }
+
+  .form-horizontal .form-control-wrapper {
+    @apply md:col-span-2;
+  }
+
+  /* ========== 浮动标签样式 ========== */
+  .form-floating {
+    @apply relative;
+  }
+
+  .form-floating .form-input {
+    @apply pt-6 pb-2;
+  }
+
+  .form-floating .form-label {
+    @apply absolute left-3 top-2 text-xs text-gray-500 transition-all duration-200;
+    @apply pointer-events-none origin-top-left;
+  }
+
+  .form-floating .form-input:focus ~ .form-label,
+  .form-floating .form-input:not(:placeholder-shown) ~ .form-label {
+    @apply text-xs text-gray-400 transform -translate-y-1;
+  }
+}

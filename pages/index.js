@@ -366,7 +366,7 @@ export default function Home() {
                       e.stopPropagation();
                       handleDownload(file.fileId, file.fileName);
                     }}
-                    className="action-btn download-btn"
+                    className="btn btn-primary btn-sm"
                     disabled={loading}
                     title="下载文件"
                   >
@@ -378,7 +378,7 @@ export default function Home() {
                       e.stopPropagation();
                       handleShare(file.fileId);
                     }}
-                    className="action-btn share-btn"
+                    className="btn btn-secondary btn-sm"
                     disabled={loading}
                     title="生成分享链接"
                   >
@@ -390,7 +390,7 @@ export default function Home() {
                       e.stopPropagation();
                       deleteFile(file.messageId, file.fileName);
                     }}
-                    className="action-btn delete-btn"
+                    className="btn btn-error btn-sm"
                     disabled={loading}
                     title="删除文件"
                   >

@@ -1,0 +1,168 @@
+/**
+ * Tailwind CSS 按钮组件
+ * 使用 @layer components 定义可复用的按钮样式
+ */
+
+@layer components {
+  /* ========== 基础按钮样式 ========== */
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2;
+    @apply font-medium text-sm leading-normal text-center whitespace-nowrap;
+    @apply cursor-pointer select-none border border-transparent rounded-md;
+    @apply bg-transparent transition-all duration-fast relative overflow-hidden;
+    @apply focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2;
+    @apply disabled:opacity-60 disabled:cursor-not-allowed disabled:pointer-events-none;
+  }
+
+  /* ========== 按钮尺寸 ========== */
+  .btn-xs {
+    @apply px-2 py-1 text-xs rounded-sm;
+  }
+
+  .btn-sm {
+    @apply px-3 py-1.5 text-sm;
+  }
+
+  .btn-md {
+    @apply px-4 py-2 text-sm;
+  }
+
+  .btn-lg {
+    @apply px-6 py-3 text-base;
+  }
+
+  .btn-xl {
+    @apply px-8 py-4 text-lg rounded-lg;
+  }
+
+  /* ========== 按钮变体 ========== */
+  
+  /* 主要按钮 */
+  .btn-primary {
+    @apply text-white bg-primary border-primary;
+    @apply hover:bg-gray-800 hover:border-gray-800;
+    @apply active:bg-gray-900 active:border-gray-900 active:translate-y-px;
+  }
+
+  /* 次要按钮 */
+  .btn-secondary {
+    @apply text-gray-900 bg-white border-gray-200;
+    @apply hover:bg-gray-50 hover:border-gray-300;
+    @apply active:bg-gray-100 active:border-gray-400 active:translate-y-px;
+  }
+
+  /* 幽灵按钮 */
+  .btn-ghost {
+    @apply text-gray-600 bg-transparent border-transparent;
+    @apply hover:text-gray-900 hover:bg-gray-50;
+    @apply active:bg-gray-100 active:translate-y-px;
+  }
+
+  /* 轮廓按钮 */
+  .btn-outline {
+    @apply text-gray-900 bg-transparent border-gray-200;
+    @apply hover:text-white hover:bg-primary hover:border-primary;
+    @apply active:bg-gray-800 active:border-gray-800 active:translate-y-px;
+  }
+
+  /* 链接按钮 */
+  .btn-link {
+    @apply text-primary bg-transparent border-transparent underline underline-offset-2;
+    @apply hover:text-secondary hover:no-underline;
+    @apply active:text-gray-700;
+  }
+
+  /* ========== 状态按钮 ========== */
+  
+  /* 成功按钮 */
+  .btn-success {
+    @apply text-white bg-success border-success;
+    @apply hover:bg-emerald-600 hover:border-emerald-600;
+    @apply active:bg-emerald-700 active:border-emerald-700 active:translate-y-px;
+  }
+
+  /* 错误按钮 */
+  .btn-error {
+    @apply text-white bg-error border-error;
+    @apply hover:bg-red-700 hover:border-red-700;
+    @apply active:bg-red-800 active:border-red-800 active:translate-y-px;
+  }
+
+  /* 警告按钮 */
+  .btn-warning {
+    @apply text-white bg-warning border-warning;
+    @apply hover:bg-amber-600 hover:border-amber-600;
+    @apply active:bg-amber-700 active:border-amber-700 active:translate-y-px;
+  }
+
+  /* 信息按钮 */
+  .btn-info {
+    @apply text-white bg-info border-info;
+    @apply hover:bg-sky-600 hover:border-sky-600;
+    @apply active:bg-sky-700 active:border-sky-700 active:translate-y-px;
+  }
+
+  /* ========== 特殊按钮样式 ========== */
+  
+  /* 圆形按钮 */
+  .btn-circle {
+    @apply rounded-full aspect-square p-0;
+  }
+
+  /* 方形按钮 */
+  .btn-square {
+    @apply rounded-none aspect-square p-0;
+  }
+
+  /* 宽按钮 */
+  .btn-wide {
+    @apply w-full;
+  }
+
+  /* 加载状态按钮 */
+  .btn-loading {
+    @apply relative text-transparent pointer-events-none;
+  }
+
+  .btn-loading::after {
+    @apply absolute inset-0 flex items-center justify-center;
+    content: '';
+    width: 1rem;
+    height: 1rem;
+    border: 2px solid currentColor;
+    border-radius: 50%;
+    border-top-color: transparent;
+    animation: spin 1s linear infinite;
+    margin: auto;
+  }
+
+  /* ========== 按钮组 ========== */
+  .btn-group {
+    @apply inline-flex;
+  }
+
+  .btn-group .btn {
+    @apply rounded-none border-r-0;
+  }
+
+  .btn-group .btn:first-child {
+    @apply rounded-l-md;
+  }
+
+  .btn-group .btn:last-child {
+    @apply rounded-r-md border-r;
+  }
+
+  .btn-group .btn:only-child {
+    @apply rounded-md border-r;
+  }
+
+  /* ========== 浮动操作按钮 ========== */
+  .btn-fab {
+    @apply fixed bottom-6 right-6 w-14 h-14 rounded-full shadow-lg;
+    @apply bg-primary text-white border-0;
+    @apply hover:shadow-xl hover:scale-105;
+    @apply active:scale-95;
+    @apply transition-all duration-200;
+  }
+}

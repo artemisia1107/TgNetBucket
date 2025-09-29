@@ -16,6 +16,7 @@ import { createConfirmDialog } from '../components/ui/Modal';
 import AuthModal from '../components/AuthModal';
 import { getAuthStatus } from '../utils/authUtils';
 import { useAdminPanel } from '../hooks/useAdminPanel';
+import { useSettings } from '../hooks/useSettings';
 
 // 认证状态常量
 const AUTH_STATUS = {
@@ -62,13 +63,41 @@ export default function AdminPanel() {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authChecked, setAuthChecked] = useState(false);
   
-  // 图片交互样式状态管理
-  const [imageInteractionStyle, setImageInteractionStyle] = useState('fade');
-  const [animationSpeed, setAnimationSpeed] = useState('normal');
-  const [interactionEnabled, setInteractionEnabled] = useState(true);
+
   
   // 通知状态管理
   const [notifications, setNotifications] = useState([]);
+  
+  /**
+   * 添加通知
+   * @param {Object} notification - 通知对象
+   */
+  const addNotification = useCallback((notification) => {
+    const newNotification = {
+      id: Date.now(),
+      time: new Date().toLocaleString(),
+      ...notification
+    };
+    setNotifications(prev => [newNotification, ...prev.slice(0, 9)]); // 最多保留10条通知
+  }, []);
+  
+  // 使用设置管理hook
+  const {
+    settings,
+    loading: settingsLoading,
+    updateSetting,
+    updateSettings,
+    saveSettings,
+    resetSettings,
+    exportConfig,
+    importConfig,
+    loadSettings,
+    validateSettings,
+    initializeImageInteraction,
+    hasChanges,
+    isValid,
+    validationErrors
+  } = useSettings(addNotification);
   
   // 侧边栏状态管理
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
@@ -93,17 +122,30 @@ export default function AdminPanel() {
   };
 
   /**
-   * 添加通知
-   * @param {Object} notification - 通知对象
+   * 处理设置保存
    */
-  const addNotification = useCallback((notification) => {
-    const newNotification = {
-      id: Date.now(),
-      time: new Date().toLocaleString(),
-      ...notification
-    };
-    setNotifications(prev => [newNotification, ...prev.slice(0, 9)]); // 最多保留10条通知
-  }, []);
+  const handleSaveSettings = useCallback(async () => {
+    const validation = validateSettings();
+    if (!validation.isValid) {
+      createErrorMessage(`设置验证失败: ${validation.errors.join(', ')}`);
+      return;
+    }
+    await saveSettings();
+  }, [saveSettings, validateSettings]);
+
+  /**
+   * 处理设置重置
+   */
+  const handleResetSettings = useCallback(async () => {
+    await resetSettings();
+  }, [resetSettings]);
+
+  /**
+   * 处理配置导出
+   */
+  const handleExportConfig = useCallback(() => {
+    exportConfig();
+  }, [exportConfig]);
 
   /**
    * 处理登出
@@ -177,52 +219,7 @@ export default function AdminPanel() {
     }
   };
 
-  /**
-   * 处理图片交互样式变化
-   * @param {string} style - 选择的交互样式 ('fade' 或 'underline')
-   */
-  const handleInteractionChange = (style) => {
-    setImageInteractionStyle(style);
-    
-    // 应用样式到全局
-    const root = document.documentElement;
-    root.setAttribute('data-image-interaction', style);
-    
-    // 保存到本地存储
-    localStorage.setItem('imageInteractionStyle', style);
-    
-    createSuccessMessage(`图片交互样式已切换为: ${style === 'fade' ? '淡入淡出效果' : '下划线效果'}`);
-  };
 
-  /**
-   * 处理动画速度变化
-   * @param {string} speed - 动画速度 ('fast', 'normal', 'slow')
-   */
-  const handleAnimationSpeedChange = (speed) => {
-    setAnimationSpeed(speed);
-    
-    // 应用速度到全局
-    const root = document.documentElement;
-    root.setAttribute('data-animation-speed', speed);
-    
-    // 保存到本地存储
-    localStorage.setItem('animationSpeed', speed);
-  };
-
-  /**
-   * 处理交互效果开关
-   * @param {boolean} enabled - 是否启用交互效果
-   */
-  const handleInteractionToggle = (enabled) => {
-    setInteractionEnabled(enabled);
-    
-    // 应用到全局
-    const root = document.documentElement;
-    root.setAttribute('data-interaction-enabled', enabled.toString());
-    
-    // 保存到本地存储
-    localStorage.setItem('interactionEnabled', enabled.toString());
-  };
 
   // 页面加载时检查认证状态
   useEffect(() => {
@@ -234,29 +231,10 @@ export default function AdminPanel() {
     }
   }, [checkAuthentication, fetchSystemStats, fetchSystemStatus, fetchActivityLogs]);
 
-  // 恢复图片交互样式设置
+  // 初始化图片交互样式设置
   useEffect(() => {
-    // 从本地存储恢复设置
-    const savedStyle = localStorage.getItem('imageInteractionStyle');
-    const savedSpeed = localStorage.getItem('animationSpeed');
-    const savedEnabled = localStorage.getItem('interactionEnabled');
-
-    if (savedStyle) {
-      setImageInteractionStyle(savedStyle);
-      document.documentElement.setAttribute('data-image-interaction', savedStyle);
-    }
-
-    if (savedSpeed) {
-      setAnimationSpeed(savedSpeed);
-      document.documentElement.setAttribute('data-animation-speed', savedSpeed);
-    }
-
-    if (savedEnabled !== null) {
-      const enabled = savedEnabled === 'true';
-      setInteractionEnabled(enabled);
-      document.documentElement.setAttribute('data-interaction-enabled', enabled.toString());
-    }
-  }, []);
+    initializeImageInteraction();
+  }, [initializeImageInteraction]);
 
   // 渲染概览页面
   const renderOverview = () => (
@@ -374,10 +352,10 @@ export default function AdminPanel() {
                 <span className="stat-change-text">同步文件系统与数据库，确保数据一致性</span>
               </div>
               <button 
-                className="table-action"
+                className="btn btn-primary btn-wide"
                 onClick={handleSyncFiles}
                 disabled={loading}
-                style={{ marginTop: 'var(--spacing-4)', width: '100%', height: 'auto', padding: 'var(--spacing-3)' }}
+                style={{ marginTop: 'var(--spacing-4)' }}
               >
                 {loading ? (
                   <>
@@ -407,10 +385,10 @@ export default function AdminPanel() {
                 <span className="stat-change-text">清理过期的短链接数据，释放存储空间</span>
               </div>
               <button 
-                className="table-action danger"
+                className="btn btn-error btn-wide"
                 onClick={handleCleanupShortLinks}
                 disabled={loading}
-                style={{ marginTop: 'var(--spacing-4)', width: '100%', height: 'auto', padding: 'var(--spacing-3)' }}
+                style={{ marginTop: 'var(--spacing-4)' }}
               >
                 {loading ? (
                   <>
@@ -550,13 +528,28 @@ export default function AdminPanel() {
         <div className="admin-table-header">
           <h2 className="admin-table-title">系统设置</h2>
           <div className="admin-table-actions">
-            <button className="header-action" title="保存设置">
+            <button 
+              className={`header-action ${settingsLoading ? 'loading' : ''}`}
+              onClick={handleSaveSettings}
+              disabled={settingsLoading || !isValid}
+              title={isValid ? "保存设置" : `设置验证失败: ${validationErrors.join(', ')}`}
+            >
               <i className="fas fa-save" />
             </button>
-            <button className="header-action" title="重置设置">
+            <button 
+              className="header-action" 
+              onClick={handleResetSettings}
+              disabled={settingsLoading}
+              title="重置设置"
+            >
               <i className="fas fa-undo" />
             </button>
-            <button className="header-action" title="导出配置">
+            <button 
+              className="header-action" 
+              onClick={handleExportConfig}
+              disabled={settingsLoading}
+              title="导出配置"
+            >
               <i className="fas fa-download" />
             </button>
           </div>
@@ -578,7 +571,8 @@ export default function AdminPanel() {
                 <input 
                   type="text" 
                   className="form-input"
-                  defaultValue="TgNetBucket"
+                  value={settings.systemName}
+                  onChange={(e) => updateSetting('systemName', e.target.value)}
                   placeholder="输入系统名称"
                 />
               </div>
@@ -587,13 +581,20 @@ export default function AdminPanel() {
                 <input 
                   type="number" 
                   className="form-input"
-                  defaultValue="100"
+                  value={settings.maxFileSize}
+                  onChange={(e) => updateSetting('maxFileSize', parseInt(e.target.value) || 0)}
                   placeholder="输入最大文件大小"
+                  min="1"
+                  max="1000"
                 />
               </div>
               <div className="form-group checkbox-group">
                 <label className="checkbox-label">
-                  <input type="checkbox" defaultChecked />
+                  <input 
+                    type="checkbox" 
+                    checked={settings.enableFileUpload}
+                    onChange={(e) => updateSetting('enableFileUpload', e.target.checked)}
+                  />
                   <span>启用文件上传</span>
                 </label>
               </div>
@@ -612,13 +613,21 @@ export default function AdminPanel() {
             <div className="form-grid">
               <div className="form-group checkbox-group">
                 <label className="checkbox-label">
-                  <input type="checkbox" defaultChecked />
+                  <input 
+                    type="checkbox" 
+                    checked={settings.enableAccessLog}
+                    onChange={(e) => updateSetting('enableAccessLog', e.target.checked)}
+                  />
                   <span>启用访问日志</span>
                 </label>
               </div>
               <div className="form-group checkbox-group">
                 <label className="checkbox-label">
-                  <input type="checkbox" />
+                  <input 
+                    type="checkbox" 
+                    checked={settings.enableIPRestriction}
+                    onChange={(e) => updateSetting('enableIPRestriction', e.target.checked)}
+                  />
                   <span>启用IP限制</span>
                 </label>
               </div>
@@ -627,8 +636,11 @@ export default function AdminPanel() {
                 <input 
                   type="number" 
                   className="form-input"
-                  defaultValue="30"
+                  value={settings.shortLinkExpireDays}
+                  onChange={(e) => updateSetting('shortLinkExpireDays', parseInt(e.target.value) || 0)}
                   placeholder="输入过期天数"
+                  min="1"
+                  max="365"
                 />
               </div>
             </div>
@@ -652,8 +664,8 @@ export default function AdminPanel() {
                       type="radio" 
                       name="imageInteraction" 
                       value="fade" 
-                      checked={imageInteractionStyle === 'fade'}
-                      onChange={(e) => handleInteractionChange(e.target.value)}
+                      checked={settings.imageInteractionStyle === 'fade'}
+                      onChange={(e) => updateSetting('imageInteractionStyle', e.target.value)}
                     />
                     <span className="radio-text">
                       <i className="fas fa-eye" />
@@ -666,8 +678,8 @@ export default function AdminPanel() {
                       type="radio" 
                       name="imageInteraction" 
                       value="underline" 
-                      checked={imageInteractionStyle === 'underline'}
-                      onChange={(e) => handleInteractionChange(e.target.value)}
+                      checked={settings.imageInteractionStyle === 'underline'}
+                      onChange={(e) => updateSetting('imageInteractionStyle', e.target.value)}
                     />
                     <span className="radio-text">
                       <i className="fas fa-underline" />
@@ -681,8 +693,8 @@ export default function AdminPanel() {
                 <label className="form-label">动画速度</label>
                 <select 
                   className="form-select"
-                  value={animationSpeed}
-                  onChange={(e) => handleAnimationSpeedChange(e.target.value)}
+                  value={settings.animationSpeed}
+                  onChange={(e) => updateSetting('animationSpeed', e.target.value)}
                 >
                   <option value="fast">快速 (150ms)</option>
                   <option value="normal">正常 (300ms)</option>
@@ -693,8 +705,8 @@ export default function AdminPanel() {
                 <label className="checkbox-label">
                   <input 
                     type="checkbox" 
-                    checked={interactionEnabled}
-                    onChange={(e) => handleInteractionToggle(e.target.checked)}
+                    checked={settings.interactionEnabled}
+                    onChange={(e) => updateSetting('interactionEnabled', e.target.checked)}
                   />
                   <span>启用图片交互效果</span>
                 </label>
@@ -717,6 +729,8 @@ export default function AdminPanel() {
                 <input 
                   type="password" 
                   className="form-input"
+                  value={settings.telegramBotToken}
+                  onChange={(e) => updateSetting('telegramBotToken', e.target.value)}
                   placeholder="输入 Telegram Bot Token"
                 />
               </div>
@@ -725,12 +739,18 @@ export default function AdminPanel() {
                 <input 
                   type="text" 
                   className="form-input"
+                  value={settings.telegramChatId}
+                  onChange={(e) => updateSetting('telegramChatId', e.target.value)}
                   placeholder="输入 Chat ID"
                 />
               </div>
               <div className="form-group checkbox-group">
                 <label className="checkbox-label">
-                  <input type="checkbox" />
+                  <input 
+                    type="checkbox" 
+                    checked={settings.enableTelegramNotification}
+                    onChange={(e) => updateSetting('enableTelegramNotification', e.target.checked)}
+                  />
                   <span>启用 Telegram 通知</span>
                 </label>
               </div>

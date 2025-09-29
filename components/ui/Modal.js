@@ -53,7 +53,7 @@ function createConfirmDialog(message, onConfirm, onCancel, options = {}) {
     </div>
     <div class="modal-footer">
       <button class="btn btn-secondary cancel-btn">${cancelText}</button>
-      <button class="btn ${type === 'error' || type === 'warning' ? 'btn-danger' : 'btn-primary'} confirm-btn">${confirmText}</button>
+      <button class="btn ${type === 'error' || type === 'warning' ? 'btn-error' : 'btn-primary'} confirm-btn">${confirmText}</button>
     </div>
   `;
   

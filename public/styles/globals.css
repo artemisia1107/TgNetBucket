@@ -1,12 +1,17 @@
 /**
  * TgNetBucket 全局样式文件
- * 采用模块化架构，按功能组织样式
+ * 集成 Tailwind CSS 并保留自定义设计系统
  */
+
+/* ========== Tailwind CSS 指令 ========== */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 /* ========== 第三方库 ========== */
 @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
 
-/* ========== 基础样式 ========== */
+/* ========== 自定义基础样式 ========== */
 @import './base/variables.css';
 @import './base/reset.css';
 @import './base/layout.css';
@@ -14,7 +19,9 @@
 
 /* 组件样式 */
 @import './components/buttons.css';
+@import './components/tailwind-buttons.css';
 @import './components/forms.css';
+@import './components/tailwind-forms.css';
 @import './components/messages.css';
 @import './components/dialogs.css';
 @import './components/modal.css';
@@ -26,6 +33,11 @@
 @import './components/file-card.css';
 
 /* ========== 页面样式 ========== */
+
+/* Tailwind CSS 页面样式（优先加载） */
+@import './pages/tailwind-index.css';
+@import './pages/tailwind-upload.css';
+@import './pages/tailwind-admin.css';
 
 /* 首页模块 */
 @import './pages/index/layout.css';
@@ -48,6 +60,7 @@
 
 /* ========== 工具类 ========== */
 @import './utils/utilities.css';
+@import './utils/tailwind-utilities.css';
 @import './utils/font-demo.css';
 
 /* ========== 全局覆盖和补充样式 ========== */

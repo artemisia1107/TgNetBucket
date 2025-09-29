@@ -161,7 +161,7 @@ const FileBatch = ({
                 总大小: {formatFileSize(selectedTotalSize)}
               </span>
               <button
-                className="clear-selection"
+                className="btn btn-sm btn-ghost"
                 onClick={clearSelection}
                 disabled={disabled || isProcessing}
                 type="button"
@@ -176,7 +176,7 @@ const FileBatch = ({
         {selectedCount > 0 && (
           <div className="batch-actions">
             <button
-              className="batch-download-btn"
+              className="btn btn-primary btn-sm"
               onClick={handleBatchDownload}
               disabled={disabled || isProcessing}
               type="button"
@@ -199,7 +199,7 @@ const FileBatch = ({
             </button>
             
             <button
-              className="batch-shortlink-btn"
+              className="btn btn-secondary btn-sm"
               onClick={handleBatchGenerateShortLinks}
               disabled={disabled || isProcessing}
               type="button"
@@ -221,7 +221,7 @@ const FileBatch = ({
             </button>
             
             <button
-              className="batch-delete-btn"
+              className="btn btn-error btn-sm"
               onClick={handleBatchDelete}
               disabled={disabled || isProcessing}
               type="button"

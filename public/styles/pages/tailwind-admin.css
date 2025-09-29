@@ -1,0 +1,236 @@
+/* ========== 管理页面 Tailwind CSS 样式模块 ========== */
+
+/**
+ * 管理页面布局样式
+ * 包含基础容器、布局和响应式设计
+ */
+
+/* 管理面板基础容器 */
+.admin-container {
+  @apply min-h-screen bg-background font-sans text-text-primary leading-base m-0 p-0 overflow-x-hidden;
+}
+
+/* 管理面板布局 */
+.admin-layout {
+  @apply flex min-h-screen bg-background relative m-0 p-0 w-full;
+}
+
+/* 移动端菜单切换按钮 */
+.sidebar-toggle {
+  @apply fixed top-4 left-4 z-sticky w-10 h-10 border-0 bg-white cursor-pointer rounded-lg flex items-center justify-center text-text-secondary transition-all duration-300 border border-border shadow-md;
+}
+
+.sidebar-toggle:hover {
+  @apply bg-gray-50 text-text-primary scale-105 shadow-lg;
+}
+
+.sidebar-toggle-icon {
+  @apply text-lg font-medium;
+}
+
+/* 主要内容区域 */
+.admin-main {
+  @apply flex-1 ml-0 transition-all duration-300 flex flex-col min-h-screen bg-gradient-to-br from-background to-gray-50 relative;
+}
+
+.admin-main::before {
+  @apply content-[''] absolute inset-0 bg-gradient-radial pointer-events-none z-0;
+  background: 
+    radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.03) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(255, 99, 132, 0.03) 0%, transparent 50%),
+    radial-gradient(circle at 40% 40%, rgba(54, 162, 235, 0.02) 0%, transparent 50%);
+}
+
+.admin-main.sidebar-open {
+  @apply ml-60;
+}
+
+/* PC端主内容区域默认为侧边栏留出空间 */
+@media (min-width: 769px) {
+  .admin-main {
+    @apply ml-60;
+  }
+}
+
+/* 管理页面头部 */
+.admin-header {
+  @apply flex items-center justify-between p-6 bg-gradient-to-br from-white/95 to-slate-50/90 backdrop-blur-xl border-b border-black/5 mb-6 rounded-2xl shadow-lg relative z-10 gap-4 w-full max-w-none;
+  box-shadow: 
+    0 4px 16px rgba(0, 0, 0, 0.05),
+    0 1px 2px rgba(0, 0, 0, 0.03),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+.admin-header::after {
+  @apply content-[''] absolute bottom-0 left-8 right-8 h-px bg-gradient-to-r from-transparent via-blue-500/20 to-transparent;
+}
+
+.admin-header-left {
+  @apply flex items-center gap-4;
+}
+
+.page-title {
+  @apply text-3xl font-bold text-text-primary m-0 font-display tracking-tight;
+}
+
+.admin-header-right {
+  @apply flex items-center gap-3;
+}
+
+.header-action {
+  @apply w-10 h-10 border-0 bg-gray-100 cursor-pointer rounded-lg flex items-center justify-center text-text-secondary transition-all duration-300 relative border border-border;
+}
+
+.header-action:hover {
+  @apply bg-gray-200 text-text-primary scale-105 shadow-md;
+}
+
+.header-action.has-notification::after {
+  @apply content-[''] absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-white animate-pulse;
+}
+
+/* 内容区域 */
+.admin-content {
+  @apply flex-1 p-8 overflow-y-auto bg-transparent relative z-1 animate-fade-in w-full max-w-none;
+}
+
+.content-body {
+  @apply relative z-1 bg-transparent w-full max-w-none;
+}
+
+/* 响应式设计 */
+
+/* 大屏幕设备优化 */
+@media (min-width: 1400px) {
+  .admin-main {
+    @apply ml-55;
+  }
+  
+  .admin-main.sidebar-open {
+    @apply ml-55;
+  }
+}
+
+/* 超大屏幕设备优化 */
+@media (min-width: 1920px) {
+  .admin-main {
+    @apply ml-50;
+  }
+  
+  .admin-main.sidebar-open {
+    @apply ml-50;
+  }
+}
+
+/* 响应式header内边距优化 */
+@media (min-width: 1600px) {
+  .admin-header {
+    @apply px-12;
+  }
+  
+  .admin-header::after {
+    @apply left-12 right-12;
+  }
+}
+
+@media (min-width: 1920px) {
+  .admin-header {
+    @apply px-16;
+  }
+  
+  .admin-header::after {
+    @apply left-16 right-16;
+  }
+}
+
+/* PC端内容区域横向优化 */
+@media (min-width: 1200px) {
+  .admin-content {
+    @apply p-6 px-8;
+  }
+}
+
+@media (min-width: 1600px) {
+  .admin-content {
+    @apply p-8 px-12;
+  }
+}
+
+/* PC端默认显示侧边栏 */
+@media (min-width: 769px) {
+  .sidebar-toggle {
+    @apply hidden;
+  }
+}
+
+/* 大屏幕隐藏移动端元素 */
+@media (min-width: 1024px) {
+  .sidebar-toggle {
+    @apply hidden;
+  }
+}
+
+/**
+ * 深色模式支持
+ */
+@media (prefers-color-scheme: dark) {
+  .admin-main {
+    @apply bg-gradient-to-br from-background-dark to-gray-900;
+  }
+  
+  .admin-header {
+    @apply bg-gradient-to-br from-gray-800/95 to-gray-900/90;
+  }
+  
+  .sidebar-toggle {
+    @apply bg-gray-800 text-gray-300;
+  }
+  
+  .sidebar-toggle:hover {
+    @apply bg-gray-700 text-white;
+  }
+  
+  .header-action {
+    @apply bg-gray-700 text-gray-300;
+  }
+  
+  .header-action:hover {
+    @apply bg-gray-600 text-white;
+  }
+}
+
+/**
+ * 高对比度模式支持
+ */
+@media (prefers-contrast: high) {
+  .admin-header {
+    @apply border-2;
+  }
+  
+  .sidebar-toggle {
+    @apply border-2;
+  }
+  
+  .header-action {
+    @apply border-2;
+  }
+}
+
+/**
+ * 减少动画效果（用户偏好设置）
+ */
+@media (prefers-reduced-motion: reduce) {
+  .admin-main,
+  .sidebar-toggle,
+  .header-action {
+    @apply transition-none;
+  }
+  
+  .admin-content {
+    @apply animate-none;
+  }
+  
+  .header-action.has-notification::after {
+    @apply animate-none;
+  }
+}

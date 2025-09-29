@@ -1,0 +1,232 @@
+/**
+ * Tailwind CSS 自定义工具类
+ * 使用 @layer utilities 定义项目特定的工具类
+ */
+
+@layer utilities {
+  /* ========== 文本工具类 ========== */
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .text-pretty {
+    text-wrap: pretty;
+  }
+
+  /* ========== 滚动条样式 ========== */
+  .scrollbar-thin {
+    scrollbar-width: thin;
+  }
+
+  .scrollbar-none {
+    scrollbar-width: none;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-track {
+    @apply bg-gray-100 rounded-full;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    @apply bg-gray-300 rounded-full hover:bg-gray-400;
+  }
+
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* ========== 安全区域 ========== */
+  .safe-top {
+    padding-top: env(safe-area-inset-top);
+  }
+
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .safe-left {
+    padding-left: env(safe-area-inset-left);
+  }
+
+  .safe-right {
+    padding-right: env(safe-area-inset-right);
+  }
+
+  /* ========== 渐变工具类 ========== */
+  .gradient-primary {
+    background: linear-gradient(135deg, theme('colors.primary.600'), theme('colors.primary.800'));
+  }
+
+  .gradient-secondary {
+    background: linear-gradient(135deg, theme('colors.gray.100'), theme('colors.gray.300'));
+  }
+
+  .gradient-success {
+    background: linear-gradient(135deg, theme('colors.success.DEFAULT'), #047857);
+  }
+
+  .gradient-error {
+    background: linear-gradient(135deg, theme('colors.error.DEFAULT'), #991b1b);
+  }
+
+  /* ========== 玻璃态效果 ========== */
+  .glass {
+    @apply bg-white/80 backdrop-blur-sm border border-white/20;
+  }
+
+  .glass-dark {
+    @apply bg-gray-900/80 backdrop-blur-sm border border-gray-700/20;
+  }
+
+  /* ========== 阴影工具类 ========== */
+  .shadow-colored {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+  }
+
+  .shadow-primary {
+    box-shadow: 0 4px 6px -1px rgba(30, 41, 59, 0.1), 0 2px 4px -2px rgba(30, 41, 59, 0.1);
+  }
+
+  .shadow-success {
+    box-shadow: 0 4px 6px -1px rgba(5, 150, 105, 0.1), 0 2px 4px -2px rgba(5, 150, 105, 0.1);
+  }
+
+  .shadow-error {
+    box-shadow: 0 4px 6px -1px rgba(220, 38, 38, 0.1), 0 2px 4px -2px rgba(220, 38, 38, 0.1);
+  }
+
+  /* ========== 动画工具类 ========== */
+  .animate-fade-in {
+    animation: fadeIn 0.5s ease-in-out;
+  }
+
+  .animate-slide-up {
+    animation: slideUp 0.3s ease-out;
+  }
+
+  .animate-pulse-slow {
+    animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  .animate-bounce-gentle {
+    animation: bounce 2s infinite;
+  }
+
+  /* ========== 交互状态 ========== */
+  .interactive {
+    @apply transition-all duration-200 cursor-pointer;
+    @apply hover:scale-105 active:scale-95;
+  }
+
+  .interactive-subtle {
+    @apply transition-all duration-200 cursor-pointer;
+    @apply hover:bg-gray-50 active:bg-gray-100;
+  }
+
+  /* ========== 布局工具类 ========== */
+  .center {
+    @apply flex items-center justify-center;
+  }
+
+  .center-x {
+    @apply flex justify-center;
+  }
+
+  .center-y {
+    @apply flex items-center;
+  }
+
+  .full-screen {
+    @apply fixed inset-0 w-full h-full;
+  }
+
+  .aspect-golden {
+    aspect-ratio: 1.618;
+  }
+
+  /* ========== 响应式工具类 ========== */
+  .container-fluid {
+    @apply w-full max-w-none px-4 mx-auto;
+  }
+
+  .container-sm {
+    @apply w-full max-w-sm px-4 mx-auto;
+  }
+
+  .container-md {
+    @apply w-full max-w-md px-4 mx-auto;
+  }
+
+  .container-lg {
+    @apply w-full max-w-lg px-4 mx-auto;
+  }
+
+  .container-xl {
+    @apply w-full max-w-xl px-4 mx-auto;
+  }
+
+  .container-2xl {
+    @apply w-full max-w-2xl px-4 mx-auto;
+  }
+
+  /* ========== 可访问性工具类 ========== */
+  .sr-only-focusable {
+    @apply sr-only focus:not-sr-only focus:absolute focus:top-0 focus:left-0;
+    @apply focus:z-50 focus:p-2 focus:bg-white focus:text-gray-900;
+  }
+
+  .focus-visible-only {
+    @apply outline-none focus-visible:outline-2 focus-visible:outline-offset-2;
+    @apply focus-visible:outline-primary;
+  }
+
+  /* ========== 打印样式 ========== */
+  @media print {
+    .print-hidden {
+      display: none !important;
+    }
+
+    .print-visible {
+      display: block !important;
+    }
+
+    .print-break-before {
+      break-before: page;
+    }
+
+    .print-break-after {
+      break-after: page;
+    }
+
+    .print-break-inside-avoid {
+      break-inside: avoid;
+    }
+  }
+
+  /* ========== 深色模式工具类 ========== */
+  @media (prefers-color-scheme: dark) {
+    .dark-auto {
+      @apply dark:bg-gray-900 dark:text-white;
+    }
+
+    .dark-auto-border {
+      @apply dark:border-gray-700;
+    }
+
+    .dark-auto-hover {
+      @apply dark:hover:bg-gray-800;
+    }
+  }
+
+  /* ========== 减少动画偏好 ========== */
+  @media (prefers-reduced-motion: reduce) {
+    .motion-reduce-safe {
+      animation: none !important;
+      transition: none !important;
+    }
+  }
+}

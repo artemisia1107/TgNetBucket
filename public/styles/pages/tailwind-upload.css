@@ -1,0 +1,255 @@
+/* ========== 首页上传功能 Tailwind CSS 样式模块 ========== */
+
+/**
+ * 上传区域容器
+ * 现代化设计，支持拖拽上传
+ */
+.upload-section {
+  @apply bg-surface rounded-2xl p-10 shadow-xl border border-border transition-all duration-300 ease-out relative overflow-hidden;
+}
+
+.upload-section::before {
+  @apply content-[''] absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary to-primary-light rounded-t-2xl;
+}
+
+.upload-title {
+  @apply text-2xl font-bold text-text-primary mb-8 text-center font-display tracking-tight;
+}
+
+/**
+ * 拖拽上传区域
+ * 支持拖拽和点击上传
+ */
+.upload-zone {
+  @apply border-3 border-dashed border-border rounded-2xl p-12 text-center transition-all duration-300 ease-out cursor-pointer relative bg-background backdrop-blur-sm min-h-80 flex items-center justify-center;
+}
+
+.upload-zone:hover {
+  @apply border-primary bg-primary/10 -translate-y-0.5 shadow-lg;
+}
+
+.upload-zone.dragging {
+  @apply border-primary bg-primary/10 scale-105 shadow-xl border-solid;
+}
+
+/**
+ * 上传内容容器
+ */
+.upload-content {
+  @apply flex flex-col items-center gap-6 w-full max-w-sm;
+}
+
+/**
+ * 上传图标
+ */
+.upload-icon {
+  @apply text-text-muted transition-all duration-300 ease-out opacity-70 flex items-center justify-center;
+}
+
+.upload-zone:hover .upload-icon,
+.upload-zone.dragging .upload-icon {
+  @apply text-primary opacity-100 scale-110;
+}
+
+/**
+ * 上传文字内容
+ */
+.upload-text-content {
+  @apply flex flex-col gap-2 text-center;
+}
+
+.upload-title-text {
+  @apply text-xl text-text-primary m-0 font-semibold leading-tight;
+}
+
+.upload-description {
+  @apply text-base text-text-muted m-0 leading-relaxed opacity-80;
+}
+
+/**
+ * 选择文件按钮
+ */
+.upload-select-button {
+  @apply inline-flex items-center justify-center gap-2 px-6 py-3 bg-primary text-text-inverse border-0 rounded-lg text-base font-semibold cursor-pointer transition-all duration-300 ease-out shadow-sm min-w-30 font-sans;
+}
+
+.upload-select-button:hover {
+  @apply bg-primary-hover -translate-y-0.5 shadow-md;
+}
+
+.upload-select-button:active {
+  @apply translate-y-0 shadow-sm;
+}
+
+.upload-select-button:disabled {
+  @apply opacity-50 cursor-not-allowed transform-none;
+}
+
+/**
+ * 隐藏的文件输入框
+ */
+.upload-input {
+  @apply absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer;
+}
+
+/**
+ * 上传进度显示
+ * 动画效果和现代化设计
+ */
+.upload-progress {
+  @apply mt-8 hidden p-6 bg-surface rounded-xl border border-border;
+}
+
+.upload-progress.visible {
+  @apply block animate-fade-in;
+}
+
+/**
+ * 进度条样式
+ */
+.progress-bar {
+  @apply w-full h-2 bg-surface-secondary rounded-full overflow-hidden mb-4 shadow-inner;
+}
+
+.progress-fill {
+  @apply h-full bg-gradient-to-r from-primary to-primary-light rounded-full transition-all duration-500 ease-out w-0 relative;
+}
+
+/* 进度条光泽动画 */
+.progress-fill::after {
+  @apply content-[''] absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer;
+}
+
+.progress-text {
+  @apply text-sm text-text-secondary text-center font-medium;
+}
+
+/**
+ * 移动端上传区域优化
+ */
+@media (max-width: 768px) {
+  .upload-section {
+    @apply p-6;
+  }
+  
+  .upload-zone {
+    @apply p-8 min-h-70;
+  }
+  
+  .upload-title {
+    @apply text-xl;
+  }
+  
+  .upload-title-text {
+    @apply text-lg;
+  }
+  
+  .upload-description {
+    @apply text-sm;
+  }
+  
+  .upload-select-button {
+    @apply px-5 py-3 text-sm min-w-25;
+  }
+}
+
+/**
+ * 小屏手机优化
+ */
+@media (max-width: 480px) {
+  .upload-section {
+    @apply p-4;
+  }
+  
+  .upload-zone {
+    @apply p-6 min-h-60;
+  }
+  
+  .upload-content {
+    @apply gap-4 max-w-75;
+  }
+  
+  .upload-title {
+    @apply text-lg mb-6;
+  }
+  
+  .upload-title-text {
+    @apply text-base;
+  }
+  
+  .upload-description {
+    @apply text-xs;
+  }
+  
+  .upload-select-button {
+    @apply px-4 py-2.5 text-xs min-w-20;
+  }
+}
+
+/**
+ * 触摸设备优化
+ */
+@media (hover: none) and (pointer: coarse) {
+  .upload-zone:hover {
+    @apply transform-none;
+  }
+  
+  .upload-zone:active {
+    @apply scale-98;
+  }
+  
+  .upload-select-button:hover {
+    @apply transform-none;
+  }
+  
+  .upload-select-button:active {
+    @apply scale-95;
+  }
+}
+
+/**
+ * 深色模式支持
+ */
+@media (prefers-color-scheme: dark) {
+  .upload-zone {
+    @apply bg-background-dark;
+  }
+  
+  .upload-zone:hover,
+  .upload-zone.dragging {
+    @apply bg-primary/20;
+  }
+}
+
+/**
+ * 高对比度模式支持
+ */
+@media (prefers-contrast: high) {
+  .upload-zone {
+    @apply border-2;
+  }
+  
+  .upload-section {
+    @apply border-2;
+  }
+}
+
+/**
+ * 减少动画效果（用户偏好设置）
+ */
+@media (prefers-reduced-motion: reduce) {
+  .upload-zone,
+  .upload-select-button,
+  .upload-icon,
+  .progress-fill {
+    @apply transition-none;
+  }
+  
+  .upload-progress.visible {
+    @apply animate-none;
+  }
+  
+  .progress-fill::after {
+    @apply animate-none;
+  }
+}
