@@ -130,7 +130,21 @@ class TelegramStorage {
       let fileInfo = await redisClient.get(fileKey);
       
       if (fileInfo) {
-        return fileInfo;
+        // 如果是字符串，需要解析JSON
+        if (typeof fileInfo === 'string') {
+          try {
+            fileInfo = JSON.parse(fileInfo);
+          } catch (parseError) {
+            console.warn('解析文件信息JSON失败:', parseError);
+            // 如果解析失败，删除无效数据并继续从文件列表查找
+            await redisClient.del(fileKey);
+            fileInfo = null;
+          }
+        }
+        
+        if (fileInfo) {
+          return fileInfo;
+        }
       }
       
       // 如果Redis中没有，尝试从文件列表中查找
@@ -139,7 +153,7 @@ class TelegramStorage {
       
       if (fileInfo) {
         // 将找到的文件信息存储到Redis
-        await redisClient.set(fileKey, fileInfo, 86400 * 30); // 30天过期
+        await redisClient.set(fileKey, JSON.stringify(fileInfo), 86400 * 30); // 30天过期
         return fileInfo;
       }
       
@@ -166,6 +180,16 @@ class TelegramStorage {
       if (!files || files.length === 0) {
         console.log('Redis中无文件列表，从Telegram同步...');
         files = await this.syncFilesFromTelegram();
+      } else {
+        // 解析JSON字符串
+        files = files.map(fileStr => {
+          try {
+            return typeof fileStr === 'string' ? JSON.parse(fileStr) : fileStr;
+          } catch (parseError) {
+            console.warn('解析文件信息JSON失败:', parseError);
+            return null;
+          }
+        }).filter(file => file !== null);
       }
       
       // 按上传时间倒序排列（最新的在前面）
@@ -214,11 +238,11 @@ class TelegramStorage {
           files.push(fileInfo);
           
           // 将文件信息存储到Redis
-          await redisClient.lpush(fileListKey, fileInfo);
+          await redisClient.lpush(fileListKey, JSON.stringify(fileInfo));
           
           // 设置文件信息的单独键
           const fileKey = `file:${fileInfo.fileId}`;
-          await redisClient.set(fileKey, fileInfo, 86400 * 30); // 30天过期
+          await redisClient.set(fileKey, JSON.stringify(fileInfo), 86400 * 30); // 30天过期
         }
       }
       

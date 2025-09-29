@@ -48,12 +48,12 @@ export default async function handler(req, res) {
 
   switch (method) {
     case 'GET':
-      // 获取文件列表
       try {
         const files = await telegramStorage.listFiles();
         res.status(200).json({ success: true, files });
       } catch (error) {
-        res.status(500).json({ success: false, error: error.message });
+        console.error('获取文件列表失败:', error);
+        res.status(500).json({ success: false, error: '获取文件列表失败' });
       }
       break;
 

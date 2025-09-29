@@ -79,7 +79,7 @@ export default async function handler(req, res) {
     
     // 更新文件信息到Redis
     const fileKey = `file:${fileId}`;
-    await redisClient.set(fileKey, fileInfo, 86400 * 30); // 30天过期
+    await redisClient.set(fileKey, JSON.stringify(fileInfo), 86400 * 30); // 30天过期
     
     // 生成短链接URL
     const baseUrl = req.headers.host ? `https://${req.headers.host}` : 'http://localhost:3000';

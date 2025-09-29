@@ -22,14 +22,26 @@ export const useFileList = () => {
    * 获取文件列表
    */
   const fetchFiles = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    
     try {
-      setLoading(true);
-      setError(null);
       const response = await axios.get('/api/files');
-      setFiles(response.data.files || []);
+      
+      if (response.data && response.data.success) {
+        if (Array.isArray(response.data.files)) {
+          setFiles(response.data.files);
+        } else {
+          setFiles([]);
+        }
+      } else {
+        setError('获取文件列表失败');
+        setFiles([]);
+      }
     } catch (error) {
       console.error('获取文件列表失败:', error);
       setError('获取文件列表失败');
+      setFiles([]);
     } finally {
       setLoading(false);
     }
@@ -119,7 +131,7 @@ export const useFileList = () => {
   const generateShortLink = async (fileId) => {
     try {
       const response = await axios.post('/api/short-link', { fileId });
-      return { success: true, shortLink: response.data.shortLink };
+      return { success: true, shortLink: response.data.shortUrl };
     } catch (error) {
       console.error('生成短链接失败:', error);
       return { success: false, error: '生成短链接失败' };
@@ -129,11 +141,12 @@ export const useFileList = () => {
   // 初始化加载
   useEffect(() => {
     fetchFiles();
-  }, []);
+  }, [fetchFiles]);
 
   return {
     // 状态
     files: filteredAndSortedFiles,
+    rawFiles: files, // 原始文件数据
     loading,
     error,
     searchTerm,

@@ -29,6 +29,7 @@ export default function Home() {
   // 使用自定义钩子管理状态
   const {
     files,
+    rawFiles,
     loading,
     searchTerm,
     setSearchTerm,
@@ -150,40 +151,10 @@ export default function Home() {
     }
   };
 
-  // 初始化加载文件列表
-  useEffect(() => {
-    fetchFiles();
-  }, [fetchFiles]);
+  // 文件列表初始化由 useFileList 钩子处理
 
-  // 过滤和排序文件
-  const filteredFiles = files
-    .filter(file => {
-      const matchesSearch = file.fileName.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesType = filterType === 'all' || getFileType(file.fileName) === filterType;
-      return matchesSearch && matchesType;
-    })
-    .sort((a, b) => {
-      let aValue, bValue;
-      switch (sortBy) {
-        case 'fileName':
-          aValue = a.fileName.toLowerCase();
-          bValue = b.fileName.toLowerCase();
-          break;
-        case 'fileSize':
-          aValue = a.fileSize || 0;
-          bValue = b.fileSize || 0;
-          break;
-        default:
-          aValue = new Date(a.uploadTime || 0);
-          bValue = new Date(b.uploadTime || 0);
-      }
-      
-      if (sortOrder === 'asc') {
-        return aValue > bValue ? 1 : -1;
-      } else {
-        return aValue < bValue ? 1 : -1;
-      }
-    });
+  // files 已经是过滤和排序后的文件列表
+  const filteredFiles = files;
 
   return (
     <PageAuthGuard>
