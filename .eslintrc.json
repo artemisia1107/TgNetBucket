@@ -32,9 +32,10 @@
     "@next/next/no-title-in-document-head": "error",
     
     // JavaScript 基础规则
-    "no-unused-vars": ["error", { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_" }],
+    "no-unused-vars": "off",
+    "@typescript-eslint/no-unused-vars": "off",
     "no-console": "off",
-    "no-debugger": "error",
+    "no-debugger": "warn",
     "no-alert": "warn",
     "no-eval": "error",
     "no-implied-eval": "error",

@@ -1,11 +1,24 @@
 # 文档目录
 MD/
+docs/
 
 # 开发和测试文件
 tests/
+test/
+__tests__/
 *.test.js
+*.test.ts
+*.test.jsx
+*.test.tsx
 *.spec.js
+*.spec.ts
+*.spec.jsx
+*.spec.tsx
 dev.config.js
+jest.config.js
+cypress/
+playwright/
+e2e/
 
 # 模板文件
 templates/
@@ -15,15 +28,35 @@ scripts/
 
 # 开发依赖和配置
 .eslintrc.json
+.eslintrc.js
+.eslintrc.yml
+.eslintrc.yaml
 .prettierrc
+.prettierrc.json
+.prettierrc.js
 .prettierignore
 tsconfig.json
+tsconfig.*.json
+jest.config.js
+cypress.config.js
+playwright.config.js
+vitest.config.js
+.babelrc
+.babelrc.json
+babel.config.js
+webpack.config.js
+rollup.config.js
+vite.config.js
 
 # 环境变量示例文件
 .env.local.example
+.env.example
+.env.sample
 
 # Git 相关
 .gitignore
+.gitattributes
+.github/
 
 # IDE 和编辑器文件
 .vscode/
@@ -31,27 +64,42 @@ tsconfig.json
 *.swp
 *.swo
 *~
+.editorconfig
 
 # 日志文件
 *.log
 logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
 
 # 临时文件
 tmp/
 temp/
 .tmp/
+.temp/
 
 # 缓存文件
 .cache/
 .parcel-cache/
+.eslintcache
+.stylelintcache
+node_modules/.cache/
 
 # 操作系统文件
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
 
 # 备份文件
 *.bak
 *.backup
+backups/
 
 # 项目配置文件（如果不需要在生产环境中使用）
 project.config.js
@@ -59,3 +107,41 @@ project.config.js
 # README 文件（通常不需要在部署中包含）
 README.md
 LICENSE
+CHANGELOG.md
+CONTRIBUTING.md
+CODE_OF_CONDUCT.md
+
+# 包管理器文件
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+.pnpm-debug.log*
+
+# TypeScript 构建信息
+*.tsbuildinfo
+
+# Coverage 报告
+coverage/
+.nyc_output/
+
+# Storybook
+.storybook/
+storybook-static/
+
+# 本地开发文件
+.env.local
+.env.development.local
+.env.test.local
+
+# AI 工具
+.trae/
+
+# 数据库文件
+*.db
+*.sqlite
+*.sqlite3
+dump.rdb
+
+# 构建工具缓存
+.turbo/
+.rush/

@@ -4,15 +4,11 @@
  */
 import { useState, useEffect, useCallback } from 'react';
 import Head from 'next/head';
-import Link from 'next/link';
 import Footer from '../components/layout/Footer';
 import AdminHeader from '../components/layout/AdminHeader';
-import axios from 'axios';
 import { 
-  createSuccessMessage, 
   createErrorMessage
 } from '../components/ui/Message';
-import { createConfirmDialog } from '../components/ui/Modal';
 import AuthModal from '../components/AuthModal';
 import { getAuthStatus } from '../utils/authUtils';
 import { useAdminPanel } from '../hooks/useAdminPanel';
@@ -54,8 +50,7 @@ export default function AdminPanel() {
     fetchActivityLogs,
     cleanupShortLinks,
     syncFiles,
-    backupDatabase,
-    refreshAllData
+    backupDatabase
   } = useAdminPanel();
   
   // 认证状态管理
@@ -86,15 +81,11 @@ export default function AdminPanel() {
     settings,
     loading: settingsLoading,
     updateSetting,
-    updateSettings,
     saveSettings,
     resetSettings,
     exportConfig,
-    importConfig,
-    loadSettings,
     validateSettings,
     initializeImageInteraction,
-    hasChanges,
     isValid,
     validationErrors
   } = useSettings(addNotification);
@@ -171,13 +162,7 @@ export default function AdminPanel() {
     setIsMobileMenuOpen(false);
   };
 
-  // 处理侧边栏链接点击（移动端自动关闭菜单）
-  const handleNavClick = (tab) => {
-    setActiveTab(tab);
-    if (window.innerWidth <= 768) {
-      closeMobileMenu();
-    }
-  };
+
 
   /**
    * 检查认证状态
@@ -582,7 +567,7 @@ export default function AdminPanel() {
                   type="number" 
                   className="form-input"
                   value={settings.maxFileSize}
-                  onChange={(e) => updateSetting('maxFileSize', parseInt(e.target.value) || 0)}
+                  onChange={(e) => updateSetting('maxFileSize', parseInt(e.target.value, 10) || 0)}
                   placeholder="输入最大文件大小"
                   min="1"
                   max="1000"
@@ -637,7 +622,7 @@ export default function AdminPanel() {
                   type="number" 
                   className="form-input"
                   value={settings.shortLinkExpireDays}
-                  onChange={(e) => updateSetting('shortLinkExpireDays', parseInt(e.target.value) || 0)}
+                  onChange={(e) => updateSetting('shortLinkExpireDays', parseInt(e.target.value, 10) || 0)}
                   placeholder="输入过期天数"
                   min="1"
                   max="365"

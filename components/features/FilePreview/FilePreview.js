@@ -5,7 +5,6 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Image from 'next/image';
-import axios from 'axios';
 import { useApi } from '../../../hooks/useApi';
 
 /**
@@ -133,7 +132,7 @@ const FilePreview = ({
     } finally {
       setIsLoading(false);
     }
-  }, [file, isOpen, onError]);
+  }, [file, isOpen, onError, getFileContent]);
 
   /**
    * 处理下载

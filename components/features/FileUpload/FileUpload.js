@@ -4,7 +4,6 @@
  */
 
 import React, { useState, useRef } from 'react';
-import axios from 'axios';
 import { useApi } from '../../../hooks/useApi';
 
 /**
@@ -35,7 +34,7 @@ const FileUpload = ({
   const fileInputRef = useRef(null);
   
   // 使用useApi hook管理文件上传API调用
-  const { execute: uploadFile, loading: apiLoading, error: apiError } = useApi();
+  const { execute: uploadFile } = useApi();
 
   /**
    * 格式化错误信息，提供用户友好的提示

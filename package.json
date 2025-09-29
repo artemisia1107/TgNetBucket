@@ -1,7 +1,7 @@
 {
   "name": "tg-net-bucket",
-  "version": "1.2.0",
-  "description": "使用Telegram作为存储后端的现代化文件存储服务，支持完整的文件管理功能",
+  "version": "1.4.0",
+  "description": "使用Telegram作为存储后端的现代化文件存储服务，支持完整的文件管理功能，采用TDD开发模式",
   "main": "index.js",
   "scripts": {
     "dev": "next dev",
@@ -33,7 +33,15 @@
     "precommit": "npm run lint:fix && npm run format && npm run type-check",
     "prepush": "npm run test && npm run build",
     "postinstall": "echo '✅ Dependencies installed successfully'",
-    "dev:info": "node -e \"const { utils } = require('./dev.config.js'); utils.printDevInfo();\""
+    "dev:info": "node -e \"const { utils } = require('./dev.config.js'); utils.printDevInfo();\"",
+    "tdd": "npm run test:watch",
+    "tdd:coverage": "npm run test:coverage -- --watch",
+    "ci": "npm run lint && npm run type-check && npm run test && npm run build",
+    "preview": "npm run build && npm run start",
+    "clean:all": "npm run clean && rm -rf node_modules package-lock.json && npm install",
+    "health": "node -e \"console.log('🚀 TgNetBucket v' + require('./package.json').version + ' is healthy!')\"",
+    "styles:check": "echo '🎨 Checking styles structure...' && ls -la styles/",
+    "migrate:verify": "npm run build && npm run health"
   },
   "keywords": [
     "telegram",
@@ -45,7 +53,14 @@
     "nextjs",
     "hooks",
     "context",
-    "modular"
+    "modular",
+    "tdd",
+    "test-driven-development",
+    "tailwindcss",
+    "modern",
+    "typescript",
+    "eslint",
+    "prettier"
   ],
   "author": "TgNetBucket Team",
   "license": "MIT",
@@ -63,6 +78,7 @@
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "^7.0.1",
+    "@tailwindcss/postcss": "^4.1.13",
     "@upstash/redis": "^1.35.4",
     "axios": "^1.6.2",
     "formidable": "^3.5.1",
