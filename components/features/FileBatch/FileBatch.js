@@ -4,7 +4,6 @@
  */
 
 import React, { useState, useCallback } from 'react';
-import axios from 'axios';
 
 /**
  * 文件批量操作组件
@@ -18,7 +17,7 @@ import axios from 'axios';
  * @param {Function} props.onBatchGenerateShortLinks - 批量生成短链接回调
  * @param {Function} props.onClearSelection - 清空选择回调
  * @param {Function} props.onSelectAll - 全选回调
- * @param {Function} props.onError - 错误回调
+ * @param {Function} props.onError - 错误处理回调
  * @param {boolean} props.disabled - 是否禁用
  * @param {string} props.className - 额外的CSS类名
  * @returns {JSX.Element} 文件批量操作组件
@@ -37,6 +36,7 @@ const FileBatch = ({
   disabled = false,
   className = ''
 }) => {
+  // 当前操作类型，用于显示不同的加载状态
   const [operationType, setOperationType] = useState('');
 
   /**
@@ -60,29 +60,56 @@ const FileBatch = ({
   /**
    * 批量删除文件
    */
-  const handleBatchDelete = useCallback(() => {
+  const handleBatchDelete = useCallback(async () => {
     if (onBatchDelete) {
-      onBatchDelete();
+      try {
+        setOperationType('delete');
+        await onBatchDelete();
+      } catch (error) {
+        if (onError) {
+          onError(error);
+        }
+      } finally {
+        setOperationType('');
+      }
     }
-  }, [onBatchDelete]);
+  }, [onBatchDelete, onError]);
 
   /**
    * 批量下载文件
    */
-  const handleBatchDownload = useCallback(() => {
+  const handleBatchDownload = useCallback(async () => {
     if (onBatchDownload) {
-      onBatchDownload();
+      try {
+        setOperationType('download');
+        await onBatchDownload();
+      } catch (error) {
+        if (onError) {
+          onError(error);
+        }
+      } finally {
+        setOperationType('');
+      }
     }
-  }, [onBatchDownload]);
+  }, [onBatchDownload, onError]);
 
   /**
    * 批量生成短链接
    */
-  const handleBatchGenerateShortLinks = useCallback(() => {
+  const handleBatchGenerateShortLinks = useCallback(async () => {
     if (onBatchGenerateShortLinks) {
-      onBatchGenerateShortLinks();
+      try {
+        setOperationType('shortlink');
+        await onBatchGenerateShortLinks();
+      } catch (error) {
+        if (onError) {
+          onError(error);
+        }
+      } finally {
+        setOperationType('');
+      }
     }
-  }, [onBatchGenerateShortLinks]);
+  }, [onBatchGenerateShortLinks, onError]);
 
   /**
    * 格式化文件大小
