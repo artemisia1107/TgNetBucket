@@ -1,6 +1,6 @@
 {
   "name": "tg-net-bucket",
-  "version": "1.0.0",
+  "version": "1.2.0",
   "description": "使用Telegram作为存储后端的现代化文件存储服务，支持完整的文件管理功能",
   "main": "index.js",
   "scripts": {
