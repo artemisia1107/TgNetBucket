@@ -10,22 +10,22 @@
  * @param {boolean} immediate - 是否立即执行
  * @returns {Function} 防抖后的函数
  */
-// function debounce(func, wait, immediate = false) {
-//   let timeout;
-//   
-//   return function executedFunction(...args) {
-//     const later = () => {
-//       timeout = null;
-//       if (!immediate) func.apply(this, args);
-//     };
-//     
-//     const callNow = immediate && !timeout;
-//     clearTimeout(timeout);
-//     timeout = setTimeout(later, wait);
-//     
-//     if (callNow) func.apply(this, args);
-//   };
-// }
+function debounce(func, wait, immediate = false) {
+  let timeout;
+  
+  return function executedFunction(...args) {
+    const later = () => {
+      timeout = null;
+      if (!immediate) func.apply(this, args);
+    };
+    
+    const callNow = immediate && !timeout;
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+    
+    if (callNow) func.apply(this, args);
+  };
+}
 
 /**
  * 节流函数
@@ -33,50 +33,50 @@
  * @param {number} limit - 限制时间（毫秒）
  * @returns {Function} 节流后的函数
  */
-// function throttle(func, limit) {
-//   let inThrottle;
-//   
-//   return function(...args) {
-//     if (!inThrottle) {
-//       func.apply(this, args);
-//       inThrottle = true;
-//       setTimeout(() => inThrottle = false, limit);
-//     }
-//   };
-// }
+function throttle(func, limit) {
+  let inThrottle;
+  
+  return function(...args) {
+    if (!inThrottle) {
+      func.apply(this, args);
+      inThrottle = true;
+      setTimeout(() => inThrottle = false, limit);
+    }
+  };
+}
 
 /**
  * 复制文本到剪贴板
  * @param {string} text - 要复制的文本
  * @returns {Promise<boolean>} 复制是否成功
  */
-// async function copyToClipboard(text) {
-//   try {
-//     // 优先使用现代 API
-//     if (navigator.clipboard && window.isSecureContext) {
-//       await navigator.clipboard.writeText(text);
-//       return true;
-//     }
-//     
-//     // 降级方案
-//     const textArea = document.createElement('textarea');
-//     textArea.value = text;
-//     textArea.style.position = 'fixed';
-//     textArea.style.left = '-999999px';
-//     textArea.style.top = '-999999px';
-//     document.body.appendChild(textArea);
-//     textArea.focus();
-//     textArea.select();
-//     
-//     const successful = document.execCommand('copy');
-//     document.body.removeChild(textArea);
-//     
-//     return successful;
-//   } catch (error) {
-//     console.error('复制失败:', error);
-//     return false;
-//   }
-// }
+async function copyToClipboard(text) {
+  try {
+    // 优先使用现代 API
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(text);
+      return true;
+    }
+    
+    // 降级方案
+    const textArea = document.createElement('textarea');
+    textArea.value = text;
+    textArea.style.position = 'fixed';
+    textArea.style.left = '-999999px';
+    textArea.style.top = '-999999px';
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    
+    const successful = document.execCommand('copy');
+    document.body.removeChild(textArea);
+    
+    return successful;
+  } catch (error) {
+    console.error('复制失败:', error);
+    return false;
+  }
+}
 
 /**
  * 生成唯一ID
@@ -186,13 +186,7 @@ async function retry(fn, maxRetries = 3, delay = 1000) {
   throw lastError;
 }
 
-/**
- * 格式化日期
- * @param {Date|string|number} date - 日期
- * @param {string} format - 格式字符串
- * @returns {string} 格式化后的日期字符串
- */
-// function formatDate(date, format = 'YYYY-MM-DD HH:mm:ss') {
+
 
 /**
  * 格式化错误信息

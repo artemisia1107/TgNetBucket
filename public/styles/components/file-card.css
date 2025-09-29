@@ -1,0 +1,289 @@
+/**
+ * FileCard 组件样式
+ * 用于文件卡片组件的样式定义
+ */
+
+/* ========== 文件卡片基础样式 ========== */
+
+.file-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-lg);
+  padding: var(--spacing-4);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  transition: all var(--transition-normal);
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.file-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--color-primary-light);
+}
+
+/* ========== 文件图标样式 ========== */
+
+.file-card .file-icon {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: var(--border-radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+  flex-shrink: 0;
+  font-size: 1.25rem;
+  transition: all var(--transition-fast);
+}
+
+.file-card:hover .file-icon {
+  transform: scale(1.05);
+}
+
+/* ========== 文件信息样式 ========== */
+
+.file-card .file-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1);
+}
+
+.file-card .file-name {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+  margin: 0;
+  word-break: break-word;
+  line-height: var(--line-height-tight);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition: color var(--transition-fast);
+}
+
+.file-card:hover .file-name {
+  color: var(--color-primary);
+}
+
+.file-card .file-meta {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.file-card .file-size,
+.file-card .file-date {
+  margin: 0;
+  line-height: 1.2;
+}
+
+/* ========== 文件操作按钮样式 ========== */
+
+.file-card .file-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  flex-shrink: 0;
+  opacity: 0.7;
+  transition: opacity var(--transition-fast);
+}
+
+.file-card:hover .file-actions {
+  opacity: 1;
+}
+
+.file-card .btn-icon {
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: var(--border-radius-md);
+  background: var(--color-background);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-fast);
+  font-size: var(--font-size-sm);
+  position: relative;
+  overflow: hidden;
+}
+
+.file-card .btn-icon::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: currentColor;
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+  border-radius: inherit;
+}
+
+.file-card .btn-icon:hover {
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+  transform: scale(1.05);
+}
+
+.file-card .btn-icon:hover::before {
+  opacity: 0.1;
+}
+
+.file-card .btn-icon.btn-danger:hover {
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+.file-card .btn-icon:active {
+  transform: scale(0.95);
+}
+
+.file-card .btn-icon:focus {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* ========== 响应式设计 ========== */
+
+@media (max-width: 768px) {
+  .file-card {
+    padding: var(--spacing-3);
+    gap: var(--spacing-2);
+  }
+
+  .file-card .file-icon {
+    width: 2rem;
+    height: 2rem;
+    font-size: 1rem;
+  }
+
+  .file-card .file-meta {
+    flex-direction: row;
+    gap: var(--spacing-2);
+  }
+
+  .file-card .file-size::after {
+    content: ' • ';
+    margin: 0 var(--spacing-1);
+    color: var(--color-text-muted);
+  }
+
+  .file-card .file-actions {
+    gap: var(--spacing-1);
+    opacity: 1; /* 在移动设备上始终显示操作按钮 */
+  }
+
+  .file-card .btn-icon {
+    width: 28px;
+    height: 28px;
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 480px) {
+  .file-card {
+    padding: var(--spacing-2);
+    flex-direction: column;
+    align-items: stretch;
+    text-align: center;
+  }
+
+  .file-card .file-icon {
+    align-self: center;
+    margin-bottom: var(--spacing-2);
+  }
+
+  .file-card .file-info {
+    align-items: center;
+    text-align: center;
+  }
+
+  .file-card .file-name {
+    white-space: normal;
+    text-align: center;
+  }
+
+  .file-card .file-meta {
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .file-card .file-actions {
+    justify-content: center;
+    margin-top: var(--spacing-2);
+  }
+}
+
+/* ========== 特殊状态样式 ========== */
+
+.file-card.selected {
+  border-color: var(--color-primary);
+  background: var(--color-primary-light);
+  box-shadow: 0 0 0 2px var(--color-primary-light);
+}
+
+.file-card.uploading {
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.file-card.error {
+  border-color: #dc2626;
+  background: #fef2f2;
+}
+
+.file-card.error .file-icon {
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+/* ========== 动画效果 ========== */
+
+@keyframes fileCardSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.file-card.animate-in {
+  animation: fileCardSlideIn 0.3s ease-out;
+}
+
+/* ========== 深色主题支持 ========== */
+
+@media (prefers-color-scheme: dark) {
+  .file-card {
+    background: var(--color-surface-dark, #2a2a2a);
+    border-color: var(--color-border-dark, #404040);
+  }
+
+  .file-card .file-name {
+    color: var(--color-text-primary-dark, #ffffff);
+  }
+
+  .file-card .file-meta {
+    color: var(--color-text-muted-dark, #a0a0a0);
+  }
+
+  .file-card .btn-icon {
+    background: var(--color-background-dark, #1a1a1a);
+    color: var(--color-text-secondary-dark, #a0a0a0);
+  }
+}

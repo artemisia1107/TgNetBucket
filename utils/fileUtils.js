@@ -1,105 +1,10 @@
 /**
  * 文件工具函数模块
- * 提供文件处理、格式化、图标获取等功能
+ * 提供文件处理、格式化等功能
  */
 
-/**
- * 获取文件图标 (Font Awesome版本)
- * @param {string} filename - 文件名
- * @returns {string} Font Awesome图标类名
- */
-function getFileIcon(filename) {
-  if (!filename) return 'fas fa-file';
-  
-  const ext = filename.toLowerCase().split('.').pop();
-  
-  // 图片文件
-  if (['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg', 'ico'].includes(ext)) {
-    return 'fas fa-image';
-  }
-  
-  // 视频文件
-  if (['mp4', 'avi', 'mkv', 'mov', 'wmv', 'flv', 'webm', 'm4v'].includes(ext)) {
-    return 'fas fa-video';
-  }
-  
-  // 音频文件
-  if (['mp3', 'wav', 'flac', 'aac', 'ogg', 'wma', 'm4a'].includes(ext)) {
-    return 'fas fa-music';
-  }
-  
-  // 文档文件
-  if (['pdf'].includes(ext)) {
-    return 'fas fa-file-pdf';
-  }
-  
-  if (['doc', 'docx'].includes(ext)) {
-    return 'fas fa-file-word';
-  }
-  
-  if (['xls', 'xlsx'].includes(ext)) {
-    return 'fas fa-file-excel';
-  }
-  
-  if (['ppt', 'pptx'].includes(ext)) {
-    return 'fas fa-file-powerpoint';
-  }
-  
-  if (['txt', 'md', 'readme'].includes(ext)) {
-    return 'fas fa-file-alt';
-  }
-  
-  // 压缩文件
-  if (['zip', 'rar', '7z', 'tar', 'gz', 'bz2', 'xz'].includes(ext)) {
-    return 'fas fa-file-archive';
-  }
-  
-  // 代码文件
-  if (['js', 'ts', 'jsx', 'tsx', 'vue', 'react'].includes(ext)) {
-    return 'fab fa-js-square';
-  }
-  
-  if (['html', 'htm', 'xml'].includes(ext)) {
-    return 'fab fa-html5';
-  }
-  
-  if (['css', 'scss', 'sass', 'less'].includes(ext)) {
-    return 'fab fa-css3-alt';
-  }
-  
-  if (['py'].includes(ext)) {
-    return 'fab fa-python';
-  }
-  
-  if (['java'].includes(ext)) {
-    return 'fab fa-java';
-  }
-  
-  if (['php'].includes(ext)) {
-    return 'fab fa-php';
-  }
-  
-  if (['cpp', 'c', 'cs', 'rb', 'go', 'rs'].includes(ext)) {
-    return 'fas fa-code';
-  }
-  
-  if (['json', 'yaml', 'yml', 'toml', 'ini', 'cfg', 'conf'].includes(ext)) {
-    return 'fas fa-cog';
-  }
-  
-  // 可执行文件
-  if (['exe', 'msi', 'dmg', 'pkg', 'deb', 'rpm', 'appimage'].includes(ext)) {
-    return 'fas fa-cogs';
-  }
-  
-  // 字体文件
-  if (['ttf', 'otf', 'woff', 'woff2', 'eot'].includes(ext)) {
-    return 'fas fa-font';
-  }
-  
-  // 默认文件图标
-  return 'fas fa-file';
-}
+// 导入图标工具函数
+import { getFileIcon } from './iconUtils.js';
 
 /**
  * 格式化文件大小

@@ -193,6 +193,21 @@ export function getAuthErrorMessage(status) {
  * @returns {object} 认证状态和方法
  */
 export function useAuth() {
+  // 动态导入React Hook
+  let useState;
+  if (typeof window !== 'undefined') {
+    try {
+      const React = require('react');
+      useState = React.useState;
+    } catch (error) {
+      // React 未加载时的降级处理
+      useState = () => [getAuthStatus(), () => {}];
+    }
+  } else {
+    // 服务端环境的降级处理
+    useState = () => [getAuthStatus(), () => {}];
+  }
+  
   const [authStatus, setAuthStatus] = useState(getAuthStatus());
   
   const login = async (username, password) => {
@@ -222,16 +237,4 @@ export function useAuth() {
     checkAuth,
     requiresAuth: requiresAuth()
   };
-}
-
-// React Hook 依赖（仅在客户端环境使用）
-let useState;
-if (typeof window !== 'undefined') {
-  try {
-    const React = require('react');
-    useState = React.useState;
-  } catch (error) {
-    // React 未加载时的降级处理
-    useState = () => [getAuthStatus(), () => {}];
-  }
 }
