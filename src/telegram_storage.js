@@ -70,26 +70,34 @@ class TelegramStorage {
 
       // 3. 测试基本网络连接
       try {
-        await new Promise((resolve, reject) => {
+        const startTime = Date.now();
+        const connectionInfo = await new Promise((resolve, reject) => {
           const req = https.request({
             hostname: 'www.google.com',
             port: 443,
             path: '/',
             method: 'HEAD',
             timeout: 10000
-          }, (_res) => {
+          }, (res) => {
+            const responseTime = Date.now() - startTime;
             diagnostics.internetConnection = true;
-            resolve();
+            resolve({
+              statusCode: res.statusCode,
+              statusMessage: res.statusMessage,
+              responseTime,
+              headers: res.headers
+            });
           });
           
           req.on('error', reject);
           req.on('timeout', () => reject(new Error('连接超时')));
           req.end();
         });
+        
         diagnostics.details.push({
           status: 'success',
           icon: 'fas fa-check-circle',
-          message: '基本网络连接正常'
+          message: `基本网络连接正常 (状态码: ${connectionInfo.statusCode}, 响应时间: ${connectionInfo.responseTime}ms)`
         });
       } catch (error) {
         diagnostics.details.push({

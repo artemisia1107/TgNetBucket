@@ -57,7 +57,7 @@ const DeleteQueueStatus = () => {
         networkMonitor.removeListener(handleNetworkStatusChange);
       }
     };
-  }, [handleNetworkStatusChange, updateQueueStatus]);
+  }, [handleNetworkStatusChange, updateQueueStatus, networkMonitor]);
 
   useEffect(() => {
     // 定期更新队列状态
