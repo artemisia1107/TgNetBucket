@@ -16,6 +16,35 @@ const DeleteQueueStatus = () => {
   const [deleteQueue, setDeleteQueue] = useState(null);
   const [networkMonitor, setNetworkMonitor] = useState(null);
 
+  /**
+   * 处理网络状态变化
+   * @param {Object} status - 网络状态对象
+   */
+  const handleNetworkStatusChange = useCallback((status) => {
+    setNetworkStatus(status);
+  }, []);
+
+  /**
+   * 更新队列状态
+   * @param {DeleteQueue} queue - 删除队列实例
+   */
+  const updateQueueStatus = useCallback((queue) => {
+    if (queue) {
+      const status = queue.getQueueStatus();
+      setQueueStatus(status);
+      
+      // 如果有待处理的任务，自动显示状态
+      if (status.total > 0 && !isVisible) {
+        setIsVisible(true);
+      }
+      
+      // 如果队列为空，延迟隐藏状态
+      if (status.total === 0 && isVisible) {
+        setTimeout(() => setIsVisible(false), 3000);
+      }
+    }
+  }, [isVisible]);
+
   useEffect(() => {
     // 动态导入删除队列模块和网络监控器
     const initializeComponents = async () => {
@@ -69,35 +98,6 @@ const DeleteQueueStatus = () => {
 
     return () => clearInterval(interval);
   }, [deleteQueue, updateQueueStatus]);
-
-  /**
-   * 处理网络状态变化
-   * @param {Object} status - 网络状态对象
-   */
-  const handleNetworkStatusChange = useCallback((status) => {
-    setNetworkStatus(status);
-  }, []);
-
-  /**
-   * 更新队列状态
-   * @param {DeleteQueue} queue - 删除队列实例
-   */
-  const updateQueueStatus = useCallback((queue) => {
-    if (queue) {
-      const status = queue.getQueueStatus();
-      setQueueStatus(status);
-      
-      // 如果有待处理的任务，自动显示状态
-      if (status.total > 0 && !isVisible) {
-        setIsVisible(true);
-      }
-      
-      // 如果队列为空，延迟隐藏状态
-      if (status.total === 0 && isVisible) {
-        setTimeout(() => setIsVisible(false), 3000);
-      }
-    }
-  }, [isVisible]);
 
   /**
    * 重试失败的任务
