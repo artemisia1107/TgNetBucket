@@ -112,14 +112,61 @@ export const useFileList = () => {
   /**
    * 删除文件
    * @param {string} messageId - 消息ID
+   * @param {string} fileName - 文件名（用于确认提示）
+   * @param {boolean} skipConfirm - 是否跳过确认对话框
    */
-  const deleteFile = async (messageId) => {
+  const deleteFile = async (messageId, fileName = '', skipConfirm = false) => {
+    // 如果不跳过确认，显示确认对话框
+    if (!skipConfirm) {
+      const confirmMessage = fileName 
+        ? `确定要删除文件 "${fileName}" 吗？此操作不可撤销。`
+        : '确定要删除此文件吗？此操作不可撤销。';
+      
+      // 使用Promise包装确认对话框
+      const confirmed = await new Promise((resolve) => {
+        // 动态导入Modal组件
+        import('../components/ui/Modal').then(({ createConfirmDialog }) => {
+          createConfirmDialog(
+            confirmMessage,
+            () => resolve(true),  // 确认
+            () => resolve(false), // 取消
+            {
+              title: '删除文件',
+              confirmText: '删除',
+              cancelText: '取消',
+              type: 'warning'
+            }
+          );
+        }).catch(() => {
+          // 如果导入失败，回退到原生confirm
+          resolve(window.confirm(confirmMessage));
+        });
+      });
+      
+      if (!confirmed) {
+        return { success: false, cancelled: true };
+      }
+    }
+
     try {
       await axios.delete(`/api/files?messageId=${messageId}`);
       await fetchFiles(); // 重新获取文件列表
+      
+      // 动态导入消息组件并显示成功消息
+      const { createSuccessMessage } = await import('../components/ui/Message');
+      const successMessage = fileName 
+        ? `文件 "${fileName}" 已成功删除`
+        : '文件已成功删除';
+      createSuccessMessage(successMessage);
+      
       return { success: true };
     } catch (error) {
       console.error('删除失败:', error);
+      
+      // 动态导入消息组件并显示错误消息
+      const { createErrorMessage } = await import('../components/ui/Message');
+      createErrorMessage('删除文件失败，请稍后重试');
+      
       return { success: false, error: '删除失败' };
     }
   };

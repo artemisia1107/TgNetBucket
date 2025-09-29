@@ -80,8 +80,25 @@ export default function Home() {
    * @param {string} fileId - 文件ID
    * @param {string} fileName - 文件名
    */
-  const handleDownload = (fileId, fileName) => {
-    window.open(`/api/download?fileId=${fileId}&fileName=${encodeURIComponent(fileName)}`, '_blank');
+  const handleDownload = async (fileId, fileName) => {
+    try {
+      // 生成短链接用于下载
+      const result = await generateShortLink(fileId);
+      if (result.success) {
+        // 使用短链接进行下载
+        window.open(result.shortLink, '_blank');
+        createSuccessMessage(`文件 "${fileName}" 下载已开始`);
+      } else {
+        // 如果短链接生成失败，回退到直接下载
+        window.open(`/api/download?fileId=${fileId}&fileName=${encodeURIComponent(fileName)}`, '_blank');
+        createErrorMessage(result.error || '生成下载链接失败，已使用备用方式下载');
+      }
+    } catch (error) {
+      console.error('下载失败:', error);
+      // 出错时回退到直接下载
+      window.open(`/api/download?fileId=${fileId}&fileName=${encodeURIComponent(fileName)}`, '_blank');
+      createErrorMessage('下载链接生成失败，已使用备用方式下载');
+    }
   };
 
   /**
@@ -361,7 +378,7 @@ export default function Home() {
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      deleteFile(file.messageId);
+                      deleteFile(file.messageId, file.fileName);
                     }}
                     className="action-btn delete-btn"
                     disabled={loading}
@@ -384,7 +401,7 @@ export default function Home() {
           onClose={handleClosePreview}
           onDownload={() => handleDownload(previewFile.fileId, previewFile.fileName)}
           onDelete={() => {
-            deleteFile(previewFile.messageId);
+            deleteFile(previewFile.messageId, previewFile.fileName);
             handleClosePreview();
           }}
           onGenerateShortLink={() => generateShortLink(previewFile.fileId)}
