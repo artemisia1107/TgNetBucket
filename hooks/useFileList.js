@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import axios from 'axios';
+import { useDebounce } from './useDebounce';
 
 /**
  * 文件列表管理钩子
@@ -17,6 +18,9 @@ export const useFileList = () => {
   const [filterType, setFilterType] = useState('all');
   const [sortBy, setSortBy] = useState('uploadTime');
   const [sortOrder, setSortOrder] = useState('desc');
+  
+  // 防抖搜索词，延迟300ms执行搜索
+  const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
   /**
    * 获取文件列表
@@ -67,10 +71,10 @@ export const useFileList = () => {
   const filteredAndSortedFiles = useMemo(() => {
     let filtered = files;
 
-    // 搜索过滤
-    if (searchTerm) {
+    // 搜索过滤 - 使用防抖后的搜索词
+    if (debouncedSearchTerm) {
       filtered = filtered.filter(file => 
-        file.fileName.toLowerCase().includes(searchTerm.toLowerCase())
+        file.fileName.toLowerCase().includes(debouncedSearchTerm.toLowerCase())
       );
     }
 
@@ -107,7 +111,7 @@ export const useFileList = () => {
     });
 
     return filtered;
-  }, [files, searchTerm, filterType, sortBy, sortOrder]);
+  }, [files, debouncedSearchTerm, filterType, sortBy, sortOrder]);
 
   // 显示网络诊断结果的函数
   const showNetworkDiagnostics = (diagnostics) => {

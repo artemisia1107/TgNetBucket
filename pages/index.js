@@ -30,6 +30,7 @@ export default function Home() {
   // 使用自定义钩子管理状态
   const {
     files,
+    rawFiles,
     loading,
     searchTerm,
     setSearchTerm,
@@ -60,14 +61,18 @@ export default function Home() {
     selectedFiles,
     selectedTotalSize,
     selectedTotalSizeFormatted,
+    selectedCount,
     isProcessing,
+    hasSelection,
+    isAllSelected,
+    isPartiallySelected,
     toggleFileSelection,
     toggleSelectAll,
     clearSelection,
     batchDelete,
     batchDownload,
     batchGenerateShortLinks
-  } = useBatchOps(files);
+  } = useBatchOps(rawFiles, files, fetchFiles);
 
   // 视图模式状态
 

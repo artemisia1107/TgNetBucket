@@ -5,17 +5,17 @@
 import { useState, useEffect, useCallback } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
-// import AdminHeader from '../components/AdminHeader';
 import Footer from '../components/layout/Footer';
+import AdminHeader from '../components/layout/AdminHeader';
 import axios from 'axios';
 import { 
   createSuccessMessage, 
   createErrorMessage
-  // createWarningMessage 
 } from '../components/ui/Message';
 import { createConfirmDialog } from '../components/ui/Modal';
 import AuthModal from '../components/AuthModal';
 import { getAuthStatus } from '../utils/authUtils';
+import { useAdminPanel } from '../hooks/useAdminPanel';
 
 // 认证状态常量
 const AUTH_STATUS = {
@@ -40,12 +40,22 @@ const formatFileSize = (bytes) => {
  * 提供系统监控、文件统计、数据库管理等功能
  */
 export default function AdminPanel() {
-  const [activeTab, setActiveTab] = useState('overview');
-  const [systemStats, setSystemStats] = useState(null);
-  const [systemStatus, setSystemStatus] = useState(null);
-  const [activityLogs, setActivityLogs] = useState(null);
-  const [loading, setLoading] = useState(false);
-  // const [message, setMessage] = useState('');
+  // 使用useAdminPanel hook管理管理面板状态
+  const {
+    activeTab,
+    setActiveTab,
+    systemStats,
+    systemStatus,
+    activityLogs,
+    loading,
+    fetchSystemStats,
+    fetchSystemStatus,
+    fetchActivityLogs,
+    cleanupShortLinks,
+    syncFiles,
+    backupDatabase,
+    refreshAllData
+  } = useAdminPanel();
   
   // 认证状态管理
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -56,117 +66,24 @@ export default function AdminPanel() {
   const [imageInteractionStyle, setImageInteractionStyle] = useState('fade');
   const [animationSpeed, setAnimationSpeed] = useState('normal');
   const [interactionEnabled, setInteractionEnabled] = useState(true);
+  
+  // 通知状态管理
+  const [notifications, setNotifications] = useState([]);
+  
+  // 侧边栏状态管理
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
-  // 获取系统统计信息
-  /**
-   * 获取系统统计信息
-   * @returns {Promise<void>}
-   */
-  const fetchSystemStats = useCallback(async () => {
-    try {
-      const response = await axios.get('/api/admin/stats');
-      setSystemStats(response.data.success ? response.data.data : response.data);
-    } catch (error) {
-      console.error('获取系统统计失败:', error);
-      createErrorMessage('获取系统统计失败');
-    }
-  }, []);
 
-  // 获取系统状态
-  /**
-   * 获取系统状态信息
-   * @returns {Promise<void>}
-   */
-  const fetchSystemStatus = useCallback(async () => {
-    try {
-      const response = await axios.get('/api/admin/status');
-      setSystemStatus(response.data.success ? response.data.data : response.data);
-    } catch (error) {
-      console.error('获取系统状态失败:', error);
-      createErrorMessage('获取系统状态失败');
-    }
-  }, []);
 
-  // 获取活动日志
-  const fetchActivityLogs = useCallback(async () => {
-    try {
-      const response = await axios.get('/api/admin/activity-logs?limit=50');
-      setActivityLogs(response.data.success ? response.data.data : response.data);
-    } catch (error) {
-      console.error('获取活动日志失败:', error);
-      createErrorMessage('获取活动日志失败');
-    }
-  }, []);
+  // 清理短链接数据 - 使用hook提供的方法
+  const handleCleanupShortLinks = cleanupShortLinks;
 
-  // 清理短链接数据
-  /**
-   * 清理过期的短链接
-   * @returns {Promise<void>}
-   */
-  const handleCleanupShortLinks = async () => {
-    const confirmed = await createConfirmDialog('确定要清理所有旧的短链接数据吗？');
-    if (!confirmed) {
-      return;
-    }
-    
-    setLoading(true);
-    try {
-      const response = await axios.post('/api/cleanup-short-links');
-      createSuccessMessage(`清理完成：扫描 ${response.data.scannedCount} 个键，删除 ${response.data.deletedCount} 个短链接`);
-      fetchSystemStats(); // 刷新统计
-    } catch (error) {
-      createErrorMessage(`清理失败: ${error.message}`);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // 同步文件列表
-  const handleSyncFiles = async () => {
-    const confirmed = await createConfirmDialog('确定要从Telegram重新同步文件列表吗？');
-    if (!confirmed) {
-      return;
-    }
-    
-    setLoading(true);
-    try {
-      const response = await axios.post('/api/admin/sync-files');
-      createSuccessMessage(`同步完成：处理 ${response.data.syncedCount} 个文件`);
-      fetchSystemStats(); // 刷新统计
-    } catch (error) {
-      createErrorMessage(`同步失败: ${error.message}`);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // 备份数据库
-  const handleBackupDatabase = async () => {
-    const confirmed = await createConfirmDialog('确定要备份数据库吗？');
-    if (!confirmed) {
-      return;
-    }
-    
-    setLoading(true);
-    try {
-      const response = await axios.post('/api/admin/backup');
-      if (response.data.data) {
-        createSuccessMessage(`备份完成：${response.data.data.filename} (${response.data.data.keysCount} 个键)`);
-      } else {
-        createSuccessMessage(`备份完成：${response.data.message || '数据库备份成功'}`);
-      }
-    } catch (error) {
-      createErrorMessage(`备份失败: ${error.response?.data?.error || error.message}`);
-    } finally {
-      setLoading(false);
-    }
-  };
+  // 使用hook提供的方法
+  const handleSyncFiles = syncFiles;
+  const handleBackupDatabase = backupDatabase;
 
   // 移动端菜单状态
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  
-  // 侧边栏显示状态（桌面端）
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   /**
    * 切换侧边栏显示状态（桌面端）
@@ -174,6 +91,33 @@ export default function AdminPanel() {
   const toggleSidebar = () => {
     setIsSidebarCollapsed(!isSidebarCollapsed);
   };
+
+  /**
+   * 添加通知
+   * @param {Object} notification - 通知对象
+   */
+  const addNotification = useCallback((notification) => {
+    const newNotification = {
+      id: Date.now(),
+      time: new Date().toLocaleString(),
+      ...notification
+    };
+    setNotifications(prev => [newNotification, ...prev.slice(0, 9)]); // 最多保留10条通知
+  }, []);
+
+  /**
+   * 处理登出
+   */
+  const handleLogout = useCallback(() => {
+    localStorage.removeItem('adminToken');
+    setIsAuthenticated(false);
+    setShowAuthModal(true);
+    addNotification({
+      type: 'info',
+      title: '已退出登录',
+      message: '您已成功退出管理面板'
+    });
+  }, [addNotification]);
 
   // 切换移动端菜单
   const toggleMobileMenu = () => {
@@ -797,33 +741,7 @@ export default function AdminPanel() {
     </div>
   );
 
-  // 导航菜单配置
-  const menuItems = [
-    {
-      id: 'overview',
-      icon: 'fas fa-chart-bar',
-      title: '概览',
-      description: '系统状态'
-    },
-    {
-      id: 'database',
-      icon: 'fas fa-database',
-      title: '数据库',
-      description: '文件管理'
-    },
-    {
-      id: 'logs',
-      icon: 'fas fa-clipboard-list',
-      title: '日志',
-      description: '操作记录'
-    },
-    {
-      id: 'settings',
-      icon: 'fas fa-cog',
-      title: '设置',
-      description: '系统配置'
-    }
-  ];
+
 
   // 如果认证检查未完成，显示加载状态
   if (!authChecked) {
@@ -852,105 +770,28 @@ export default function AdminPanel() {
         </Head>
 
       <div className="admin-layout">
-        {/* 桌面端侧边栏控制按钮 */}
-        <button 
-          className="sidebar-collapse-toggle"
-          onClick={toggleSidebar}
-          aria-label="切换侧边栏"
-          title={isSidebarCollapsed ? '展开侧边栏' : '收起侧边栏'}
-        >
-          <i className={`fas ${isSidebarCollapsed ? 'fa-chevron-right' : 'fa-chevron-left'}`} />
-        </button>
-
-        {/* 移动端菜单切换按钮 */}
-        <button 
-          className="sidebar-toggle"
-          onClick={toggleMobileMenu}
-          aria-label="切换菜单"
-        >
-          <span className="sidebar-toggle-icon"><i className="fas fa-bars" /></span>
-        </button>
-
-        {/* 移动端遮罩层 */}
-        <div 
-          className={`sidebar-overlay ${isMobileMenuOpen ? 'active' : ''}`}
-          onClick={closeMobileMenu}
+        {/* 使用AdminHeader组件 */}
+        <AdminHeader
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+          isMobileMenuOpen={isMobileMenuOpen}
+          toggleMobileMenu={toggleMobileMenu}
+          closeMobileMenu={closeMobileMenu}
+          isSidebarCollapsed={isSidebarCollapsed}
+          toggleSidebar={toggleSidebar}
+          systemStats={systemStats}
+          notifications={notifications}
+          onLogout={handleLogout}
+          onRefresh={() => {
+            fetchSystemStats();
+            fetchSystemStatus();
+            fetchActivityLogs();
+          }}
+          loading={loading}
         />
-
-        {/* 侧边栏导航 */}
-        <aside className={`admin-sidebar ${isMobileMenuOpen ? 'open' : ''} ${isSidebarCollapsed ? 'collapsed' : ''}`}>
-          <div className="sidebar-header">
-            <div className="sidebar-brand">
-              <div className="sidebar-icon">
-                <i className="fas fa-rocket" />
-              </div>
-              <div className="sidebar-info">
-                <h2 className="sidebar-title">TgNetBucket</h2>
-                <span className="sidebar-subtitle">管理面板</span>
-              </div>
-            </div>
-          </div>
-
-          <nav className="sidebar-nav">
-            <ul className="sidebar-nav-list">
-              {menuItems.map((item) => (
-                <li key={item.id} className="sidebar-nav-item">
-                  <button
-                    className={`sidebar-nav-link ${activeTab === item.id ? 'active' : ''}`}
-                    onClick={() => handleNavClick(item.id)}
-                    title={item.title}
-                  >
-                    <span className="sidebar-nav-icon"><i className={item.icon} /></span>
-                    <div className="sidebar-nav-content">
-                      <span className="sidebar-nav-title">{item.title}</span>
-                      <span className="sidebar-nav-description">{item.description}</span>
-                    </div>
-                  </button>
-                </li>
-              ))}
-            </ul>
-          </nav>
-
-          <div className="sidebar-footer">
-            <Link href="/" className="sidebar-back-link" title="返回首页">
-              <span className="sidebar-back-icon"><i className="fas fa-home" /></span>
-              <span className="sidebar-back-text">返回首页</span>
-            </Link>
-          </div>
-        </aside>
 
         {/* 主内容区域 */}
         <main className={`admin-main ${isSidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
-          {/* 顶部操作栏 */}
-          <header className="admin-header">
-            <div className="admin-header-left">
-              <h1 className="page-title">
-                {menuItems.find(item => item.id === activeTab)?.title || '管理面板'}
-              </h1>
-              <span className="page-subtitle">
-                {menuItems.find(item => item.id === activeTab)?.description || '系统管理'}
-              </span>
-            </div>
-            
-            <div className="admin-header-actions">
-              <button
-                className="header-action"
-                onClick={() => {
-                  if (activeTab === 'overview') {
-                    fetchSystemStats();
-                    fetchSystemStatus();
-                  } else if (activeTab === 'logs') {
-                    fetchActivityLogs();
-                  }
-                }}
-                disabled={loading}
-                title="刷新数据"
-              >
-                <i className={loading ? 'fas fa-spinner fa-spin' : 'fas fa-sync-alt'} />
-              </button>
-            </div>
-          </header>
-
           {/* 内容区域 */}
           <div className="admin-content">
             <div className="content-body">

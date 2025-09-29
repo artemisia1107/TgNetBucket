@@ -3,64 +3,52 @@ import axios from 'axios';
 import { createSuccessMessage, createErrorMessage } from '../components/ui/Message';
 import { createConfirmDialog } from '../components/ui/Modal';
 import { formatFileSize } from '../utils/fileUtils';
+import { useFileSelection } from './useFileSelection';
 
 /**
  * 批量操作管理钩子
  * 提供文件批量选择、删除、下载等功能
- * @param {Array} files - 文件列表
+ * @param {Array} allFiles - 所有文件列表
+ * @param {Array} filteredFiles - 过滤后的文件列表
  * @param {Function} onFilesChange - 文件列表变化回调
  * @returns {Object} 批量操作相关的状态和方法
  */
-export const useBatchOps = (files = [], onFilesChange) => {
-  // 选中的文件ID列表
-  const [selectedFiles, setSelectedFiles] = useState([]);
+export const useBatchOps = (allFiles = [], filteredFiles = [], onFilesChange) => {
   const [isProcessing, setIsProcessing] = useState(false);
+
+  // 使用新的文件选择Hook
+  const {
+    selectedFiles,
+    selectedCount,
+    isAllSelected,
+    isPartiallySelected,
+    selectedTotalSize,
+    toggleSelection,
+    selectAll,
+    clearSelection
+  } = useFileSelection(allFiles, filteredFiles);
 
   /**
    * 选中的文件详细信息
    */
   const selectedFileDetails = useMemo(() => {
-    return files.filter(file => selectedFiles.includes(file.messageId || file.id));
-  }, [files, selectedFiles]);
+    return allFiles.filter(file => selectedFiles.includes(file.messageId || file.id));
+  }, [allFiles, selectedFiles]);
 
   /**
-   * 选中文件的总大小
-   */
-  const selectedTotalSize = useMemo(() => {
-    return selectedFileDetails.reduce((total, file) => total + (file.fileSize || 0), 0);
-  }, [selectedFileDetails]);
-
-  /**
-   * 选择/取消选择文件
+   * 兼容性方法：选择/取消选择文件
    * @param {string} fileId - 文件ID
    */
   const toggleFileSelection = useCallback((fileId) => {
-    setSelectedFiles(prev => {
-      if (prev.includes(fileId)) {
-        return prev.filter(id => id !== fileId);
-      } else {
-        return [...prev, fileId];
-      }
-    });
-  }, []);
+    toggleSelection(fileId);
+  }, [toggleSelection]);
 
   /**
-   * 全选/取消全选
+   * 兼容性方法：全选/取消全选
    */
   const toggleSelectAll = useCallback(() => {
-    if (selectedFiles.length === files.length) {
-      setSelectedFiles([]);
-    } else {
-      setSelectedFiles(files.map(file => file.messageId || file.id));
-    }
-  }, [files, selectedFiles.length]);
-
-  /**
-   * 清空选择
-   */
-  const clearSelection = useCallback(() => {
-    setSelectedFiles([]);
-  }, []);
+    selectAll();
+  }, [selectAll]);
 
   /**
    * 批量删除文件
@@ -297,17 +285,7 @@ export const useBatchOps = (files = [], onFilesChange) => {
   /**
    * 检查是否有文件被选中
    */
-  const hasSelection = selectedFiles.length > 0;
-
-  /**
-   * 检查是否全选
-   */
-  const isAllSelected = files.length > 0 && selectedFiles.length === files.length;
-
-  /**
-   * 检查是否部分选中
-   */
-  const isPartiallySelected = selectedFiles.length > 0 && selectedFiles.length < files.length;
+  const hasSelection = selectedCount > 0;
 
   return {
     // 状态
@@ -315,6 +293,7 @@ export const useBatchOps = (files = [], onFilesChange) => {
     selectedFileDetails,
     selectedTotalSize,
     selectedTotalSizeFormatted: formatFileSize(selectedTotalSize),
+    selectedCount,
     isProcessing,
     hasSelection,
     isAllSelected,

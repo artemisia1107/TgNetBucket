@@ -5,6 +5,7 @@
 
 import React, { useState, useRef } from 'react';
 import axios from 'axios';
+import { useApi } from '../../../hooks/useApi';
 
 /**
  * 文件上传组件
@@ -32,6 +33,9 @@ const FileUpload = ({
   const [uploadProgress, setUploadProgress] = useState(0);
   const [uploadError, setUploadError] = useState(null);
   const fileInputRef = useRef(null);
+  
+  // 使用useApi hook管理文件上传API调用
+  const { execute: uploadFile, loading: apiLoading, error: apiError } = useApi();
 
   /**
    * 格式化错误信息，提供用户友好的提示
@@ -101,7 +105,9 @@ const FileUpload = ({
     formData.append('file', file);
 
     try {
-      await axios.post('/api/files', formData, {
+      await uploadFile('/api/files', {
+        method: 'POST',
+        data: formData,
         headers: { 'Content-Type': 'multipart/form-data' },
         onUploadProgress: (progressEvent) => {
           const fileProgress = Math.round((progressEvent.loaded * 100) / progressEvent.total);

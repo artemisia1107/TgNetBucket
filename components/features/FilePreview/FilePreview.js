@@ -6,6 +6,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Image from 'next/image';
 import axios from 'axios';
+import { useApi } from '../../../hooks/useApi';
 
 /**
  * 文件预览组件
@@ -31,6 +32,9 @@ const FilePreview = ({
   const [previewType, setPreviewType] = useState('');
   const [error, setError] = useState(null);
   const modalRef = useRef(null);
+  
+  // 使用useApi hook管理文件内容获取API调用
+  const { get: getFileContent } = useApi();
 
   /**
    * 获取文件类型
@@ -106,10 +110,10 @@ const FilePreview = ({
 
         case 'text':
         case 'code':
-          const textResponse = await axios.get(`/api/files/${file.id}/content`, {
+          const textResponse = await getFileContent(`/api/files/${file.id}/content`, {
             responseType: 'text'
           });
-          setPreviewContent(textResponse.data);
+          setPreviewContent(textResponse);
           break;
 
         case 'pdf':
