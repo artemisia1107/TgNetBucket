@@ -86,7 +86,7 @@ function createMessage(message, type = 'info', options = {}) {
   return {
     element: messageContainer,
     remove: removeMessage,
-    updateContent: updateContent
+    updateContent
   };
 }
 

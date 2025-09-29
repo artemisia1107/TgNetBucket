@@ -1,5 +1,7 @@
 import TelegramBot from 'node-telegram-bot-api';
 import { redisClient } from './redis_client.js';
+import { promises as dns } from 'dns';
+import https from 'https';
 
 class TelegramStorage {
   constructor(options) {
@@ -51,7 +53,6 @@ class TelegramStorage {
       
       // 2. 测试 DNS 解析
       try {
-        const dns = require('dns').promises;
         await dns.lookup('api.telegram.org');
         diagnostics.dnsResolution = true;
         diagnostics.details.push({
@@ -69,7 +70,6 @@ class TelegramStorage {
 
       // 3. 测试基本网络连接
       try {
-        const https = require('https');
         await new Promise((resolve, reject) => {
           const req = https.request({
             hostname: 'www.google.com',
@@ -77,7 +77,7 @@ class TelegramStorage {
             path: '/',
             method: 'HEAD',
             timeout: 10000
-          }, (res) => {
+          }, (_res) => {
             diagnostics.internetConnection = true;
             resolve();
           });

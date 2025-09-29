@@ -3,7 +3,7 @@
  * 显示删除队列的状态信息和管理功能
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 const DeleteQueueStatus = () => {
   const [queueStatus, setQueueStatus] = useState(null);
@@ -22,7 +22,7 @@ const DeleteQueueStatus = () => {
       try {
         const [
           { getDeleteQueue },
-          { getNetworkMonitor, getNetworkStatusIcon, getNetworkStatusText }
+          { getNetworkMonitor }
         ] = await Promise.all([
           import('../../utils/deleteQueue'),
           import('../../utils/networkMonitor')
@@ -57,7 +57,7 @@ const DeleteQueueStatus = () => {
         networkMonitor.removeListener(handleNetworkStatusChange);
       }
     };
-  }, []);
+  }, [handleNetworkStatusChange, updateQueueStatus]);
 
   useEffect(() => {
     // 定期更新队列状态
@@ -68,21 +68,21 @@ const DeleteQueueStatus = () => {
     }, 2000);
 
     return () => clearInterval(interval);
-  }, [deleteQueue]);
+  }, [deleteQueue, updateQueueStatus]);
 
   /**
    * 处理网络状态变化
    * @param {Object} status - 网络状态对象
    */
-  const handleNetworkStatusChange = (status) => {
+  const handleNetworkStatusChange = useCallback((status) => {
     setNetworkStatus(status);
-  };
+  }, []);
 
   /**
    * 更新队列状态
    * @param {DeleteQueue} queue - 删除队列实例
    */
-  const updateQueueStatus = (queue) => {
+  const updateQueueStatus = useCallback((queue) => {
     if (queue) {
       const status = queue.getQueueStatus();
       setQueueStatus(status);
@@ -97,7 +97,7 @@ const DeleteQueueStatus = () => {
         setTimeout(() => setIsVisible(false), 3000);
       }
     }
-  };
+  }, [isVisible]);
 
   /**
    * 重试失败的任务
