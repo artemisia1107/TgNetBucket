@@ -1,1 +1,61 @@
-MD
+# 文档目录
+MD/
+
+# 开发和测试文件
+tests/
+*.test.js
+*.spec.js
+dev.config.js
+
+# 模板文件
+templates/
+
+# 脚本文件
+scripts/
+
+# 开发依赖和配置
+.eslintrc.json
+.prettierrc
+.prettierignore
+tsconfig.json
+
+# 环境变量示例文件
+.env.local.example
+
+# Git 相关
+.gitignore
+
+# IDE 和编辑器文件
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# 日志文件
+*.log
+logs/
+
+# 临时文件
+tmp/
+temp/
+.tmp/
+
+# 缓存文件
+.cache/
+.parcel-cache/
+
+# 操作系统文件
+.DS_Store
+Thumbs.db
+
+# 备份文件
+*.bak
+*.backup
+
+# 项目配置文件（如果不需要在生产环境中使用）
+project.config.js
+
+# README 文件（通常不需要在部署中包含）
+README.md
+LICENSE
