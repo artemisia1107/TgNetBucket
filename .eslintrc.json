@@ -4,27 +4,105 @@
     "next/typescript"
   ],
   "rules": {
+    // React 相关规则
     "react/no-unescaped-entities": "off",
     "react/display-name": "off",
     "react/prop-types": "off",
+    "react/jsx-key": "error",
+    "react/jsx-no-duplicate-props": "error",
+    "react/jsx-no-undef": "error",
+    "react/jsx-uses-react": "error",
+    "react/jsx-uses-vars": "error",
+    "react/no-children-prop": "error",
+    "react/no-danger-with-children": "error",
+    "react/no-deprecated": "error",
+    "react/no-direct-mutation-state": "error",
+    "react/no-find-dom-node": "error",
+    "react/no-is-mounted": "error",
+    "react/no-render-return-value": "error",
+    "react/no-string-refs": "error",
+    "react/no-unknown-property": "error",
+    "react/require-render-return": "error",
+    "react/self-closing-comp": "warn",
+    
+    // Next.js 相关规则
     "@next/next/no-img-element": "warn",
-    "no-unused-vars": "error",
+    "@next/next/no-html-link-for-pages": "error",
+    "@next/next/no-sync-scripts": "error",
+    "@next/next/no-title-in-document-head": "error",
+    
+    // JavaScript 基础规则
+    "no-unused-vars": ["error", { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_" }],
     "no-console": "off",
+    "no-debugger": "error",
+    "no-alert": "warn",
+    "no-eval": "error",
+    "no-implied-eval": "error",
+    "no-new-func": "error",
+    "no-script-url": "error",
+    "no-undef": "error",
+    "no-unreachable": "error",
+    "no-duplicate-case": "error",
+    "no-empty": "warn",
+    "no-extra-boolean-cast": "warn",
+    "no-extra-semi": "error",
+    "no-func-assign": "error",
+    "no-inner-declarations": "error",
+    "no-invalid-regexp": "error",
+    "no-irregular-whitespace": "error",
+    "no-obj-calls": "error",
+    "no-sparse-arrays": "error",
+    "use-isnan": "error",
+    "valid-typeof": "error",
+    
+    // ES6+ 规则
     "prefer-const": "error",
     "no-var": "error",
     "object-shorthand": "warn",
-    "prefer-template": "warn"
+    "prefer-template": "warn",
+    "prefer-arrow-callback": "warn",
+    "prefer-destructuring": ["warn", { "object": true, "array": false }],
+    "prefer-spread": "warn",
+    "prefer-rest-params": "warn",
+    "no-useless-constructor": "warn",
+    "no-duplicate-imports": "error",
+    
+    // 代码风格规则
+    "eqeqeq": ["error", "always"],
+    "curly": ["error", "all"],
+    "dot-notation": "warn",
+    "no-else-return": "warn",
+    "no-lonely-if": "warn",
+    "no-unneeded-ternary": "warn",
+    "no-useless-return": "warn",
+    "yoda": "error",
+    
+    // 安全相关规则
+    "no-new-wrappers": "error",
+    "no-throw-literal": "error",
+    "no-return-assign": "error",
+    "no-self-compare": "error",
+    "no-sequences": "error",
+    "no-void": "error",
+    "no-with": "error",
+    "radix": "error"
   },
   "env": {
     "browser": true,
     "node": true,
-    "es6": true
+    "es6": true,
+    "jest": true
   },
   "parserOptions": {
     "ecmaVersion": 2022,
     "sourceType": "module",
     "ecmaFeatures": {
       "jsx": true
+    }
+  },
+  "settings": {
+    "react": {
+      "version": "detect"
     }
   }
 }

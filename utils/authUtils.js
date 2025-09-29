@@ -3,7 +3,7 @@
  * 提供用户认证、会话管理等功能
  */
 
-import { AUTH_CONFIG } from '../constants/config.js';
+import { AUTH_CONFIG } from '../constants/config';
 
 /**
  * 获取管理员凭据

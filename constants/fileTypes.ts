@@ -4,9 +4,24 @@
  */
 
 /**
- * 文件类型分类
+ * 文件类型分类接口
  */
-export const FILE_CATEGORIES = {
+export interface FileCategories {
+  readonly IMAGE: 'image';
+  readonly VIDEO: 'video';
+  readonly AUDIO: 'audio';
+  readonly DOCUMENT: 'document';
+  readonly ARCHIVE: 'archive';
+  readonly CODE: 'code';
+  readonly FONT: 'font';
+  readonly OTHER: 'other';
+}
+
+/**
+ * 文件类型分类
+ * 定义所有支持的文件类型分类
+ */
+export const FILE_CATEGORIES: FileCategories = {
   IMAGE: 'image',
   VIDEO: 'video',
   AUDIO: 'audio',
@@ -18,9 +33,17 @@ export const FILE_CATEGORIES = {
 };
 
 /**
- * 文件扩展名映射
+ * 文件扩展名映射接口
  */
-export const FILE_EXTENSIONS = {
+export interface FileExtensions {
+  [key: string]: string[];
+}
+
+/**
+ * 文件扩展名映射
+ * 定义每种文件类型对应的扩展名列表
+ */
+export const FILE_EXTENSIONS: FileExtensions = {
   [FILE_CATEGORIES.IMAGE]: [
     'jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp', 'ico', 'tiff', 'tif',
     'heic', 'heif', 'avif', 'jfif', 'pjpeg', 'pjp'
@@ -54,9 +77,16 @@ export const FILE_EXTENSIONS = {
 };
 
 /**
+ * MIME类型映射接口
+ */
+interface MimeTypes {
+  [key: string]: string;
+}
+
+/**
  * MIME类型映射
  */
-export const MIME_TYPES = {
+export const MIME_TYPES: MimeTypes = {
   // 图片
   'jpg': 'image/jpeg',
   'jpeg': 'image/jpeg',
@@ -155,9 +185,16 @@ export const MIME_TYPES = {
 };
 
 /**
+ * 文件图标映射接口
+ */
+interface FileIcons {
+  [key: string]: string;
+}
+
+/**
  * 文件图标映射 - Font Awesome类名
  */
-export const FILE_ICONS = {
+export const FILE_ICONS: FileIcons = {
   // 分类图标
   [FILE_CATEGORIES.IMAGE]: 'fas fa-image',
   [FILE_CATEGORIES.VIDEO]: 'fas fa-video',
@@ -197,9 +234,16 @@ export const FILE_ICONS = {
 };
 
 /**
+ * 文件大小限制接口
+ */
+interface FileSizeLimits {
+  [key: string]: number;
+}
+
+/**
  * 文件大小限制（字节）
  */
-export const FILE_SIZE_LIMITS = {
+export const FILE_SIZE_LIMITS: FileSizeLimits = {
   [FILE_CATEGORIES.IMAGE]: 20 * 1024 * 1024,    // 20MB
   [FILE_CATEGORIES.VIDEO]: 500 * 1024 * 1024,   // 500MB
   [FILE_CATEGORIES.AUDIO]: 100 * 1024 * 1024,   // 100MB
@@ -211,9 +255,16 @@ export const FILE_SIZE_LIMITS = {
 };
 
 /**
+ * 可预览文件类型接口
+ */
+interface PreviewableTypes {
+  [key: string]: string[];
+}
+
+/**
  * 可预览的文件类型
  */
-export const PREVIEWABLE_TYPES = {
+export const PREVIEWABLE_TYPES: PreviewableTypes = {
   [FILE_CATEGORIES.IMAGE]: ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp'],
   [FILE_CATEGORIES.VIDEO]: ['mp4', 'webm', 'ogg'],
   [FILE_CATEGORIES.AUDIO]: ['mp3', 'wav', 'ogg', 'm4a'],
@@ -223,21 +274,37 @@ export const PREVIEWABLE_TYPES = {
 
 /**
  * 获取文件扩展名
- * @param {string} fileName - 文件名
- * @returns {string} 文件扩展名（小写）
+ * 从文件名中提取扩展名并转换为小写
+ * 
+ * @param fileName - 文件名
+ * @returns 文件扩展名（小写），如果没有扩展名则返回空字符串
+ * 
+ * @example
+ * ```typescript
+ * const ext = getFileExtension('document.PDF');
+ * // 返回: 'pdf'
+ * ```
  */
-export const getFileExtension = (fileName) => {
+export const getFileExtension = (fileName: string): string => {
   if (!fileName || typeof fileName !== 'string') return '';
   const parts = fileName.split('.');
-  return parts.length > 1 ? parts.pop().toLowerCase() : '';
+  return parts.length > 1 ? (parts.pop() || '').toLowerCase() : '';
 };
 
 /**
  * 获取文件类型分类
- * @param {string} fileName - 文件名
- * @returns {string} 文件类型分类
+ * 根据文件扩展名确定文件所属的类型分类
+ * 
+ * @param fileName - 文件名
+ * @returns 文件类型分类（image、video、audio等）
+ * 
+ * @example
+ * ```typescript
+ * const category = getFileCategory('photo.jpg');
+ * // 返回: 'image'
+ * ```
  */
-export const getFileCategory = (fileName) => {
+export const getFileCategory = (fileName: string): string => {
   const ext = getFileExtension(fileName);
   
   for (const [category, extensions] of Object.entries(FILE_EXTENSIONS)) {
@@ -251,20 +318,36 @@ export const getFileCategory = (fileName) => {
 
 /**
  * 获取文件MIME类型
- * @param {string} fileName - 文件名
- * @returns {string} MIME类型
+ * 根据文件扩展名获取对应的MIME类型
+ * 
+ * @param fileName - 文件名
+ * @returns MIME类型字符串
+ * 
+ * @example
+ * ```typescript
+ * const mimeType = getFileMimeType('document.pdf');
+ * // 返回: 'application/pdf'
+ * ```
  */
-export const getFileMimeType = (fileName) => {
+export const getFileMimeType = (fileName: string): string => {
   const ext = getFileExtension(fileName);
   return MIME_TYPES[ext] || 'application/octet-stream';
 };
 
 /**
  * 获取文件图标
- * @param {string} fileName - 文件名
- * @returns {string} 文件图标
+ * 根据文件类型获取对应的图标标识
+ * 
+ * @param fileName - 文件名
+ * @returns 文件图标标识字符串
+ * 
+ * @example
+ * ```typescript
+ * const icon = getFileIcon('script.js');
+ * // 返回: 'file-code'
+ * ```
  */
-export const getFileIcon = (fileName) => {
+export const getFileIcon = (fileName: string): string => {
   const ext = getFileExtension(fileName);
   
   // 优先使用具体扩展名的图标
@@ -279,10 +362,18 @@ export const getFileIcon = (fileName) => {
 
 /**
  * 检查文件是否可预览
- * @param {string} fileName - 文件名
- * @returns {boolean} 是否可预览
+ * 根据文件类型判断是否支持在线预览
+ * 
+ * @param fileName - 文件名
+ * @returns 是否可预览
+ * 
+ * @example
+ * ```typescript
+ * const canPreview = isPreviewable('image.jpg');
+ * // 返回: true
+ * ```
  */
-export const isPreviewable = (fileName) => {
+export const isPreviewable = (fileName: string): boolean => {
   const ext = getFileExtension(fileName);
   const category = getFileCategory(fileName);
   
@@ -291,21 +382,37 @@ export const isPreviewable = (fileName) => {
 
 /**
  * 获取文件大小限制
- * @param {string} fileName - 文件名
- * @returns {number} 文件大小限制（字节）
+ * 根据文件类型获取对应的大小限制
+ * 
+ * @param fileName - 文件名
+ * @returns 文件大小限制（字节）
+ * 
+ * @example
+ * ```typescript
+ * const limit = getFileSizeLimit('video.mp4');
+ * // 返回: 104857600 (100MB)
+ * ```
  */
-export const getFileSizeLimit = (fileName) => {
+export const getFileSizeLimit = (fileName: string): number => {
   const category = getFileCategory(fileName);
   return FILE_SIZE_LIMITS[category] || FILE_SIZE_LIMITS[FILE_CATEGORIES.OTHER];
 };
 
 /**
  * 检查文件类型是否被允许
- * @param {string} fileName - 文件名
- * @param {Array} allowedTypes - 允许的文件类型数组
- * @returns {boolean} 是否被允许
+ * 根据允许的类型列表检查文件是否可以上传
+ * 
+ * @param fileName - 文件名
+ * @param allowedTypes - 允许的文件类型数组（扩展名、MIME类型或分类）
+ * @returns 是否被允许
+ * 
+ * @example
+ * ```typescript
+ * const allowed = isFileTypeAllowed('document.pdf', ['.pdf', 'image']);
+ * // 返回: true
+ * ```
  */
-export const isFileTypeAllowed = (fileName, allowedTypes = []) => {
+export const isFileTypeAllowed = (fileName: string, allowedTypes: string[] = []): boolean => {
   if (allowedTypes.length === 0) return true;
   
   const ext = getFileExtension(fileName);

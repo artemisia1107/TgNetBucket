@@ -1,12 +1,29 @@
 /**
  * 应用配置常量
  * 统一管理应用中的配置项和常量
+ * 
+ * @author TgNetBucket Team
+ * @since 2025-09-29
  */
 
 /**
- * 文件相关配置
+ * 文件配置接口
  */
-const FILE_CONFIG = {
+export interface FileConfig {
+  MAX_FILE_SIZE: number;
+  MAX_TOTAL_SIZE: number;
+  ALLOWED_TYPES: string[];
+  MAX_PREVIEW_SIZE: number;
+  PREVIEW_TYPES: string[];
+  EXTENSION_MAP: Record<string, string>;
+  ICON_MAP: Record<string, string>;
+}
+
+/**
+ * 文件相关配置
+ * 定义文件上传、预览和处理的相关限制和规则
+ */
+export const FILE_CONFIG: FileConfig = {
   // 文件大小限制
   MAX_FILE_SIZE: 50 * 1024 * 1024, // 50MB
   MAX_TOTAL_SIZE: 2 * 1024 * 1024 * 1024, // 2GB
@@ -111,9 +128,28 @@ const FILE_CONFIG = {
 };
 
 /**
- * UI相关配置
+ * UI配置接口
  */
-const UI_CONFIG = {
+export interface UIConfig {
+  ANIMATION_DURATION: {
+    FAST: number;
+    NORMAL: number;
+    SLOW: number;
+  };
+  Z_INDEX: Record<string, number>;
+  COLORS: Record<string, string>;
+  BREAKPOINTS: Record<string, number>;
+  MESSAGE: {
+    DURATION: Record<string, number>;
+    MAX_COUNT: number;
+  };
+}
+
+/**
+ * UI相关配置
+ * 定义界面动画、层级、颜色和断点等UI相关常量
+ */
+export const UI_CONFIG: UIConfig = {
   // 动画时长
   ANIMATION_DURATION: {
     FAST: 150,
@@ -164,9 +200,24 @@ const UI_CONFIG = {
 };
 
 /**
- * API相关配置
+ * API配置接口
  */
-const API_CONFIG = {
+export interface APIConfig {
+  TIMEOUT: number;
+  RETRY: {
+    MAX_ATTEMPTS: number;
+    DELAY: number;
+    BACKOFF_FACTOR: number;
+  };
+  STATUS_CODES: Record<string, number>;
+  ERROR_MESSAGES: Record<string, string>;
+}
+
+/**
+ * API相关配置
+ * 定义API请求超时、重试机制、状态码和错误消息
+ */
+export const API_CONFIG: APIConfig = {
   // 请求超时时间
   TIMEOUT: 30000,
   
@@ -205,9 +256,18 @@ const API_CONFIG = {
 };
 
 /**
- * 存储相关配置
+ * 存储配置接口
  */
-const STORAGE_CONFIG = {
+export interface StorageConfig {
+  KEYS: Record<string, string>;
+  EXPIRY: Record<string, number>;
+}
+
+/**
+ * 存储相关配置
+ * 定义本地存储键名和缓存过期时间
+ */
+export const STORAGE_CONFIG: StorageConfig = {
   // 本地存储键名
   KEYS: {
     USER_PREFERENCES: 'user_preferences',
@@ -227,9 +287,20 @@ const STORAGE_CONFIG = {
 };
 
 /**
- * 上传相关配置
+ * 上传配置接口
  */
-const UPLOAD_CONFIG = {
+export interface UploadConfig {
+  CHUNK_SIZE: number;
+  MAX_CONCURRENT: number;
+  STATUS: Record<string, string>;
+  TYPES: Record<string, string>;
+}
+
+/**
+ * 上传相关配置
+ * 定义文件上传的分片大小、并发数和状态类型
+ */
+export const UPLOAD_CONFIG: UploadConfig = {
   // 分片上传配置
   CHUNK_SIZE: 1024 * 1024, // 1MB
   MAX_CONCURRENT: 3,       // 最大并发数
@@ -252,9 +323,34 @@ const UPLOAD_CONFIG = {
 };
 
 /**
- * 验证规则配置
+ * 验证规则配置接口
  */
-const VALIDATION_RULES = {
+export interface ValidationRules {
+  FILENAME: {
+    MIN_LENGTH: number;
+    MAX_LENGTH: number;
+    INVALID_CHARS: RegExp;
+    RESERVED_NAMES: string[];
+  };
+  URL: {
+    PATTERN: RegExp;
+    MAX_LENGTH: number;
+  };
+  PASSWORD: {
+    MIN_LENGTH: number;
+    MAX_LENGTH: number;
+    REQUIRE_UPPERCASE: boolean;
+    REQUIRE_LOWERCASE: boolean;
+    REQUIRE_NUMBERS: boolean;
+    REQUIRE_SYMBOLS: boolean;
+  };
+}
+
+/**
+ * 验证规则配置
+ * 定义文件名、URL、密码等的验证规则
+ */
+export const VALIDATION_RULES: ValidationRules = {
   // 文件名验证
   FILENAME: {
     MIN_LENGTH: 1,
@@ -281,9 +377,24 @@ const VALIDATION_RULES = {
 };
 
 /**
- * 认证配置
+ * 认证配置接口
  */
-const AUTH_CONFIG = {
+export interface AuthConfig {
+  METHODS: Record<string, string>;
+  SESSION: {
+    DURATION: number;
+    COOKIE_NAME: string;
+    STORAGE_KEY: string;
+  };
+  STATUS: Record<string, string>;
+  ERRORS: Record<string, string>;
+}
+
+/**
+ * 认证配置
+ * 定义认证方式、会话管理和错误消息
+ */
+export const AUTH_CONFIG: AuthConfig = {
   // 认证方式
   METHODS: {
     LOCAL: 'local',
@@ -315,8 +426,9 @@ const AUTH_CONFIG = {
 
 /**
  * 事件名称常量
+ * 定义应用中使用的所有事件名称
  */
-const EVENTS = {
+export const EVENTS = {
   // 文件相关事件
   FILE_UPLOAD_START: 'file:upload:start',
   FILE_UPLOAD_PROGRESS: 'file:upload:progress',
@@ -339,8 +451,9 @@ const EVENTS = {
 
 /**
  * 正则表达式常量
+ * 定义常用的正则表达式模式
  */
-const REGEX = {
+export const REGEX = {
   EMAIL: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
   URL: /^https?:\/\/.+/,
   PHONE: /^1[3-9]\d{9}$/,
@@ -350,9 +463,24 @@ const REGEX = {
 };
 
 /**
- * 默认设置
+ * 默认设置接口
  */
-const DEFAULT_SETTINGS = {
+export interface DefaultSettings {
+  theme: string;
+  language: string;
+  autoSave: boolean;
+  showPreview: boolean;
+  enableNotifications: boolean;
+  maxConcurrentUploads: number;
+  chunkSize: number;
+  autoCleanup: boolean;
+}
+
+/**
+ * 默认设置
+ * 定义应用的默认配置选项
+ */
+export const DEFAULT_SETTINGS: DefaultSettings = {
   theme: 'light',
   language: 'zh-CN',
   autoSave: true,
@@ -363,23 +491,26 @@ const DEFAULT_SETTINGS = {
   autoCleanup: false
 };
 
-// 导出配置
+/**
+ * 应用配置的统一导出
+ * 包含所有配置对象的默认导出
+ */
+export default {
+  FILE_CONFIG,
+  UI_CONFIG,
+  API_CONFIG,
+  STORAGE_CONFIG,
+  UPLOAD_CONFIG,
+  VALIDATION_RULES,
+  AUTH_CONFIG,
+  EVENTS,
+  REGEX,
+  DEFAULT_SETTINGS
+} as const;
+
+// 兼容性导出（支持CommonJS）
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
-    FILE_CONFIG,
-    UI_CONFIG,
-    API_CONFIG,
-    STORAGE_CONFIG,
-    UPLOAD_CONFIG,
-    VALIDATION_RULES,
-    AUTH_CONFIG,
-    EVENTS,
-    REGEX,
-    DEFAULT_SETTINGS
-  };
-} else if (typeof window !== 'undefined') {
-  // 浏览器环境下添加到全局对象
-  window.AppConfig = {
     FILE_CONFIG,
     UI_CONFIG,
     API_CONFIG,

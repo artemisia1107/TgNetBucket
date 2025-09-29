@@ -4,9 +4,38 @@
  */
 
 /**
- * 颜色主题配置
+ * 颜色色阶接口
  */
-export const COLORS = {
+export interface ColorScale {
+  50: string;
+  100: string;
+  200: string;
+  300: string;
+  400: string;
+  500: string;
+  600: string;
+  700: string;
+  800: string;
+  900: string;
+}
+
+/**
+ * 颜色主题配置接口
+ */
+export interface Colors {
+  PRIMARY: ColorScale;
+  SECONDARY: ColorScale;
+  SUCCESS: ColorScale;
+  WARNING: ColorScale;
+  ERROR: ColorScale;
+  INFO: ColorScale;
+}
+
+/**
+ * 颜色主题配置
+ * 定义应用的主要颜色系统，包含主色调、辅助色和状态色
+ */
+export const COLORS: Colors = {
   // 主色调
   PRIMARY: {
     50: '#f0f9ff',
@@ -90,9 +119,22 @@ export const COLORS = {
 };
 
 /**
- * 断点配置
+ * 断点配置接口
  */
-export const BREAKPOINTS = {
+export interface Breakpoints {
+  readonly XS: '480px';
+  readonly SM: '640px';
+  readonly MD: '768px';
+  readonly LG: '1024px';
+  readonly XL: '1280px';
+  readonly '2XL': '1536px';
+}
+
+/**
+ * 断点配置
+ * 定义响应式设计的断点尺寸
+ */
+export const BREAKPOINTS: Breakpoints = {
   XS: '480px',
   SM: '640px',
   MD: '768px',
@@ -102,9 +144,25 @@ export const BREAKPOINTS = {
 };
 
 /**
- * Z-index层级
+ * Z-index层级接口
  */
-export const Z_INDEX = {
+export interface ZIndex {
+  readonly DROPDOWN: 1000;
+  readonly STICKY: 1020;
+  readonly FIXED: 1030;
+  readonly MODAL_BACKDROP: 1040;
+  readonly MODAL: 1050;
+  readonly POPOVER: 1060;
+  readonly TOOLTIP: 1070;
+  readonly TOAST: 1080;
+  readonly LOADING: 1090;
+}
+
+/**
+ * Z-index层级
+ * 定义各种UI组件的层级顺序
+ */
+export const Z_INDEX: ZIndex = {
   DROPDOWN: 1000,
   STICKY: 1020,
   FIXED: 1030,

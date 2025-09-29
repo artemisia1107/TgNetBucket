@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { AUTH_CONFIG } from '../constants/config.js';
+import { AUTH_CONFIG } from '../constants/config';
 
 /**
  * 认证弹窗组件
