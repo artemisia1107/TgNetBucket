@@ -280,24 +280,65 @@
     transform: translateY(-100%);
   }
   
-  .message-top-left,
-  .message-top-center,
-  .message-bottom-left,
-  .message-bottom-right,
-  .message-bottom-center {
+  /* 移动端保持位置类的差异化 */
+  .message-top-left {
     top: var(--spacing-3);
     bottom: auto;
     left: var(--spacing-3);
-    right: var(--spacing-3);
-    transform: translateY(-100%);
+    right: auto;
+    transform: translateX(-100%);
   }
   
-  .message-top-left.visible,
-  .message-top-center.visible,
-  .message-bottom-left.visible,
-  .message-bottom-right.visible,
+  .message-top-left.visible {
+    transform: translateX(0);
+  }
+  
+  .message-top-center {
+    top: var(--spacing-3);
+    bottom: auto;
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%) translateY(-100%);
+  }
+  
+  .message-top-center.visible {
+    transform: translateX(-50%) translateY(0);
+  }
+  
+  .message-bottom-left {
+    top: auto;
+    bottom: var(--spacing-3);
+    left: var(--spacing-3);
+    right: auto;
+    transform: translateX(-100%);
+  }
+  
+  .message-bottom-left.visible {
+    transform: translateX(0);
+  }
+  
+  .message-bottom-right {
+    top: auto;
+    bottom: var(--spacing-3);
+    left: auto;
+    right: var(--spacing-3);
+    transform: translateX(100%);
+  }
+  
+  .message-bottom-right.visible {
+    transform: translateX(0);
+  }
+  
+  .message-bottom-center {
+    top: auto;
+    bottom: var(--spacing-3);
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%) translateY(100%);
+  }
+  
   .message-bottom-center.visible {
-    transform: translateY(0);
+    transform: translateX(-50%) translateY(0);
   }
   
   .message-container {

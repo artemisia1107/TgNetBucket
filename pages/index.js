@@ -7,6 +7,7 @@ import FileBatch from '../components/features/FileBatch/FileBatch';
 import FilePreview from '../components/features/FilePreview/FilePreview';
 import PageAuthGuard from '../components/PageAuthGuard';
 import AuthModal from '../components/AuthModal';
+import DeleteQueueStatus from '../components/ui/DeleteQueueStatus';
 
 // 导入自定义钩子
 import { useFileList } from '../hooks/useFileList';
@@ -407,6 +408,9 @@ export default function Home() {
           onGenerateShortLink={() => generateShortLink(previewFile.fileId)}
         />
       )}
+
+      {/* 删除队列状态 */}
+      <DeleteQueueStatus />
 
       {/* 登录弹窗 */}
       <AuthModal

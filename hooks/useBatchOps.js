@@ -77,9 +77,21 @@ export const useBatchOps = (files = [], onFilesChange) => {
 
     if (!confirmed) return;
 
+    // 显示批量删除进度消息
+    const progressMessage = createSuccessMessage(`正在删除 ${selectedFiles.length} 个文件...`, {
+      position: 'top-right',
+      duration: 0 // 不自动消失
+    });
+
     setIsProcessing(true);
     let successCount = 0;
     let errorCount = 0;
+    const errorDetails = {
+      timeout: 0,
+      network: 0,
+      service: 0,
+      other: 0
+    };
 
     try {
       // 并发删除文件，但限制并发数
@@ -93,18 +105,63 @@ export const useBatchOps = (files = [], onFilesChange) => {
           } catch (error) {
             console.error(`删除文件 ${fileId} 失败:`, error);
             errorCount++;
+            
+            // 统计错误类型
+            if (error.response && error.response.data) {
+              const { errorType } = error.response.data;
+              switch (errorType) {
+                case 'NETWORK_TIMEOUT':
+                  errorDetails.timeout++;
+                  break;
+                case 'SERVICE_UNAVAILABLE':
+                  errorDetails.service++;
+                  break;
+                case 'NETWORK_ERROR':
+                  errorDetails.network++;
+                  break;
+                default:
+                  errorDetails.other++;
+              }
+            } else {
+              errorDetails.other++;
+            }
           }
         });
 
         await Promise.all(promises);
+        
+        // 更新进度消息
+        if (progressMessage && progressMessage.updateContent) {
+          const processed = Math.min(i + batchSize, selectedFiles.length);
+          progressMessage.updateContent(`正在删除文件... (${processed}/${selectedFiles.length})`);
+        }
+      }
+
+      // 移除进度消息
+      if (progressMessage && progressMessage.remove) {
+        progressMessage.remove();
       }
 
       // 显示结果消息
       if (successCount > 0) {
         createSuccessMessage(`成功删除 ${successCount} 个文件`);
       }
+      
       if (errorCount > 0) {
-        createErrorMessage(`${errorCount} 个文件删除失败`);
+        let errorMessage = `${errorCount} 个文件删除失败`;
+        
+        // 根据错误类型提供更具体的信息
+        if (errorDetails.timeout > 0) {
+          errorMessage += `，其中 ${errorDetails.timeout} 个因网络超时失败`;
+        }
+        if (errorDetails.network > 0) {
+          errorMessage += `，${errorDetails.network} 个因网络连接失败`;
+        }
+        if (errorDetails.service > 0) {
+          errorMessage += `，${errorDetails.service} 个因服务不可用失败`;
+        }
+        
+        createErrorMessage(errorMessage);
       }
 
       // 清空选择并刷新文件列表
@@ -115,7 +172,13 @@ export const useBatchOps = (files = [], onFilesChange) => {
 
     } catch (error) {
       console.error('批量删除失败:', error);
-      createErrorMessage('批量删除操作失败');
+      
+      // 移除进度消息
+      if (progressMessage && progressMessage.remove) {
+        progressMessage.remove();
+      }
+      
+      createErrorMessage('批量删除操作失败，请稍后重试');
     } finally {
       setIsProcessing(false);
     }

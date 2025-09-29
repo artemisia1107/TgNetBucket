@@ -109,6 +109,53 @@ export const useFileList = () => {
     return filtered;
   }, [files, searchTerm, filterType, sortBy, sortOrder]);
 
+  // 显示网络诊断结果的函数
+  const showNetworkDiagnostics = (diagnostics) => {
+    const { createInfoMessage } = import('../components/ui/Message');
+    
+    const healthStatus = diagnostics.overallHealth;
+    let healthIcon = 'fas fa-check-circle';
+    let healthColor = '#28a745';
+    
+    if (healthStatus === 'poor') {
+      healthIcon = 'fas fa-times-circle';
+      healthColor = '#dc3545';
+    } else if (healthStatus === 'fair') {
+      healthIcon = 'fas fa-exclamation-triangle';
+      healthColor = '#ffc107';
+    }
+    
+    const detailsHtml = diagnostics.details
+      .map(detail => `
+        <div style="margin: 5px 0; padding: 5px; border-left: 3px solid ${detail.status === 'success' ? '#28a745' : '#dc3545'};">
+          <i class="${detail.icon}"></i> <strong>${detail.test}:</strong> ${detail.message}
+        </div>
+      `)
+      .join('');
+    
+    const recommendationsHtml = diagnostics.recommendations && diagnostics.recommendations.length > 0
+      ? `<div style="margin-top: 10px;">
+          <strong><i class="fas fa-lightbulb"></i> 建议:</strong>
+          <ul style="margin: 5px 0; padding-left: 20px;">
+            ${diagnostics.recommendations.map(rec => `<li>${rec}</li>`).join('')}
+          </ul>
+        </div>`
+      : '';
+    
+    const diagnosticHtml = `
+      <div style="max-width: 500px;">
+        <div style="margin-bottom: 10px;">
+          <i class="${healthIcon}" style="color: ${healthColor};"></i> 
+          <strong>网络健康状态: ${healthStatus === 'good' ? '良好' : healthStatus === 'fair' ? '一般' : '较差'}</strong>
+        </div>
+        ${detailsHtml}
+        ${recommendationsHtml}
+      </div>
+    `;
+    
+    createInfoMessage(diagnosticHtml, { duration: 15000 });
+  };
+
   /**
    * 删除文件
    * @param {string} messageId - 消息ID
@@ -116,6 +163,14 @@ export const useFileList = () => {
    * @param {boolean} skipConfirm - 是否跳过确认对话框
    */
   const deleteFile = async (messageId, fileName = '', skipConfirm = false) => {
+    // 获取要删除的文件信息
+    const fileToDelete = files.find(file => file.messageId === messageId);
+    if (!fileToDelete) {
+      const { createErrorMessage } = await import('../components/ui/Message');
+      createErrorMessage('<i class="fas fa-times-circle"></i> 文件不存在');
+      return { success: false, error: '文件不存在' };
+    }
+
     // 如果不跳过确认，显示确认对话框
     if (!skipConfirm) {
       const confirmMessage = fileName 
@@ -148,26 +203,255 @@ export const useFileList = () => {
       }
     }
 
+    // 立即从UI中移除文件（乐观更新）
+    setFiles(prevFiles => prevFiles.filter(file => file.messageId !== messageId));
+    
+    // 显示删除中的消息
+    const { createInfoMessage, createSuccessMessage } = await import('../components/ui/Message');
+    const deletingMessage = createInfoMessage(
+      `<i class="fas fa-spinner fa-spin"></i> 正在删除 "${fileName || fileToDelete.fileName}"...`,
+      { duration: 0 }
+    );
+
     try {
-      await axios.delete(`/api/files?messageId=${messageId}`);
-      await fetchFiles(); // 重新获取文件列表
+      // 导入删除队列
+      const { getDeleteQueue } = await import('../utils/deleteQueue');
+      const deleteQueue = getDeleteQueue();
       
-      // 动态导入消息组件并显示成功消息
-      const { createSuccessMessage } = await import('../components/ui/Message');
-      const successMessage = fileName 
-        ? `文件 "${fileName}" 已成功删除`
-        : '文件已成功删除';
-      createSuccessMessage(successMessage);
+      // 添加到删除队列
+      const taskId = await deleteQueue.addDeleteTask(
+        messageId,
+        fileToDelete,
+        // 成功回调
+        () => {
+          if (deletingMessage && deletingMessage.remove) {
+            deletingMessage.remove();
+          }
+          createSuccessMessage(`<i class="fas fa-check-circle"></i> "${fileName || fileToDelete.fileName}" 删除成功`);
+        },
+        // 错误回调
+        (error) => {
+          if (deletingMessage && deletingMessage.remove) {
+            deletingMessage.remove();
+          }
+          
+          // 恢复文件到列表中
+          setFiles(prevFiles => {
+            const exists = prevFiles.find(f => f.messageId === messageId);
+            if (!exists) {
+              return [...prevFiles, fileToDelete].sort((a, b) => 
+                new Date(b.uploadTime) - new Date(a.uploadTime)
+              );
+            }
+            return prevFiles;
+          });
+          
+          // 显示错误信息
+          handleDeleteError(error, messageId, fileToDelete);
+        }
+      );
+      
+      // 如果在线，立即开始处理队列
+      if (navigator.onLine) {
+        deleteQueue.processQueue();
+      } else {
+        if (deletingMessage && deletingMessage.remove) {
+          deletingMessage.remove();
+        }
+        createInfoMessage(
+          `<i class="fas fa-wifi"></i> 网络离线，"${fileName || fileToDelete.fileName}" 已加入删除队列，将在网络恢复后自动删除`,
+          { duration: 5000 }
+        );
+      }
       
       return { success: true };
+      
     } catch (error) {
-      console.error('删除失败:', error);
+      console.error('删除队列初始化失败:', error);
       
-      // 动态导入消息组件并显示错误消息
+      // 移除加载消息
+      if (deletingMessage && deletingMessage.remove) {
+        deletingMessage.remove();
+      }
+      
+      // 恢复文件到列表中
+      setFiles(prevFiles => {
+        const exists = prevFiles.find(f => f.messageId === messageId);
+        if (!exists) {
+          return [...prevFiles, fileToDelete].sort((a, b) => 
+            new Date(b.uploadTime) - new Date(a.uploadTime)
+          );
+        }
+        return prevFiles;
+      });
+      
+      // 显示错误信息
       const { createErrorMessage } = await import('../components/ui/Message');
-      createErrorMessage('删除文件失败，请稍后重试');
+      createErrorMessage(`<i class="fas fa-times-circle"></i> 删除队列初始化失败: ${error.message}`);
       
-      return { success: false, error: '删除失败' };
+      return { success: false, error: '删除队列初始化失败' };
+    }
+  };
+
+  /**
+   * 处理删除错误
+   * @param {Error} error - 错误对象
+   * @param {string} messageId - 消息ID
+   * @param {Object} fileToDelete - 要删除的文件对象
+   */
+  const handleDeleteError = async (error, messageId, fileToDelete) => {
+    const { createErrorMessage, createWarningMessage, createInfoMessage } = await import('../components/ui/Message');
+    
+    // 根据错误类型显示不同的错误信息和重试选项
+    let errorMessage = '删除文件失败，请稍后重试';
+    let showRetryOption = false;
+    let retryDelay = 3000;
+    let errorIcon = 'fas fa-times-circle';
+    let diagnostics = null;
+    let suggestion = null;
+    
+    if (error.response && error.response.data) {
+      const { errorType, error: apiError, retryable, retryDelay: apiRetryDelay, suggestion: apiSuggestion, diagnostics: apiDiagnostics } = error.response.data;
+      
+      errorMessage = apiError || apiSuggestion || '删除文件失败';
+      showRetryOption = retryable;
+      retryDelay = apiRetryDelay || 3000;
+      suggestion = apiSuggestion;
+      diagnostics = apiDiagnostics;
+      
+      // 根据错误类型提供更具体的处理
+      switch (errorType) {
+        case 'NETWORK_TIMEOUT':
+          errorIcon = 'fas fa-clock';
+          showRetryOption = true;
+          break;
+        case 'CONNECTION_RESET':
+          errorIcon = 'fas fa-exclamation-triangle';
+          showRetryOption = true;
+          break;
+        case 'API_CONNECTION_ERROR':
+          errorIcon = 'fas fa-plug';
+          showRetryOption = true;
+          break;
+        case 'SERVICE_UNAVAILABLE':
+          errorIcon = 'fas fa-server';
+          showRetryOption = true;
+          break;
+        case 'NETWORK_ERROR':
+          errorIcon = 'fas fa-wifi';
+          showRetryOption = true;
+          break;
+      }
+    } else if (error.code === 'NETWORK_ERROR' || error.message.includes('Network Error')) {
+      errorMessage = '网络连接失败，请检查网络连接';
+      errorIcon = 'fas fa-wifi';
+      showRetryOption = true;
+    }
+    
+    // 显示错误消息
+    const errorMessageElement = createErrorMessage(
+      `<i class="${errorIcon}"></i> ${errorMessage}`,
+      {
+        duration: showRetryOption ? 0 : 5000 // 如果有重试选项，不自动消失
+      }
+    );
+    
+    // 如果支持重试，添加重试按钮
+    if (showRetryOption && errorMessageElement && errorMessageElement.element) {
+      const buttonContainer = document.createElement('div');
+      buttonContainer.style.marginTop = '10px';
+      buttonContainer.style.display = 'flex';
+      buttonContainer.style.gap = '8px';
+      
+      // 重试按钮
+      const retryButton = document.createElement('button');
+      retryButton.className = 'btn btn-sm btn-primary';
+      retryButton.innerHTML = `<i class="fas fa-redo"></i> 重试`;
+      
+      // 网络诊断按钮
+      const diagnosticButton = document.createElement('button');
+      diagnosticButton.className = 'btn btn-sm btn-info';
+      diagnosticButton.innerHTML = `<i class="fas fa-stethoscope"></i> 网络诊断`;
+      
+      // 添加重试倒计时（可选）
+      if (retryDelay > 0) {
+        let countdown = Math.ceil(retryDelay / 1000);
+        const updateCountdown = () => {
+          if (countdown > 0) {
+            retryButton.innerHTML = `<i class="fas fa-clock"></i> ${countdown}秒后可重试`;
+            retryButton.disabled = true;
+            countdown--;
+            setTimeout(updateCountdown, 1000);
+          } else {
+            retryButton.innerHTML = `<i class="fas fa-redo"></i> 重试`;
+            retryButton.disabled = false;
+          }
+        };
+        updateCountdown();
+      }
+      
+      retryButton.onclick = async () => {
+        if (errorMessageElement.remove) {
+          errorMessageElement.remove();
+        }
+        // 延迟后重试
+        setTimeout(() => {
+          deleteFile(messageId, fileToDelete.fileName, true); // 跳过确认对话框
+        }, 1000);
+      };
+      
+      // 网络诊断按钮点击事件
+      diagnosticButton.onclick = async () => {
+        diagnosticButton.innerHTML = `<i class="fas fa-spinner fa-spin"></i> 诊断中...`;
+        diagnosticButton.disabled = true;
+        
+        try {
+          const response = await fetch('/api/network-diagnostics');
+          const result = await response.json();
+          
+          if (result.success) {
+            showNetworkDiagnostics(result.data);
+          } else {
+            createErrorMessage(`<i class="fas fa-times-circle"></i> 网络诊断失败: ${result.error}`);
+          }
+        } catch (diagError) {
+          createErrorMessage(`<i class="fas fa-times-circle"></i> 网络诊断失败: ${diagError.message}`);
+        } finally {
+          diagnosticButton.innerHTML = `<i class="fas fa-stethoscope"></i> 网络诊断`;
+          diagnosticButton.disabled = false;
+        }
+      };
+      
+      buttonContainer.appendChild(retryButton);
+      buttonContainer.appendChild(diagnosticButton);
+      errorMessageElement.element.appendChild(buttonContainer);
+    }
+    
+    // 如果有诊断信息，显示简要诊断结果
+    if (diagnostics && diagnostics.details) {
+      setTimeout(() => {
+        const diagSummary = diagnostics.details
+          .filter(detail => detail.status === 'error')
+          .map(detail => `<i class="${detail.icon}"></i> ${detail.message}`)
+          .join('<br>');
+        
+        if (diagSummary) {
+          createWarningMessage(
+            `<i class="fas fa-info-circle"></i> 自动诊断结果:<br>${diagSummary}`,
+            { duration: 8000 }
+          );
+        }
+      }, 1500);
+    }
+    
+    // 如果有建议，显示建议信息
+    if (suggestion) {
+      setTimeout(() => {
+        createInfoMessage(
+          `<i class="fas fa-lightbulb"></i> 建议: ${suggestion}`, 
+          { duration: 6000 }
+        );
+      }, 1000);
     }
   };
 

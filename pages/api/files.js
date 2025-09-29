@@ -128,7 +128,63 @@ export default async function handler(req, res) {
         const result = await telegramStorage.deleteFile(messageId);
         res.status(200).json({ success: true, result });
       } catch (error) {
-        res.status(500).json({ success: false, error: error.message });
+        console.error('删除文件API错误:', error);
+        
+        // 根据错误类型返回适当的状态码和错误信息
+        if (error.message.includes('网络连接超时') || error.message.includes('timeout')) {
+          res.status(408).json({ 
+            success: false, 
+            error: error.message,
+            errorType: 'NETWORK_TIMEOUT',
+            retryable: true,
+            retryDelay: 5000, // 建议5秒后重试
+            suggestion: '网络连接不稳定，建议稍后重试或检查网络连接'
+          });
+        } else if (error.message.includes('无法连接到Telegram服务器') || error.message.includes('服务器可能暂时不可用')) {
+          res.status(503).json({ 
+            success: false, 
+            error: error.message,
+            errorType: 'SERVICE_UNAVAILABLE',
+            retryable: true,
+            retryDelay: 10000, // 建议10秒后重试
+            suggestion: 'Telegram服务暂时不可用，请稍后重试'
+          });
+        } else if (error.message.includes('网络连接失败') || error.message.includes('DNS配置')) {
+          res.status(502).json({ 
+            success: false, 
+            error: error.message,
+            errorType: 'NETWORK_ERROR',
+            retryable: true,
+            retryDelay: 3000, // 建议3秒后重试
+            suggestion: '网络连接问题，请检查网络设置或稍后重试'
+          });
+        } else if (error.message.includes('连接被重置') || error.message.includes('ECONNRESET')) {
+          res.status(502).json({ 
+            success: false, 
+            error: error.message,
+            errorType: 'CONNECTION_RESET',
+            retryable: true,
+            retryDelay: 3000,
+            suggestion: '网络连接不稳定，建议稍后重试'
+          });
+        } else if (error.message.includes('Telegram API连接失败') || error.code === 'EFATAL') {
+          res.status(502).json({ 
+            success: false, 
+            error: error.message,
+            errorType: 'API_CONNECTION_ERROR',
+            retryable: true,
+            retryDelay: 5000,
+            suggestion: 'Telegram API连接失败，请稍后重试'
+          });
+        } else {
+          res.status(500).json({ 
+            success: false, 
+            error: error.message || '删除文件时发生未知错误',
+            errorType: 'UNKNOWN_ERROR',
+            retryable: false,
+            suggestion: '发生未知错误，请联系管理员'
+          });
+        }
       }
       break;
 

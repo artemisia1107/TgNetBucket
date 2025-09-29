@@ -55,14 +55,14 @@ export function useFileManager() {
       if (response.data.success) {
         setFiles(prev => prev.filter(file => file.id !== fileId));
         setSelectedFiles(prev => prev.filter(id => id !== fileId));
-        createSuccessMessage('文件删除成功');
+        createDeleteSuccessMessage('文件删除成功');
         return true;
       } else {
         throw new Error(response.data.error || '删除失败');
       }
     } catch (error) {
       console.error('删除文件失败:', error);
-      createErrorMessage(`删除文件失败: ${error.message}`);
+      createDeleteErrorMessage(`删除文件失败: ${error.message}`);
       return false;
     }
   }, []);
@@ -94,17 +94,17 @@ export function useFileManager() {
       if (successCount > 0) {
         setFiles(prev => prev.filter(file => !fileIds.includes(file.id)));
         setSelectedFiles([]);
-        createSuccessMessage(`成功删除 ${successCount} 个文件`);
+        createDeleteSuccessMessage(`成功删除 ${successCount} 个文件`);
       }
 
       if (successCount < fileIds.length) {
-        createErrorMessage(`${fileIds.length - successCount} 个文件删除失败`);
+        createDeleteErrorMessage(`${fileIds.length - successCount} 个文件删除失败`);
       }
 
       return successCount === fileIds.length;
     } catch (error) {
       console.error('批量删除文件失败:', error);
-      createErrorMessage('批量删除文件失败');
+      createDeleteErrorMessage('批量删除文件失败');
       return false;
     }
   }, [selectedFiles]);

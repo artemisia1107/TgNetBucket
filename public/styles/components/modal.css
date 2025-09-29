@@ -1,0 +1,422 @@
+/**
+ * Modal组件样式
+ * 提供模态框、确认对话框等UI组件的样式定义
+ */
+
+/* ========== 模态框遮罩层 ========== */
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(4px);
+}
+
+.modal-overlay.visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* ========== 基础模态框 ========== */
+
+.modal-dialog {
+  background: var(--color-background, #ffffff);
+  border-radius: 12px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  width: 90%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow: hidden;
+  transform: scale(0.9) translateY(-20px);
+  transition: transform 0.3s ease;
+  position: relative;
+  border: 1px solid var(--color-border, #e1e5e9);
+}
+
+.modal-overlay.visible .modal-dialog {
+  transform: scale(1) translateY(0);
+}
+
+/* ========== 模态框尺寸 ========== */
+
+.modal-small {
+  max-width: 400px;
+}
+
+.modal-medium {
+  max-width: 500px;
+}
+
+.modal-large {
+  max-width: 700px;
+}
+
+.modal-fullscreen {
+  max-width: 95vw;
+  max-height: 95vh;
+}
+
+/* ========== 确认对话框样式 ========== */
+
+.confirm-dialog {
+  max-width: 420px;
+}
+
+.confirm-dialog-warning .modal-header {
+  border-bottom-color: var(--color-warning, #f59e0b);
+}
+
+.confirm-dialog-error .modal-header {
+  border-bottom-color: var(--color-danger, #ef4444);
+}
+
+.confirm-dialog-info .modal-header {
+  border-bottom-color: var(--color-info, #3b82f6);
+}
+
+.confirm-dialog-success .modal-header {
+  border-bottom-color: var(--color-success, #10b981);
+}
+
+/* ========== 模态框头部 ========== */
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid var(--color-border, #e1e5e9);
+  background: var(--color-surface, #fafafa);
+}
+
+.modal-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--color-text-primary, #1a1a1a);
+  line-height: 1.4;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: var(--color-text-muted, #6b7280);
+  padding: 4px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-close:hover {
+  background: var(--color-hover, #f3f4f6);
+  color: var(--color-text-primary, #1a1a1a);
+}
+
+.modal-close:focus {
+  outline: none;
+  background: var(--color-hover, #f3f4f6);
+  box-shadow: 0 0 0 2px var(--color-focus, #3b82f6);
+}
+
+/* ========== 模态框内容 ========== */
+
+.modal-body {
+  padding: 24px;
+  overflow-y: auto;
+  max-height: calc(90vh - 140px);
+}
+
+.confirm-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  text-align: center;
+}
+
+.confirm-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  margin-bottom: 8px;
+}
+
+.confirm-icon.warning {
+  background-color: #fef3c7;
+  color: #f59e0b;
+}
+
+.confirm-icon.error {
+  background-color: #fee2e2;
+  color: #ef4444;
+}
+
+.confirm-icon.info {
+  background-color: #dbeafe;
+  color: #3b82f6;
+}
+
+.confirm-icon.success {
+  background-color: #d1fae5;
+  color: #10b981;
+}
+
+.confirm-message {
+  font-size: 16px;
+  color: var(--color-text-secondary, #4b5563);
+  line-height: 1.6;
+  margin: 0;
+  text-align: center;
+  max-width: 320px;
+}
+
+/* ========== 模态框底部 ========== */
+
+.modal-footer {
+  padding: 16px 24px 24px;
+  border-top: 1px solid var(--color-border, #e1e5e9);
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  background: var(--color-surface, #fafafa);
+}
+
+.modal-footer.centered {
+  justify-content: center;
+}
+
+.modal-footer.space-between {
+  justify-content: space-between;
+}
+
+/* ========== 按钮样式 ========== */
+
+.btn {
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  min-width: 80px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
+.btn:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--color-focus, #3b82f6);
+}
+
+.btn-primary {
+  background: var(--color-primary, #3b82f6);
+  color: white;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: var(--color-primary-dark, #2563eb);
+}
+
+.btn-primary:disabled {
+  background: var(--color-disabled, #d1d5db);
+  color: var(--color-text-disabled, #9ca3af);
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  background: var(--color-surface, #f9fafb);
+  color: var(--color-text-secondary, #4b5563);
+  border: 1px solid var(--color-border, #e1e5e9);
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: var(--color-hover, #f3f4f6);
+  color: var(--color-text-primary, #1a1a1a);
+  border-color: var(--color-border-hover, #d1d5db);
+}
+
+.btn-secondary:disabled {
+  background: var(--color-disabled, #f9fafb);
+  color: var(--color-text-disabled, #9ca3af);
+  cursor: not-allowed;
+  border-color: var(--color-border, #e1e5e9);
+}
+
+.btn-danger {
+  background: var(--color-danger, #ef4444);
+  color: white;
+}
+
+.btn-danger:hover:not(:disabled) {
+  background: var(--color-danger-dark, #dc2626);
+}
+
+.btn-danger:disabled {
+  background: var(--color-disabled, #d1d5db);
+  color: var(--color-text-disabled, #9ca3af);
+  cursor: not-allowed;
+}
+
+/* ========== 加载模态框 ========== */
+
+.loading-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 20px;
+  text-align: center;
+}
+
+.loading-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--color-border, #e1e5e9);
+  border-top: 3px solid var(--color-primary, #3b82f6);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.loading-text {
+  margin: 0;
+  font-size: 14px;
+  color: var(--color-text-secondary, #4b5563);
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* ========== 响应式设计 ========== */
+
+@media (max-width: 768px) {
+  .modal-dialog {
+    width: 95%;
+    margin: 20px;
+    max-height: 85vh;
+  }
+
+  .modal-header,
+  .modal-body,
+  .modal-footer {
+    padding: 16px 20px;
+  }
+
+  .modal-footer {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .confirm-message {
+    font-size: 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .modal-dialog {
+    width: 100%;
+    margin: 10px;
+    border-radius: 8px;
+  }
+
+  .modal-header {
+    padding: 12px 16px;
+  }
+
+  .modal-body {
+    padding: 16px;
+  }
+
+  .modal-footer {
+    padding: 12px 16px 16px;
+  }
+
+  .modal-title {
+    font-size: 16px;
+  }
+
+  .confirm-message {
+    font-size: 14px;
+  }
+}
+
+/* ========== 深色主题支持 ========== */
+
+@media (prefers-color-scheme: dark) {
+  .modal-dialog {
+    background: var(--color-background-dark, #1f2937);
+    border-color: var(--color-border-dark, #374151);
+  }
+
+  .modal-header,
+  .modal-footer {
+    background: var(--color-surface-dark, #111827);
+    border-color: var(--color-border-dark, #374151);
+  }
+
+  .modal-title {
+    color: var(--color-text-primary-dark, #f9fafb);
+  }
+
+  .confirm-message {
+    color: var(--color-text-secondary-dark, #d1d5db);
+  }
+
+  .modal-close {
+    color: var(--color-text-muted-dark, #9ca3af);
+  }
+
+  .modal-close:hover {
+    background: var(--color-hover-dark, #374151);
+    color: var(--color-text-primary-dark, #f9fafb);
+  }
+
+  .btn-secondary {
+    background: var(--color-surface-dark, #374151);
+    color: var(--color-text-secondary-dark, #d1d5db);
+    border-color: var(--color-border-dark, #4b5563);
+  }
+
+  .btn-secondary:hover:not(:disabled) {
+    background: var(--color-hover-dark, #4b5563);
+    color: var(--color-text-primary-dark, #f9fafb);
+  }
+
+  .loading-spinner {
+    border-color: var(--color-border-dark, #4b5563);
+    border-top-color: var(--color-primary, #3b82f6);
+  }
+
+  .loading-text {
+    color: var(--color-text-secondary-dark, #d1d5db);
+  }
+}

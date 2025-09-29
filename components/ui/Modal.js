@@ -27,16 +27,33 @@ function createConfirmDialog(message, onConfirm, onCancel, options = {}) {
   const dialog = document.createElement('div');
   dialog.className = `modal-dialog confirm-dialog confirm-dialog-${type}`;
   
+  // 根据类型选择图标
+  const getIcon = (type) => {
+    switch (type) {
+      case 'warning': return '<i class="fas fa-exclamation-triangle"></i>';
+      case 'error': return '<i class="fas fa-times-circle"></i>';
+      case 'info': return '<i class="fas fa-info-circle"></i>';
+      case 'success': return '<i class="fas fa-check-circle"></i>';
+      default: return '<i class="fas fa-question-circle"></i>';
+    }
+  };
+
   dialog.innerHTML = `
     <div class="modal-header">
       <h3 class="modal-title">${title}</h3>
+      <button class="modal-close" aria-label="关闭">&times;</button>
     </div>
     <div class="modal-body">
-      <p class="confirm-message">${message}</p>
+      <div class="confirm-content">
+        <div class="confirm-icon ${type}">
+          ${getIcon(type)}
+        </div>
+        <p class="confirm-message">${message}</p>
+      </div>
     </div>
     <div class="modal-footer">
       <button class="btn btn-secondary cancel-btn">${cancelText}</button>
-      <button class="btn btn-primary confirm-btn">${confirmText}</button>
+      <button class="btn ${type === 'error' || type === 'warning' ? 'btn-danger' : 'btn-primary'} confirm-btn">${confirmText}</button>
     </div>
   `;
   
@@ -46,6 +63,7 @@ function createConfirmDialog(message, onConfirm, onCancel, options = {}) {
   // 获取按钮元素
   const cancelBtn = dialog.querySelector('.cancel-btn');
   const confirmBtn = dialog.querySelector('.confirm-btn');
+  const closeBtn = dialog.querySelector('.modal-close');
   
   // 关闭对话框函数
   const closeDialog = () => {
@@ -66,6 +84,11 @@ function createConfirmDialog(message, onConfirm, onCancel, options = {}) {
   confirmBtn.addEventListener('click', () => {
     closeDialog();
     if (onConfirm) onConfirm();
+  });
+
+  closeBtn.addEventListener('click', () => {
+    closeDialog();
+    if (onCancel) onCancel();
   });
   
   overlay.addEventListener('click', (e) => {

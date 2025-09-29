@@ -346,10 +346,11 @@
 }
 
 .checkbox-container input:checked ~ .checkmark:after {
-  content: "✓";
+  content: "\f00c"; /* Font Awesome check icon */
+  font-family: "Font Awesome 5 Free";
+  font-weight: 900;
   color: white;
   font-size: 12px;
-  font-weight: bold;
 }
 
 /* 文件内容 */

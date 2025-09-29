@@ -17,10 +17,12 @@
 @import './components/forms.css';
 @import './components/messages.css';
 @import './components/dialogs.css';
+@import './components/modal.css';
 @import './components/header.css';
 @import './components/footer.css';
 @import './components/admin-header.css';
 @import './components/image-interactions.css';
+@import './components/delete-queue-status.css';
 
 /* ========== 页面样式 ========== */
 

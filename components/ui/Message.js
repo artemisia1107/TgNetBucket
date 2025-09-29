@@ -7,10 +7,14 @@
  * 创建消息提示
  * @param {string} message - 消息内容
  * @param {string} type - 消息类型 ('success' | 'error' | 'info')
- * @param {number} duration - 显示时长（毫秒）
- * @param {string} position - 消息位置 ('top-right' | 'top-left' | 'bottom-right' | 'bottom-left' | 'top-center' | 'bottom-center')
+ * @param {Object} options - 配置选项
+ * @param {number} options.duration - 显示时长（毫秒），0表示不自动消失
+ * @param {string} options.position - 消息位置
+ * @returns {Object} 包含元素引用和控制方法的对象
  */
-function createMessage(message, type = 'info', duration = 3000, position = 'top-right') {
+function createMessage(message, type = 'info', options = {}) {
+  const { duration = 3000, position = 'top-right' } = options;
+  
   // 创建消息容器
   const messageContainer = document.createElement('div');
   
@@ -49,59 +53,101 @@ function createMessage(message, type = 'info', duration = 3000, position = 'top-
     messageContainer.classList.add('visible');
   }, 10);
 
-  // 自动移除
-  setTimeout(() => {
+  let autoRemoveTimeout = null;
+  
+  // 自动移除（如果duration > 0）
+  if (duration > 0) {
+    autoRemoveTimeout = setTimeout(() => {
+      removeMessage();
+    }, duration);
+  }
+  
+  // 移除消息的方法
+  function removeMessage() {
+    if (autoRemoveTimeout) {
+      clearTimeout(autoRemoveTimeout);
+      autoRemoveTimeout = null;
+    }
+    
     messageContainer.classList.remove('visible');
     setTimeout(() => {
       if (messageContainer.parentNode) {
         document.body.removeChild(messageContainer);
       }
     }, 300);
-  }, duration);
+  }
+  
+  // 更新消息内容的方法
+  function updateContent(newMessage) {
+    messageContainer.textContent = newMessage;
+  }
+  
+  // 返回控制对象
+  return {
+    element: messageContainer,
+    remove: removeMessage,
+    updateContent: updateContent
+  };
 }
 
 /**
  * 创建成功消息
  * @param {string} message - 消息内容
- * @param {number} duration - 显示时长
- * @param {string} position - 消息位置
- * @returns {HTMLElement} 消息元素
+ * @param {Object|number} options - 配置选项或持续时间（向后兼容）
+ * @param {string} position - 消息位置（向后兼容）
+ * @returns {Object} 消息控制对象
  */
-function createSuccessMessage(message, duration = 3000, position = 'top-right') {
-  return createMessage(message, 'success', duration, position);
+function createSuccessMessage(message, options = {}, position = 'top-right') {
+  // 向后兼容：如果第二个参数是数字，则视为duration
+  if (typeof options === 'number') {
+    options = { duration: options, position };
+  }
+  return createMessage(message, 'success', { duration: 3000, position: 'top-right', ...options });
 }
 
 /**
  * 创建错误消息
  * @param {string} message - 消息内容
- * @param {number} duration - 显示时长
- * @param {string} position - 消息位置
- * @returns {HTMLElement} 消息元素
+ * @param {Object|number} options - 配置选项或持续时间（向后兼容）
+ * @param {string} position - 消息位置（向后兼容）
+ * @returns {Object} 消息控制对象
  */
-function createErrorMessage(message, duration = 4000, position = 'top-right') {
-  return createMessage(message, 'error', duration, position);
+function createErrorMessage(message, options = {}, position = 'top-right') {
+  // 向后兼容：如果第二个参数是数字，则视为duration
+  if (typeof options === 'number') {
+    options = { duration: options, position };
+  }
+  return createMessage(message, 'error', { duration: 4000, position: 'top-right', ...options });
 }
 
 /**
  * 创建警告消息
  * @param {string} message - 消息内容
- * @param {number} duration - 显示时长
- * @param {string} position - 消息位置
- * @returns {HTMLElement} 消息元素
+ * @param {Object|number} options - 配置选项或持续时间（向后兼容）
+ * @param {string} position - 消息位置（向后兼容）
+ * @returns {Object} 消息控制对象
  */
-function createWarningMessage(message, duration = 3500, position = 'top-right') {
-  return createMessage(message, 'warning', duration, position);
+function createWarningMessage(message, options = {}, position = 'top-right') {
+  // 向后兼容：如果第二个参数是数字，则视为duration
+  if (typeof options === 'number') {
+    options = { duration: options, position };
+  }
+  return createMessage(message, 'warning', { duration: 3500, position: 'top-right', ...options });
 }
 
 /**
  * 创建信息消息
  * @param {string} message - 消息内容
- * @param {number} duration - 显示时长
- * @param {string} position - 消息位置
- * @returns {HTMLElement} 消息元素
+ * @param {Object|number} options - 配置选项或持续时间（向后兼容）
+ * @param {string} position - 消息位置（向后兼容）
+ * @returns {Object} 消息控制对象
  */
-function createInfoMessage(message, duration = 3000, position = 'top-right') {
-  return createMessage(message, 'info', duration, position);
+function createInfoMessage(message, options = {}, position = 'top-right') {
+  // 向后兼容：如果第二个参数是数字，则视为duration
+  if (typeof options === 'number') {
+    options = { duration: options, position };
+  }
+  return createMessage(message, 'info', { duration: 3000, position: 'top-right', ...options });
 }
 
 /**
