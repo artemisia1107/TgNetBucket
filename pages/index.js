@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Head from 'next/head';
 import Header from '../components/layout/Header';
 import Footer from '../components/layout/Footer';
@@ -29,7 +29,6 @@ export default function Home() {
   // 使用自定义钩子管理状态
   const {
     files,
-    rawFiles,
     loading,
     searchTerm,
     setSearchTerm,
