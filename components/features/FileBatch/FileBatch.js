@@ -10,9 +10,14 @@ import axios from 'axios';
  * 文件批量操作组件
  * @param {Object} props - 组件属性
  * @param {Array} props.files - 文件列表
- * @param {Function} props.onSelectionChange - 选择变化回调
+ * @param {Array} props.selectedFiles - 已选择的文件ID列表
+ * @param {number} props.selectedTotalSize - 已选择文件的总大小
+ * @param {boolean} props.isProcessing - 是否正在处理
  * @param {Function} props.onBatchDelete - 批量删除回调
  * @param {Function} props.onBatchDownload - 批量下载回调
+ * @param {Function} props.onBatchGenerateShortLinks - 批量生成短链接回调
+ * @param {Function} props.onClearSelection - 清空选择回调
+ * @param {Function} props.onSelectAll - 全选回调
  * @param {Function} props.onError - 错误回调
  * @param {boolean} props.disabled - 是否禁用
  * @param {string} props.className - 额外的CSS类名
@@ -20,179 +25,64 @@ import axios from 'axios';
  */
 const FileBatch = ({
   files = [],
-  onSelectionChange,
+  selectedFiles = [],
+  selectedTotalSize = 0,
+  isProcessing = false,
   onBatchDelete,
   onBatchDownload,
+  onBatchGenerateShortLinks,
+  onClearSelection,
+  onSelectAll,
   onError,
   disabled = false,
   className = ''
 }) => {
-  const [selectedFiles, setSelectedFiles] = useState(new Set());
-  const [isProcessing, setIsProcessing] = useState(false);
   const [operationType, setOperationType] = useState('');
-
-  /**
-   * 处理单个文件选择
-   * @param {string} fileId - 文件ID
-   * @param {boolean} isSelected - 是否选中
-   */
-  const handleFileSelect = useCallback((fileId, isSelected) => {
-    const newSelection = new Set(selectedFiles);
-    
-    if (isSelected) {
-      newSelection.add(fileId);
-    } else {
-      newSelection.delete(fileId);
-    }
-    
-    setSelectedFiles(newSelection);
-    
-    if (onSelectionChange) {
-      onSelectionChange(Array.from(newSelection));
-    }
-  }, [selectedFiles, onSelectionChange]);
 
   /**
    * 处理全选/取消全选
    */
   const handleSelectAll = useCallback(() => {
-    const allFileIds = files.map(file => file.id);
-    const isAllSelected = allFileIds.every(id => selectedFiles.has(id));
-    
-    let newSelection;
-    if (isAllSelected) {
-      newSelection = new Set();
-    } else {
-      newSelection = new Set(allFileIds);
+    if (onSelectAll) {
+      onSelectAll();
     }
-    
-    setSelectedFiles(newSelection);
-    
-    if (onSelectionChange) {
-      onSelectionChange(Array.from(newSelection));
-    }
-  }, [files, selectedFiles, onSelectionChange]);
+  }, [onSelectAll]);
 
   /**
    * 清空选择
    */
   const clearSelection = useCallback(() => {
-    setSelectedFiles(new Set());
-    
-    if (onSelectionChange) {
-      onSelectionChange([]);
+    if (onClearSelection) {
+      onClearSelection();
     }
-  }, [onSelectionChange]);
+  }, [onClearSelection]);
 
   /**
    * 批量删除文件
    */
-  const handleBatchDelete = async () => {
-    if (selectedFiles.size === 0) {
-      if (onError) {
-        onError(new Error('请先选择要删除的文件'));
-      }
-      return;
+  const handleBatchDelete = useCallback(() => {
+    if (onBatchDelete) {
+      onBatchDelete();
     }
-
-    const confirmed = window.confirm(`确定要删除选中的 ${selectedFiles.size} 个文件吗？此操作不可恢复。`);
-    if (!confirmed) return;
-
-    setIsProcessing(true);
-    setOperationType('delete');
-
-    try {
-      const selectedFileIds = Array.from(selectedFiles);
-      const deletePromises = selectedFileIds.map(fileId => 
-        axios.delete(`/api/files/${fileId}`)
-      );
-
-      await Promise.all(deletePromises);
-
-      // 清空选择
-      clearSelection();
-
-      if (onBatchDelete) {
-        onBatchDelete(selectedFileIds);
-      }
-    } catch (error) {
-      console.error('批量删除失败:', error);
-      if (onError) {
-        onError(error);
-      }
-    } finally {
-      setIsProcessing(false);
-      setOperationType('');
-    }
-  };
+  }, [onBatchDelete]);
 
   /**
    * 批量下载文件
    */
-  const handleBatchDownload = async () => {
-    if (selectedFiles.size === 0) {
-      if (onError) {
-        onError(new Error('请先选择要下载的文件'));
-      }
-      return;
+  const handleBatchDownload = useCallback(() => {
+    if (onBatchDownload) {
+      onBatchDownload();
     }
-
-    setIsProcessing(true);
-    setOperationType('download');
-
-    try {
-      const selectedFileIds = Array.from(selectedFiles);
-      
-      if (selectedFileIds.length === 1) {
-        // 单文件直接下载
-        const fileId = selectedFileIds[0];
-        const file = files.find(f => f.id === fileId);
-        if (file) {
-          window.open(`/api/files/${fileId}/download`, '_blank');
-        }
-      } else {
-        // 多文件打包下载
-        const response = await axios.post('/api/files/batch-download', {
-          fileIds: selectedFileIds
-        }, {
-          responseType: 'blob'
-        });
-
-        // 创建下载链接
-        const blob = new Blob([response.data]);
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `batch_download_${Date.now()}.zip`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        window.URL.revokeObjectURL(url);
-      }
-
-      if (onBatchDownload) {
-        onBatchDownload(selectedFileIds);
-      }
-    } catch (error) {
-      console.error('批量下载失败:', error);
-      if (onError) {
-        onError(error);
-      }
-    } finally {
-      setIsProcessing(false);
-      setOperationType('');
-    }
-  };
+  }, [onBatchDownload]);
 
   /**
-   * 获取选中文件的总大小
+   * 批量生成短链接
    */
-  const getSelectedSize = useCallback(() => {
-    return Array.from(selectedFiles).reduce((total, fileId) => {
-      const file = files.find(f => f.id === fileId);
-      return total + (file ? file.size : 0);
-    }, 0);
-  }, [selectedFiles, files]);
+  const handleBatchGenerateShortLinks = useCallback(() => {
+    if (onBatchGenerateShortLinks) {
+      onBatchGenerateShortLinks();
+    }
+  }, [onBatchGenerateShortLinks]);
 
   /**
    * 格式化文件大小
@@ -205,7 +95,7 @@ const FileBatch = ({
     return `${parseFloat((bytes / Math.pow(k, i)).toFixed(2))} ${sizes[i]}`;
   };
 
-  const selectedCount = selectedFiles.size;
+  const selectedCount = selectedFiles.length;
   const totalCount = files.length;
   const isAllSelected = totalCount > 0 && selectedCount === totalCount;
   const isPartialSelected = selectedCount > 0 && selectedCount < totalCount;
@@ -237,7 +127,7 @@ const FileBatch = ({
           {selectedCount > 0 && (
             <div className="selection-info">
               <span className="selected-size">
-                总大小: {formatFileSize(getSelectedSize())}
+                总大小: {formatFileSize(selectedTotalSize)}
               </span>
               <button
                 className="clear-selection"
@@ -278,6 +168,28 @@ const FileBatch = ({
             </button>
             
             <button
+              className="batch-shortlink-btn"
+              onClick={handleBatchGenerateShortLinks}
+              disabled={disabled || isProcessing}
+              type="button"
+            >
+              {isProcessing && operationType === 'shortlink' ? (
+                <>
+                  <span className="loading-spinner"></span>
+                  生成中...
+                </>
+              ) : (
+                <>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+                    <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+                  </svg>
+                  短链接 ({selectedCount})
+                </>
+              )}
+            </button>
+            
+            <button
               className="batch-delete-btn"
               onClick={handleBatchDelete}
               disabled={disabled || isProcessing}
@@ -304,26 +216,7 @@ const FileBatch = ({
         )}
       </div>
 
-      {/* 文件选择器 */}
-      <div className="file-selection-list">
-        {files.map(file => (
-          <div key={file.id} className="file-selection-item">
-            <label className="file-checkbox">
-              <input
-                type="checkbox"
-                checked={selectedFiles.has(file.id)}
-                onChange={(e) => handleFileSelect(file.id, e.target.checked)}
-                disabled={disabled || isProcessing}
-              />
-              <span className="checkmark"></span>
-              <span className="file-info">
-                <span className="file-name">{file.name}</span>
-                <span className="file-size">{formatFileSize(file.size)}</span>
-              </span>
-            </label>
-          </div>
-        ))}
-      </div>
+
     </div>
   );
 };

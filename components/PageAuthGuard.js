@@ -3,7 +3,7 @@
  * 在页面加载时检查认证状态，未认证时显示认证弹窗
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import AuthModal from './AuthModal';
 import { getAuthStatus, setAuthSession } from '../utils/authUtils';
 import { AUTH_CONFIG } from '../constants/config';
@@ -32,7 +32,7 @@ const PageAuthGuard = ({
   /**
    * 检查认证状态
    */
-  const checkAuthentication = () => {
+  const checkAuthentication = useCallback(() => {
     const authStatus = getAuthStatus();
     const authenticated = authStatus === AUTH_CONFIG.STATUS.AUTHENTICATED;
     
@@ -44,7 +44,7 @@ const PageAuthGuard = ({
     
     setIsLoading(false);
     return authenticated;
-  };
+  }, [requireAuth]);
 
   /**
    * 处理认证成功

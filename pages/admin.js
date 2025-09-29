@@ -15,8 +15,7 @@ import {
 } from '../components/ui/Message';
 import { createConfirmDialog } from '../components/ui/Modal';
 import AuthModal from '../components/AuthModal';
-import { getAuthStatus, requiresAuth } from '../utils/authUtils';
-import { getIconClass } from '../utils/iconUtils';
+import { getAuthStatus } from '../utils/authUtils';
 
 // 认证状态常量
 const AUTH_STATUS = {

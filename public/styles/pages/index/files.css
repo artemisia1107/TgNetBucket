@@ -78,6 +78,32 @@
   color: var(--color-primary);
 }
 
+/* 文件工具栏样式 */
+.file-toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-4);
+  margin-bottom: var(--spacing-4);
+  padding: var(--spacing-3);
+  background: var(--color-surface);
+  border-radius: var(--border-radius-lg);
+  border: 1px solid var(--color-border);
+  flex-wrap: wrap;
+}
+
+.batch-operations-container {
+  display: flex;
+  align-items: center;
+  margin-right: auto;
+}
+
+.filter-controls {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  margin-left: auto;
+}
+
 /* 过滤器和排序控件 */
 .filter-group {
   display: flex;
@@ -85,7 +111,8 @@
   gap: var(--spacing-2);
 }
 
-.filter-select {
+.filter-select,
+.sort-select {
   padding: var(--spacing-2) var(--spacing-3);
   border: 1px solid var(--color-border);
   border-radius: var(--border-radius-md);
@@ -95,7 +122,8 @@
   cursor: pointer;
 }
 
-.filter-select:focus {
+.filter-select:focus,
+.sort-select:focus {
   outline: none;
   border-color: var(--color-primary);
 }
@@ -128,35 +156,38 @@
   border-color: var(--color-primary-light);
 }
 
-.view-toggle {
-  display: flex;
+.sort-order-btn {
+  padding: var(--spacing-2) var(--spacing-3);
   border: 1px solid var(--color-border);
   border-radius: var(--border-radius-md);
-  overflow: hidden;
-}
-
-.view-btn {
-  padding: var(--spacing-2) var(--spacing-3);
-  border: none;
   background: var(--color-background);
-  color: var(--color-text-primary);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
   cursor: pointer;
   transition: all var(--transition-fast);
-  border-right: 1px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.5rem;
+  height: 2.5rem;
 }
 
-.view-btn:last-child {
-  border-right: none;
-}
-
-.view-btn.active {
-  background: var(--color-primary);
-  color: white;
-}
-
-.view-btn:hover:not(.active) {
+.sort-order-btn:hover {
   background: var(--color-surface);
+  border-color: var(--color-primary-light);
+  color: var(--color-primary);
 }
+
+.sort-order-btn i {
+  margin: 0;
+  padding: 0;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+
 
 .batch-actions {
   display: flex;
@@ -198,11 +229,7 @@
   margin-top: var(--spacing-4);
 }
 
-.file-container.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: var(--spacing-4);
-}
+
 
 .file-container.list {
   display: flex;
@@ -234,21 +261,7 @@
   background: var(--color-primary-light);
 }
 
-/* 网格视图样式 */
-.file-container.grid .file-item {
-  flex-direction: column;
-  padding: var(--spacing-4);
-}
 
-.file-container.grid .file-select {
-  position: absolute;
-  top: var(--spacing-2);
-  right: var(--spacing-2);
-}
-
-.file-container.grid .file-content {
-  width: 100%;
-}
 
 /* 列表视图样式 */
 .file-container.list .file-item {
@@ -376,6 +389,12 @@
   margin: 0 0 var(--spacing-1);
   word-break: break-word;
   line-height: var(--line-height-tight);
+  background: var(--color-surface);
+  padding: 0.25rem var(--spacing-2);
+  border-radius: var(--border-radius-md);
+  border: 1px solid var(--color-border);
+  width: fit-content;
+  max-width: 100%;
 }
 
 .file-meta {
@@ -384,26 +403,22 @@
   gap: 0.25rem;
 }
 
-.file-type {
-  font-size: var(--font-size-sm);
-  color: var(--color-text-muted);
-  background: var(--color-surface);
-  padding: 0.125rem var(--spacing-2);
-  border-radius: var(--border-radius-full);
-  font-weight: var(--font-weight-medium);
-  text-transform: uppercase;
-  width: fit-content;
-}
-
-.file-size {
-  font-size: var(--font-size-sm);
-  color: var(--color-text-muted);
-  margin: 0;
-}
-
+.file-type,
+.file-size,
 .file-date {
   font-size: var(--font-size-sm);
   color: var(--color-text-muted);
+  background: var(--color-surface);
+  padding: 0.25rem var(--spacing-2);
+  border-radius: var(--border-radius-md);
+  border: 1px solid var(--color-border);
+  font-weight: var(--font-weight-medium);
+  width: fit-content;
+  margin: 0;
+}
+
+.file-type {
+  text-transform: uppercase;
 }
 
 /* ========== 文件操作 ========== */
@@ -412,8 +427,10 @@
   display: flex;
   gap: var(--spacing-2);
   margin-top: var(--spacing-3);
-  padding-top: var(--spacing-3);
-  border-top: 1px solid var(--color-border);
+  padding: var(--spacing-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-lg);
+  background: var(--color-surface);
 }
 
 .file-action {
@@ -588,9 +605,7 @@
     justify-content: space-between;
   }
   
-  .file-container.grid {
-    grid-template-columns: 1fr;
-  }
+
   
   .file-container.list .file-content {
     flex-direction: column;

@@ -61,7 +61,7 @@ export default function Home() {
     selectedTotalSizeFormatted,
     isProcessing,
     toggleFileSelection,
-    selectAllFiles,
+    toggleSelectAll,
     clearSelection,
     batchDelete,
     batchDownload,
@@ -69,7 +69,7 @@ export default function Home() {
   } = useBatchOps(files);
 
   // 视图模式状态
-  const [viewMode, setViewMode] = useState('grid');
+
   const [previewFile, setPreviewFile] = useState(null);
   
   // 登录状态管理
@@ -245,22 +245,25 @@ export default function Home() {
             </div>
           </div>
 
-          {/* 批量操作组件 */}
-          {selectedFiles.length > 0 && (
-            <FileBatch
-              selectedFiles={selectedFiles}
-              selectedTotalSize={selectedTotalSize}
-              isProcessing={isProcessing}
-              onBatchDelete={() => batchDelete().then(handleBatchOperationComplete)}
-              onBatchDownload={batchDownload}
-              onBatchGenerateShortLinks={() => batchGenerateShortLinks().then(handleBatchOperationComplete)}
-              onClearSelection={clearSelection}
-              onSelectAll={() => selectAllFiles(filteredFiles)}
-            />
-          )}
-
           {/* 文件管理工具栏 */}
           <div className="file-toolbar">
+            {/* 批量操作组件 */}
+            {selectedFiles.length > 0 && (
+              <div className="batch-operations-container">
+                <FileBatch
+                  files={filteredFiles}
+                  selectedFiles={selectedFiles}
+                  selectedTotalSize={selectedTotalSize}
+                  isProcessing={isProcessing}
+                  onBatchDelete={() => batchDelete().then(handleBatchOperationComplete)}
+                  onBatchDownload={batchDownload}
+                  onBatchGenerateShortLinks={() => batchGenerateShortLinks().then(handleBatchOperationComplete)}
+                  onClearSelection={clearSelection}
+                  onSelectAll={toggleSelectAll}
+                />
+              </div>
+            )}
+
             {/* 搜索框 */}
             <div className="search-container">
               <input
@@ -306,24 +309,6 @@ export default function Home() {
                 <i className={`fas ${sortOrder === 'asc' ? 'fa-sort-up' : 'fa-sort-down'}`}></i>
               </button>
             </div>
-
-            {/* 视图模式切换 */}
-            <div className="view-controls">
-              <button
-                onClick={() => setViewMode('grid')}
-                className={`view-btn ${viewMode === 'grid' ? 'active' : ''}`}
-                title="网格视图"
-              >
-                <i className="fas fa-th"></i>
-              </button>
-              <button
-                onClick={() => setViewMode('list')}
-                className={`view-btn ${viewMode === 'list' ? 'active' : ''}`}
-                title="列表视图"
-              >
-                <i className="fas fa-list"></i>
-              </button>
-            </div>
           </div>
 
           {loading && (
@@ -343,7 +328,7 @@ export default function Home() {
             </div>
           )}
 
-          <div className={`file-container ${viewMode}`}>
+          <div className="file-container list">
             {filteredFiles.map((file) => (
               <div key={file.fileId} className="file-item">
                 {/* 文件选择复选框 */}
