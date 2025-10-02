@@ -179,7 +179,7 @@ export default function Home() {
   const filteredFiles = files;
 
   return (
-    <PageAuthGuard>
+    <PageAuthGuard requireAuth={true}>
       <div className="app">
         <Head>
           <title>TgNetBucket - 现代化文件存储</title>

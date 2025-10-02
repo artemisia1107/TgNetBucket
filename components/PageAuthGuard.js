@@ -28,22 +28,33 @@ const PageAuthGuard = ({
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [isMounted, setIsMounted] = useState(false);
 
   /**
    * 检查认证状态
    */
   const checkAuthentication = useCallback(() => {
-    const authStatus = getAuthStatus();
-    const authenticated = authStatus === AUTH_CONFIG.STATUS.AUTHENTICATED;
-    
-    setIsAuthenticated(authenticated);
-    
-    if (requireAuth && !authenticated) {
-      setShowAuthModal(true);
+    try {
+      const authStatus = getAuthStatus();
+      const authenticated = authStatus === AUTH_CONFIG.STATUS.AUTHENTICATED;
+      
+      setIsAuthenticated(authenticated);
+      
+      if (requireAuth && !authenticated) {
+        setShowAuthModal(true);
+      }
+      
+      setIsLoading(false);
+      return authenticated;
+    } catch (error) {
+      console.error('Error checking authentication:', error);
+      setIsAuthenticated(false);
+      setIsLoading(false);
+      if (requireAuth) {
+        setShowAuthModal(true);
+      }
+      return false;
     }
-    
-    setIsLoading(false);
-    return authenticated;
   }, [requireAuth]);
 
   /**
@@ -94,12 +105,28 @@ const PageAuthGuard = ({
     }
   };
 
-
-
   // 页面加载时检查认证状态
   useEffect(() => {
+    setIsMounted(true);
     checkAuthentication();
-  }, [requireAuth, checkAuthentication]);
+  }, [checkAuthentication]);
+
+  // 如果组件未挂载（服务器端渲染），根据requireAuth决定显示内容
+  if (!isMounted) {
+    if (requireAuth) {
+      return (
+        <AuthModal
+          isOpen={true}
+          onClose={handleAuthClose}
+          onSuccess={handleAuthSuccess}
+          title="页面访问需要认证"
+          message="请输入管理员用户名和密码以访问此页面"
+        />
+      );
+    } else {
+      return <>{children}</>;
+    }
+  }
 
   // 如果正在加载，显示加载状态
   if (isLoading) {

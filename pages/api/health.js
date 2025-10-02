@@ -35,11 +35,13 @@ export default function handler(req, res) {
 
     // 对于 HEAD 请求，只返回状态码
     if (req.method === 'HEAD') {
-      return res.status(200).end();
+      res.status(200).end();
+      return;
     }
 
     // 对于 GET 请求，返回详细的健康状态
     res.status(200).json(healthStatus);
+    return;
 
   } catch (error) {
     console.error('健康检查失败:', error);
@@ -53,9 +55,11 @@ export default function handler(req, res) {
 
     // 对于 HEAD 请求，返回错误状态码
     if (req.method === 'HEAD') {
-      return res.status(500).end();
+      res.status(500).end();
+      return;
     }
 
     res.status(500).json(errorResponse);
+    return;
   }
 }

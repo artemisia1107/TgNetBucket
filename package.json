@@ -4,7 +4,7 @@
   "description": "使用Telegram作为存储后端的现代化文件存储服务，支持完整的文件管理功能，采用TDD开发模式",
   "main": "index.js",
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev -p 3100",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
