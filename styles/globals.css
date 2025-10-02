@@ -3,21 +3,16 @@
  * 集成 Tailwind CSS 并保留自定义设计系统
  */
 
-/* ========== Tailwind CSS 指令 ========== */
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-/* ========== 第三方库 ========== */
+/* ========== 第三方库（必须位于文件顶部） ========== */
 @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
 
-/* ========== 自定义基础样式 ========== */
+/* ========== 自定义基础样式（必须位于文件顶部） ========== */
 @import './base/variables.css';
 @import './base/reset.css';
 @import './base/layout.css';
 @import './base/fonts.css';
 
-/* ========== 组件样式 ========== */
+/* ========== 组件样式（必须位于文件顶部） ========== */
 @import './components/buttons.css';
 @import './components/tailwind-buttons.css';
 @import './components/forms.css';
@@ -32,9 +27,9 @@
 @import './components/delete-queue-status.css';
 @import './components/file-card.css';
 
-/* ========== 页面样式 ========== */
+/* ========== 页面样式（必须位于文件顶部） ========== */
 
-/* Tailwind CSS 页面样式（优先加载） */
+/* Tailwind 页面样式 */
 @import './pages/tailwind-index.css';
 @import './pages/tailwind-upload.css';
 @import './pages/tailwind-admin.css';
@@ -56,10 +51,15 @@
 @import './pages/admin/tables.css';
 @import './pages/admin/animations.css';
 
-/* ========== 工具类 ========== */
+/* ========== 工具类（必须位于文件顶部） ========== */
 @import './utils/utilities.css';
 @import './utils/tailwind-utilities.css';
 @import './utils/font-demo.css';
+
+/* ========== Tailwind CSS 指令（放在所有 @import 之后） ========== */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 /* ========== 全局覆盖和补充样式 ========== */
 
